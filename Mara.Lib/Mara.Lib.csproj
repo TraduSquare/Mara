@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Platforms\3ds\" />
+    <Folder Include="Platforms\" />
+    <Folder Include="Platforms\Ps3\" />
+    <Folder Include="Platforms\Ps4\" />
+    <Folder Include="Platforms\Switch\" />
+    <Folder Include="Platforms\Vita\" />
+    <Folder Include="Platforms\Generic\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\xdelta-sharp\src\Pleosoft.XdeltaSharp\Pleosoft.XdeltaSharp.csproj" />
+  </ItemGroup>
+
+</Project>

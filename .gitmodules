@@ -1,0 +1,3 @@
+[submodule "xdelta-sharp"]
+	path = xdelta-sharp
+	url = https://github.com/pleonex/xdelta-sharp
