@@ -13,7 +13,7 @@ namespace Mara.Lib.Platforms.Switch
         {
             this.keys = ExternalKeyReader.ReadKeyFile(Keys);
             Horizon tmp = HorizonFactory.CreateWithDefaultFsConfig(new HorizonConfiguration(), new InMemoryFileSystem(), this.keys);
-            horizon = tmp.CreatePrivilegedHorizonClient();
+            this.horizon = tmp.CreatePrivilegedHorizonClient();
         }
     }
 }

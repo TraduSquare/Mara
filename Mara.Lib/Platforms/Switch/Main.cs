@@ -6,13 +6,25 @@ using System.Threading.Tasks;
 
 namespace Mara.Lib.Platforms.Switch
 {
-    class Main
+    public class Main
     {
         HOS horizon;
-
-        Main(string Keys)
+        PartitionFS NSP;
+        public Main(string Keys, string GamePath)
         {
             this.horizon = new HOS(Keys);
+            if (GamePath.Contains(".nsp"))
+            {
+                this.NSP = new PartitionFS(GamePath);
+            } 
+            else if (GamePath.Contains(".xci"))
+            {
+                throw new NotImplementedException("GameCards not implemented yet.");
+            }
+            else
+            {
+                throw new Exception("Unrecognized file.");
+            }
         }
     }
 }
