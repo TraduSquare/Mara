@@ -8,5 +8,11 @@ namespace Mara.Lib.Platforms.Switch
 {
     class Main
     {
+        HOS horizon;
+
+        Main(string Keys)
+        {
+            this.horizon = new HOS(Keys);
+        }
     }
 }

@@ -8,4 +8,8 @@
     <ProjectReference Include="..\xdelta-sharp\src\Pleosoft.XdeltaSharp\Pleosoft.XdeltaSharp.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="LibHac" Version="0.12.1-alpha.107" />
+  </ItemGroup>
+
 </Project>
