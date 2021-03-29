@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using Xdelta;
 
-namespace DisgaeaPatcher.Core.FileManipulation
+namespace Mara.Lib.Common
 {
     public class Xdelta
     {
