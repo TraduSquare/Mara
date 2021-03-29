@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,14 +7,16 @@ using System.Threading.Tasks;
 
 namespace Mara.Lib.Platforms.Switch
 {
-    public class Main
+    public class Main : PatchProcess
     {
         public HOS horizon;
         public PartitionFS NSP;
         public GameCard XCI;
         public NCA NCAS;
-        public Main(string Keys, string GamePath, bool checkSignature)
+        private string titleid;
+        public Main(MaraConfig config, string Keys, string GamePath, string TitleID, bool checkSignature) : base(config)
         {
+            this.titleid = TitleID;
             this.horizon = new HOS(Keys, checkSignature);
             if (GamePath.Contains(".nsp"))
             {
@@ -29,6 +32,11 @@ namespace Mara.Lib.Platforms.Switch
             {
                 throw new Exception("Unrecognized file.");
             }
+        }
+
+        public override (int, string) ApplyTranslation()
+        {
+            throw new NotImplementedException();
         }
     }
 }

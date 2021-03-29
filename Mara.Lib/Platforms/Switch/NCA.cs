@@ -21,30 +21,37 @@ namespace Mara.Lib.Platforms.Switch
             }
         }
 
-        public void MountProgram(HOS hos)
+        public void MountProgram(HOS hos, string titleid)
         {
             for(int i = 0; i<ncas.Count; i++)
             {
                 if(ncas[i].Header.ContentType == NcaContentType.Program)
                 {
-                    if(hos.CheckSignature == true)
+                    if (ncas[i].Header.TitleId.ToString("X16") == titleid)
                     {
-                        if(ncas[i].VerifyHeaderSignature() == LibHac.Validity.Valid)
+                        if (hos.CheckSignature == true)
+                        {
+                            if (ncas[i].VerifyHeaderSignature() == LibHac.Validity.Valid)
+                            {
+                                FileSystemClient fs = hos.horizon.Fs;
+                                fs.Register("exefs".ToU8Span(), OpenFileSystemByType(NcaSectionType.Code, ncas[i]));
+                                fs.Register("romfs".ToU8Span(), OpenFileSystemByType(NcaSectionType.Data, ncas[i]));
+                            }
+                            else
+                            {
+                                throw new Exception("Invalid Nca Header Signature.");
+                            }
+                        }
+                        else
                         {
                             FileSystemClient fs = hos.horizon.Fs;
                             fs.Register("exefs".ToU8Span(), OpenFileSystemByType(NcaSectionType.Code, ncas[i]));
                             fs.Register("romfs".ToU8Span(), OpenFileSystemByType(NcaSectionType.Data, ncas[i]));
                         }
-                        else
-                        {
-                            throw new Exception("Invalid Nca Header Signature.");
-                        }
                     }
                     else
                     {
-                        FileSystemClient fs = hos.horizon.Fs;
-                        fs.Register("exefs".ToU8Span(), OpenFileSystemByType(NcaSectionType.Code, ncas[i]));
-                        fs.Register("romfs".ToU8Span(), OpenFileSystemByType(NcaSectionType.Data, ncas[i]));
+                        throw new Exception("Mismatch TitleID: The game doesnt match with the patch.");
                     }
                 }
             }
