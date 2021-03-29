@@ -10,12 +10,14 @@ namespace Mara.Lib.Platforms.Switch
     {
         public HOS horizon;
         public PartitionFS NSP;
+        public NCA NCAS;
         public Main(string Keys, string GamePath, bool checkSignature)
         {
             this.horizon = new HOS(Keys, checkSignature);
             if (GamePath.Contains(".nsp"))
             {
                 this.NSP = new PartitionFS(GamePath);
+                this.NCAS = new NCA(horizon, this.NSP.MountPFS0(horizon));
             } 
             else if (GamePath.Contains(".xci"))
             {
