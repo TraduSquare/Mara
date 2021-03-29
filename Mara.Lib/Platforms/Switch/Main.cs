@@ -10,6 +10,7 @@ namespace Mara.Lib.Platforms.Switch
     {
         public HOS horizon;
         public PartitionFS NSP;
+        public GameCard XCI;
         public NCA NCAS;
         public Main(string Keys, string GamePath, bool checkSignature)
         {
@@ -21,7 +22,8 @@ namespace Mara.Lib.Platforms.Switch
             } 
             else if (GamePath.Contains(".xci"))
             {
-                throw new NotImplementedException("GameCards not implemented yet.");
+                this.XCI = new GameCard(horizon, GamePath);
+                this.NCAS = new NCA(horizon, this.XCI.MountGameCard(horizon));
             }
             else
             {
