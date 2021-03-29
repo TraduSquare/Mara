@@ -9,7 +9,8 @@ namespace Mara.Lib.Common
         {
             var random = new Random();
             url += $"?random={random.Next()}";
-            using (WebClient client = new WebClient()) client.DownloadFile(url, @Folder + "/" + name);
+            using var client = new WebClient();
+            client.DownloadFile(url, @Folder + "/" + name);
         }
     }
 }

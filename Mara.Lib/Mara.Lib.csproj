@@ -5,6 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="Yarhl" Version="3.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\xdelta-sharp\src\Pleosoft.XdeltaSharp\Pleosoft.XdeltaSharp.csproj" />
   </ItemGroup>
 
