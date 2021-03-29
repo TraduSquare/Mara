@@ -27,9 +27,25 @@ namespace Mara.Lib.Platforms.Switch
             {
                 if(ncas[i].Header.ContentType == NcaContentType.Program)
                 {
-                    FileSystemClient fs = hos.horizon.Fs;
-                    fs.Register("exefs".ToU8Span(), OpenFileSystemByType(NcaSectionType.Code, ncas[i]));
-                    fs.Register("romfs".ToU8Span(), OpenFileSystemByType(NcaSectionType.Data, ncas[i]));
+                    if(hos.CheckSignature == true)
+                    {
+                        if(ncas[i].VerifyHeaderSignature() == LibHac.Validity.Valid)
+                        {
+                            FileSystemClient fs = hos.horizon.Fs;
+                            fs.Register("exefs".ToU8Span(), OpenFileSystemByType(NcaSectionType.Code, ncas[i]));
+                            fs.Register("romfs".ToU8Span(), OpenFileSystemByType(NcaSectionType.Data, ncas[i]));
+                        }
+                        else
+                        {
+                            throw new Exception("Invalid Nca Header Signature.");
+                        }
+                    }
+                    else
+                    {
+                        FileSystemClient fs = hos.horizon.Fs;
+                        fs.Register("exefs".ToU8Span(), OpenFileSystemByType(NcaSectionType.Code, ncas[i]));
+                        fs.Register("romfs".ToU8Span(), OpenFileSystemByType(NcaSectionType.Data, ncas[i]));
+                    }
                 }
             }
         }
