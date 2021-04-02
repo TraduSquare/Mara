@@ -22,7 +22,7 @@ namespace Mara.Generator
             return result == DialogResult.OK ? fbd.SelectedPath : string.Empty;
         }
 
-        private void oriButton_Click(object sender, EventArgs e)
+        /*private void oriButton_Click(object sender, EventArgs e)
         {
             var result = SearchFolder("Select the folder with original files.");
             if (!string.IsNullOrWhiteSpace(originalTextBox.Text) && string.IsNullOrWhiteSpace(result))
@@ -44,11 +44,32 @@ namespace Mara.Generator
             if (!string.IsNullOrWhiteSpace(outTextBox.Text) && string.IsNullOrWhiteSpace(result))
                 return;
             outTextBox.Text = result;
-        }
+        }*/
 
         private void button3_Click(object sender, EventArgs e)
         {
 
+        }
+
+        private void informationButton_Click(object sender, EventArgs e)
+        {
+            var infoWindow = new FormInfo();
+
+            infoWindow.ShowDialog();
+        }
+
+        private void FilesButton_Click(object sender, EventArgs e)
+        {
+            var fileWindow = new FileSelectorForm();
+
+            fileWindow.ShowDialog();
+        }
+
+        private void patcherButton_Click(object sender, EventArgs e)
+        {
+            var patcherWindow = new PatcherForm();
+
+            patcherWindow.ShowDialog();
         }
     }
 }

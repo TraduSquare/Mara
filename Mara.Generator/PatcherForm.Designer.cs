@@ -39,7 +39,6 @@ namespace Mara.Generator
             this.label5 = new System.Windows.Forms.Label();
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
-            this.LoadInfoButton = new System.Windows.Forms.Button();
             this.label7 = new System.Windows.Forms.Label();
             this.oriButton = new System.Windows.Forms.Button();
             this.textBox3 = new System.Windows.Forms.TextBox();
@@ -147,16 +146,6 @@ namespace Mara.Generator
             this.label6.TabIndex = 48;
             this.label6.Text = "CREDITS WINDOW";
             // 
-            // LoadInfoButton
-            // 
-            this.LoadInfoButton.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.LoadInfoButton.Location = new System.Drawing.Point(12, 9);
-            this.LoadInfoButton.Name = "LoadInfoButton";
-            this.LoadInfoButton.Size = new System.Drawing.Size(174, 32);
-            this.LoadInfoButton.TabIndex = 49;
-            this.LoadInfoButton.Text = "Load previous config";
-            this.LoadInfoButton.UseVisualStyleBackColor = true;
-            // 
             // label7
             // 
             this.label7.AutoSize = true;
@@ -240,7 +229,6 @@ namespace Mara.Generator
             this.Controls.Add(this.label7);
             this.Controls.Add(this.oriButton);
             this.Controls.Add(this.textBox3);
-            this.Controls.Add(this.LoadInfoButton);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.textBox2);
@@ -273,7 +261,6 @@ namespace Mara.Generator
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.TextBox textBox2;
         private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.Button LoadInfoButton;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Button oriButton;
         private System.Windows.Forms.TextBox textBox3;

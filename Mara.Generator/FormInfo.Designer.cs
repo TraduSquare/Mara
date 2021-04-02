@@ -35,7 +35,6 @@ namespace Mara.Generator
             this.PatchVersionTextBox = new System.Windows.Forms.TextBox();
             this.PatchIdNumeric = new System.Windows.Forms.NumericUpDown();
             this.label10 = new System.Windows.Forms.Label();
-            this.LoadInfoButton = new System.Windows.Forms.Button();
             this.label9 = new System.Windows.Forms.Label();
             this.SaveButton = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
@@ -104,16 +103,6 @@ namespace Mara.Generator
     "riginal";
             this.label10.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // LoadInfoButton
-            // 
-            this.LoadInfoButton.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.LoadInfoButton.Location = new System.Drawing.Point(12, 12);
-            this.LoadInfoButton.Name = "LoadInfoButton";
-            this.LoadInfoButton.Size = new System.Drawing.Size(153, 32);
-            this.LoadInfoButton.TabIndex = 30;
-            this.LoadInfoButton.Text = "Load previous info";
-            this.LoadInfoButton.UseVisualStyleBackColor = true;
-            // 
             // label9
             // 
             this.label9.AutoSize = true;
@@ -172,7 +161,6 @@ namespace Mara.Generator
             this.Controls.Add(this.PatchVersionTextBox);
             this.Controls.Add(this.PatchIdNumeric);
             this.Controls.Add(this.label10);
-            this.Controls.Add(this.LoadInfoButton);
             this.Controls.Add(this.label9);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
@@ -193,7 +181,6 @@ namespace Mara.Generator
         private System.Windows.Forms.TextBox PatchVersionTextBox;
         private System.Windows.Forms.NumericUpDown PatchIdNumeric;
         private System.Windows.Forms.Label label10;
-        private System.Windows.Forms.Button LoadInfoButton;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Button SaveButton;
         private System.Windows.Forms.Label label1;
