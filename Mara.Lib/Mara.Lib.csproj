@@ -10,6 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\LibOrbisPkg\LibOrbisPkg.Core\LibOrbisPkg.Core.csproj" />
     <ProjectReference Include="..\xdelta-sharp\src\Pleosoft.XdeltaSharp\Pleosoft.XdeltaSharp.csproj" />
   </ItemGroup>
 

@@ -1,3 +1,6 @@
 [submodule "xdelta-sharp"]
 	path = xdelta-sharp
 	url = https://github.com/pleonex/xdelta-sharp
+[submodule "LibOrbisPkg"]
+	path = LibOrbisPkg
+	url = https://github.com/D3fau4/LibOrbisPkg.git
