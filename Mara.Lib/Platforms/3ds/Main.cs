@@ -12,8 +12,17 @@ namespace Mara.Lib.Platforms._3ds
 {
     class Main : PatchProcess
     {
-        public Main(MaraConfig config, string GamePath) : base(config)
+        public enum PatchMode {
+            General,
+            Specific
+        }
+
+        public PatchMode GetPatchMode { get; set; }
+
+        public Main(MaraConfig config, string GamePath, PatchMode patchMode) : base(config)
         {
+            GetPatchMode = patchMode;
+
             if (GamePath.Contains(".cia"))
             {                
                 var data = NodeFactory.FromFile(GamePath, "root")
@@ -34,7 +43,7 @@ namespace Mara.Lib.Platforms._3ds
 
                 programNode.TransformWith<Binary2Ncch>();
                 programNode.Children["rom"].TransformWith<BinaryIvfc2NodeContainer>();
-                programNode.Children["system"].TransformWith<BinaryExeFs2NodeContainer>();
+                programNode.Children["system"].TransformWith<BinaryExeFs2NodeContainer>();                
             }
             else
             {
@@ -44,7 +53,32 @@ namespace Mara.Lib.Platforms._3ds
 
         public override (int, string) ApplyTranslation()
         {
-            throw new NotImplementedException();
+            switch (GetPatchMode)
+            {
+                case PatchMode.General: //Generic ApplyTranslation method as a test model
+                    var count = maraConfig.FilesInfo.ListOriFiles.Length;
+                    var dirTemp = maraConfig.TempFolder;
+                    var fileTemp = $"{dirTemp}{Path.DirectorySeparatorChar}files";
+
+                    if (Directory.Exists(fileTemp))
+                        Directory.CreateDirectory(fileTemp);
+
+                    var files = maraConfig.FilesInfo;
+
+                    for (int i = 0; i < count; i++)
+                    {
+                        var result = ApplyXdelta($"{maraConfig.FilePath}{Path.DirectorySeparatorChar}{files.ListOriFiles[i]}",
+                            $"{dirTemp}{Path.DirectorySeparatorChar}{files.ListXdeltaFiles[i]}",
+                            $"{maraConfig.FilePath}{Path.DirectorySeparatorChar}{files.ListOriFiles[i]}",
+                            files.ListXdeltaFiles[i], true);
+                        if (result.Item1 != 0)
+                            return result;
+                    }
+                    break;
+                case PatchMode.Specific:
+                    throw new NotImplementedException();
+            }
+            return (0, string.Empty);
         }
     }
 }
