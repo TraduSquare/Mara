@@ -19,13 +19,13 @@ namespace Mara.Lib.Platforms._3ds
 
         public PatchMode GetPatchMode { get; set; }
 
-        public Main(MaraConfig config, string GamePath, PatchMode patchMode) : base(config)
+        public Main(MaraConfig config, PatchMode patchMode) : base(config)
         {
             GetPatchMode = patchMode;
 
-            if (GamePath.Contains(".cia"))
+            if (maraConfig.FilePath.Contains(".cia"))
             {                
-                var data = NodeFactory.FromFile(GamePath, "root")
+                var data = NodeFactory.FromFile(maraConfig.FilePath, "root")
                     .TransformWith<BinaryCia2NodeContainer>();
 
                 string titleId = data.Children["title"]
@@ -55,25 +55,19 @@ namespace Mara.Lib.Platforms._3ds
         {
             switch (GetPatchMode)
             {
-                case PatchMode.General: //Generic ApplyTranslation method as a test model
-                    var count = maraConfig.FilesInfo.ListOriFiles.Length;
+                case PatchMode.General:
                     var dirTemp = maraConfig.TempFolder;
-                    var fileTemp = $"{dirTemp}{Path.DirectorySeparatorChar}files";
+                    var xdeltaPatch = string.Empty;
 
-                    if (Directory.Exists(fileTemp))
-                        Directory.CreateDirectory(fileTemp);
+                    if (!Directory.Exists(dirTemp))
+                        Directory.CreateDirectory(dirTemp);
 
-                    var files = maraConfig.FilesInfo;
-
-                    for (int i = 0; i < count; i++)
-                    {
-                        var result = ApplyXdelta($"{maraConfig.FilePath}{Path.DirectorySeparatorChar}{files.ListOriFiles[i]}",
-                            $"{dirTemp}{Path.DirectorySeparatorChar}{files.ListXdeltaFiles[i]}",
-                            $"{maraConfig.FilePath}{Path.DirectorySeparatorChar}{files.ListOriFiles[i]}",
-                            files.ListXdeltaFiles[i], true);
-                        if (result.Item1 != 0)
-                            return result;
-                    }
+                    var result = ApplyXdelta($"{maraConfig.FilePath}",
+                            xdeltaPatch,
+                            $"{maraConfig.FilePath}",
+                            $"{maraConfig.FilePath}", true);
+                    if (result.Item1 != 0)
+                        return result;
                     break;
                 case PatchMode.Specific:
                     throw new NotImplementedException();
