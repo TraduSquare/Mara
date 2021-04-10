@@ -6,11 +6,9 @@
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="Yarhl" Version="3.1.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\xdelta-sharp\src\Pleosoft.XdeltaSharp\Pleosoft.XdeltaSharp.csproj" />
+    <PackageReference Include="Pleosoft.XdeltaSharp" Version="1.3.0-preview.5" />
+    <PackageReference Include="SceneGate.Lemon" Version="0.1.0-preview.69" />
+    <PackageReference Include="Yarhl" Version="3.1.1-preview.23" />
   </ItemGroup>
 
 </Project>
