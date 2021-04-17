@@ -22,7 +22,7 @@ namespace Mara.Lib.Platforms.Switch
             U8Span destPath = dstPath.ToU8String();
             Result rc = fs.OpenFile(out FileHandle sourceHandle, sourcePath, OpenMode.Read);
             if (rc.IsFailure()) return rc;
-
+            fs.EnsureDirectoryExists(Path.GetDirectoryName(dstPath));
             try
             {
                 rc = fs.OpenFile(out FileHandle destHandle, destPath, OpenMode.Write | OpenMode.AllowAppend);
