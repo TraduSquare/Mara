@@ -7,9 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mara.Lib", "Mara.Lib\Mara.L
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mara.Generator", "Mara.Generator\Mara.Generator.csproj", "{B0D4308D-3E7A-4F67-A6D0-DD71DB31FF1C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mara.Patcher", "Mara.Patcher\Mara.Patcher.csproj", "{0C02DEDB-492A-4BE4-B1FA-BAF2CB7005A3}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pleosoft.XdeltaSharp", "xdelta-sharp\src\Pleosoft.XdeltaSharp\Pleosoft.XdeltaSharp.csproj", "{3B5C6AAB-2DAB-4DFB-AF8D-675B241907BE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mara.Patcher", "Mara.Patcher\Mara.Patcher.csproj", "{0C02DEDB-492A-4BE4-B1FA-BAF2CB7005A3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libs", "Libs", "{D60235AD-6A0C-4F4A-B428-98345F8AA83E}"
 EndProject
@@ -33,10 +31,6 @@ Global
 		{0C02DEDB-492A-4BE4-B1FA-BAF2CB7005A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0C02DEDB-492A-4BE4-B1FA-BAF2CB7005A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0C02DEDB-492A-4BE4-B1FA-BAF2CB7005A3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3B5C6AAB-2DAB-4DFB-AF8D-675B241907BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3B5C6AAB-2DAB-4DFB-AF8D-675B241907BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3B5C6AAB-2DAB-4DFB-AF8D-675B241907BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3B5C6AAB-2DAB-4DFB-AF8D-675B241907BE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -45,7 +39,6 @@ Global
 		{830A446C-1587-4747-931E-4E16AECB044D} = {D60235AD-6A0C-4F4A-B428-98345F8AA83E}
 		{B0D4308D-3E7A-4F67-A6D0-DD71DB31FF1C} = {F9C05C8D-7F6C-4AFC-A0C4-04FA06BB3E16}
 		{0C02DEDB-492A-4BE4-B1FA-BAF2CB7005A3} = {F9C05C8D-7F6C-4AFC-A0C4-04FA06BB3E16}
-		{3B5C6AAB-2DAB-4DFB-AF8D-675B241907BE} = {D60235AD-6A0C-4F4A-B428-98345F8AA83E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {939563DE-89D2-4814-986D-5E7EB402231D}
