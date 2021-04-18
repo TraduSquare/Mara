@@ -1,14 +1,23 @@
 ﻿using System;
 using System.IO;
+using Mara.Lib.Common;
+using Newtonsoft.Json;
 
 namespace Mara.Lib.Platforms
 {
     public class PatchProcess
     {
         protected MaraConfig maraConfig;
-        public PatchProcess(MaraConfig config)
+        protected string tempFolder;
+        protected string oriFolder;
+        protected string outFolder;
+        protected string filePath;
+
+        public PatchProcess(string oriFolder, string outFolder, string filePath)
         {
-            maraConfig = config;
+            this.oriFolder = oriFolder;
+            this.outFolder = outFolder;
+            this.filePath = filePath;
             GenerateTempFolder();
             ExtractPatch();
         }
@@ -19,21 +28,18 @@ namespace Mara.Lib.Platforms
         }
 
 
-        protected (int, string) ApplyXdelta(string file, string xdelta, string result, string md5, bool copyOri = false)
+        protected (int, string) ApplyXdelta(string file, string xdelta, string result, string md5)
         {
-            if (!File.Exists(file + "_ori") && copyOri)
-            {
-                File.Copy(file, file + "_ori");
-                file += "_ori";
-            }
-                
-            else if (copyOri)
-            {
-                File.Delete(file);
-                file += "_ori";
-            }
+            if (!File.Exists(file + "_ori"))
+                File.Move(file, file + "_ori");
 
-            if (Common.Md5.CalculateMd5(file) != md5)
+            if (File.Exists(file))
+                File.Delete(file);
+
+
+            file += "_ori";
+
+            if (Md5.CalculateMd5(file) != md5)
                 return (1, $"The file \"{file}\" is not equal than the original file.");
 
             try
@@ -50,13 +56,14 @@ namespace Mara.Lib.Platforms
 
         private void GenerateTempFolder()
         {
-            maraConfig.TempFolder = Path.GetTempPath() + Path.DirectorySeparatorChar + Path.GetRandomFileName();
+            tempFolder = Path.GetTempPath() + Path.DirectorySeparatorChar + Path.GetRandomFileName();
             Directory.CreateDirectory(maraConfig.TempFolder);
         }
 
         private void ExtractPatch()
         {
-            // Todo - Extract 7z
+            Lzma.Unpack("", tempFolder);
+            maraConfig = JsonConvert.DeserializeObject<MaraConfig>(File.ReadAllText($"{tempFolder}{Path.DirectorySeparatorChar}data.json"));
         }
 
     }
