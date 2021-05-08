@@ -15,7 +15,7 @@ namespace Mara.Lib.Platforms.Switch
         public NCA NCAS;
         private string titleid;
         private bool NeedExefs;
-        public Main(MaraConfig config, string Keys, string GamePath, string TitleID, bool extractExefs = false, bool checkSignature = true) : base(config)
+        public Main(string oriFolder, string outFolder, string filePath, string Keys, string GamePath, string TitleID, bool extractExefs = false, bool checkSignature = true) : base(oriFolder, outFolder, filePath)
         {
             this.titleid = TitleID;
             this.horizon = new HOS(Keys, checkSignature);
@@ -80,7 +80,7 @@ namespace Mara.Lib.Platforms.Switch
             {
                 var result = ApplyXdelta($"", $"{dirTemp}{Path.DirectorySeparatorChar}{files.ListXdeltaFiles[i]}", 
                     $"{maraConfig.FilePath}{Path.DirectorySeparatorChar}{files.ListOriFiles[i]}",
-                    files.ListXdeltaFiles[i], true);
+                    files.ListXdeltaFiles[i]);
             }
 
             return (0, string.Empty);

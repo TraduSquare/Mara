@@ -13,7 +13,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="LibHac" Version="0.12.1-alpha.107" />
+    <Folder Include="Dll\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="LibHac">
+      <HintPath>Dll\LibHac.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>
