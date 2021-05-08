@@ -31,14 +31,14 @@ namespace Mara.Lib.Common
             if (!Directory.Exists(outFolder))
                 Directory.CreateDirectory(outFolder);
 
-            using var archive = SevenZipArchive.Open(file);
-            
+            using var archive = ZipArchive.Open(file);
+
             foreach (var entry in archive.Entries.Where(entry => !entry.IsDirectory))
             {
                 entry.WriteToDirectory(outFolder, new ExtractionOptions()
                 {
                     ExtractFullPath = true,
-                    Overwrite = true
+                    Overwrite = false,
                 });
             }
         }

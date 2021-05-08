@@ -57,12 +57,12 @@ namespace Mara.Lib.Platforms
         private void GenerateTempFolder()
         {
             tempFolder = Path.GetTempPath() + Path.DirectorySeparatorChar + Path.GetRandomFileName();
-            Directory.CreateDirectory(maraConfig.TempFolder);
+            Directory.CreateDirectory(tempFolder);
         }
 
         private void ExtractPatch()
         {
-            Lzma.Unpack("", tempFolder);
+            Lzma.Unpack(filePath, tempFolder);
             maraConfig = JsonConvert.DeserializeObject<MaraConfig>(File.ReadAllText($"{tempFolder}{Path.DirectorySeparatorChar}data.json"));
         }
 
