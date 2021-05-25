@@ -24,6 +24,7 @@ namespace Mara.Lib.Platforms
 
         public virtual (int, string) ApplyTranslation()
         {
+            Directory.Delete(tempFolder, true);
             return (0, string.Empty);
         }
 
@@ -64,6 +65,11 @@ namespace Mara.Lib.Platforms
         {
             Lzma.Unpack(filePath, tempFolder);
             maraConfig = JsonConvert.DeserializeObject<MaraConfig>(File.ReadAllText($"{tempFolder}{Path.DirectorySeparatorChar}data.json"));
+        }
+
+        private void DeleteTempFolder()
+        {
+            Directory.Delete(tempFolder, true);
         }
 
     }

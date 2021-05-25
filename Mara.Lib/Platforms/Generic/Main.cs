@@ -25,7 +25,7 @@ namespace Mara.Lib.Platforms.Generic
                     return result;
             }
 
-            return (0, string.Empty);
+            return base.ApplyTranslation();
         }
 
     }

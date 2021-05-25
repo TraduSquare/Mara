@@ -5,7 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using LibHac;
+using LibHac.Common;
 using LibHac.Fs;
+using LibHac.Fs.Fsa;
 using LibHac.FsSystem;
 
 namespace Mara.Lib.Platforms.Switch
@@ -62,7 +64,7 @@ namespace Mara.Lib.Platforms.Switch
                 Directory.CreateDirectory(layeredOut);
 
             var files = maraConfig.FilesInfo;
-            Result result = new Result();
+            Result result;
             if (NeedExefs)
             {
                 result = FSUtils.MountFolder(horizon.horizon.Fs, exefsdir, "OutExefs");
@@ -77,7 +79,7 @@ namespace Mara.Lib.Platforms.Switch
                 // que limpiar el "exefs/" ya que esa ruta no existe en el sistem de archivos montado e igual con el romfs.
                 if (file.Contains("exefs") == true && NeedExefs == true)
                 {
-                    result = FSUtils.CopyFile(horizon.horizon.Fs, "exefs:/" + file.Replace("exefs", ""), $"{tempFolder}{Path.DirectorySeparatorChar}{file}");
+                    result = FSUtils.CopyFile(horizon.horizon.Fs, "exefs:/" + file.Replace("exefs", ""), "OutExefs:/" + file.Substring(6).Replace("\\", "/"));
                 } 
                 else if (file.Contains("romfs"))
                 {
@@ -103,7 +105,20 @@ namespace Mara.Lib.Platforms.Switch
                     return resultApplyXdelta;
             }
 
-            return (0, string.Empty);
+            UnmountPartition("romfs");
+            UnmountPartition("OutRomfs");
+            if (NeedExefs)
+            {
+                UnmountPartition("exefs");
+                UnmountPartition("OutExefs");
+            }
+
+            return base.ApplyTranslation();
+        }
+
+        private void UnmountPartition(string partition)
+        {
+            horizon.horizon.Fs.Unmount(new U8Span(partition));
         }
     }
 }
