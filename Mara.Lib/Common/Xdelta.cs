@@ -13,6 +13,7 @@ namespace Mara.Lib.Common
             var decoder = new Decoder(file, xdelta, outStream);
             decoder.Run();
             outStream.Close();
+            file.Close();
         }
     }
 }
