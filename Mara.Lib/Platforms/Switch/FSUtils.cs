@@ -11,9 +11,9 @@ namespace Mara.Lib.Platforms.Switch
 {
     class FSUtils
     {
-        public static void MountFolder(FileSystemClient fs, string path, string mountname)
+        public static Result MountFolder(FileSystemClient fs, string path, string mountname)
         {
-            fs.Register(mountname.ToU8Span(), new LocalFileSystem(path));
+            return fs.Register(mountname.ToU8Span(), new LocalFileSystem(path));
         }
 
         public static Result CopyFile(FileSystemClient fs, string srcPath, string dstPath)
@@ -25,9 +25,13 @@ namespace Mara.Lib.Platforms.Switch
             fs.EnsureDirectoryExists(Path.GetDirectoryName(dstPath));
             try
             {
-                rc = fs.OpenFile(out FileHandle destHandle, destPath, OpenMode.Write | OpenMode.AllowAppend);
+                rc = fs.GetFileSize(out long oriFileSize, sourceHandle);
                 if (rc.IsFailure()) return rc;
-
+                rc = fs.CreateOrOverwriteFile(dstPath, oriFileSize);
+                if (rc.IsFailure()) return rc;
+                rc = fs.OpenFile(out FileHandle destHandle, destPath, OpenMode.All);
+                if (rc.IsFailure()) return rc;
+                
                 try
                 {
                     const int maxBufferSize = 1024 * 1024;
