@@ -23,11 +23,10 @@ namespace Mara.Lib.Platforms.Switch
             this.PFS0 = new PartitionFileSystem(new LocalStorage(path, FileAccess.Read));
         }
 
-        public string MountPFS0(HOS hos)
+        public string MountPFS0(HOS hos, string mountname)
         {
             bool tikfound = false;
             FileSystemClient fs = hos.horizon.Fs;
-            string mountname = "PFS0";
             fs.Register(mountname.ToU8Span(), this.PFS0);
 
             foreach(DirectoryEntryEx entry in fs.EnumerateEntries(mountname + ":/", "*.tik", SearchOptions.Default))

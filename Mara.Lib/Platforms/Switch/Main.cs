@@ -20,7 +20,7 @@ namespace Mara.Lib.Platforms.Switch
         public NCA NCAS;
         private string titleid;
         private bool NeedExefs;
-        public Main(string oriFolder, string outFolder, string filePath, string Keys, string TitleID, bool extractExefs = false, bool checkSignature = true) : base(oriFolder, outFolder, filePath)
+        public Main(string oriFolder, string outFolder, string filePath, string Keys, string TitleID, string UpdateFile = null, bool extractExefs = false, bool checkSignature = true) : base(oriFolder, outFolder, filePath)
         {
             this.titleid = TitleID;
             this.horizon = new HOS(Keys, checkSignature);
@@ -28,12 +28,18 @@ namespace Mara.Lib.Platforms.Switch
             if (oriFolder.Contains(".nsp"))
             {
                 this.NSP = new PartitionFS(oriFolder);
-                this.NCAS = new NCA(horizon, this.NSP.MountPFS0(horizon));
+                if (UpdateFile != null)
+                    this.NCAS = new NCA(horizon, this.NSP.MountPFS0(horizon, "base"), new PartitionFS(UpdateFile).MountPFS0(horizon, "Update"));
+                else
+                    this.NCAS = new NCA(horizon, this.NSP.MountPFS0(horizon, "base"));
             } 
             else if (oriFolder.Contains(".xci"))
             {
                 this.XCI = new GameCard(horizon, oriFolder);
-                this.NCAS = new NCA(horizon, this.XCI.MountGameCard(horizon));
+                if (UpdateFile != null)
+                    this.NCAS = new NCA(horizon, this.XCI.MountGameCard(horizon), new PartitionFS(UpdateFile).MountPFS0(horizon,"Update"));
+                else
+                    this.NCAS = new NCA(horizon, this.XCI.MountGameCard(horizon));
             }
             else
                 throw new Exception("Unrecognized file.");

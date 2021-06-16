@@ -10,32 +10,41 @@ namespace Mara.Lib.Platforms.Switch
 {
     public class NCA
     {
-        List<Nca> ncas = new List<Nca>();
-        public NCA(HOS hos, string mountname)
+        List<Nca> BaseNcas = new List<Nca>();
+        List<Nca> UpdateNcas = new List<Nca>();
+        public NCA(HOS hos, string basemountname, string updatemountname = null)
         {
             FileSystemClient fs = hos.horizon.Fs;
-            foreach (DirectoryEntryEx entry in fs.EnumerateEntries(mountname.ToString(), "*.nca", SearchOptions.Default))
+            foreach (DirectoryEntryEx entry in fs.EnumerateEntries(basemountname.ToString(), "*.nca", SearchOptions.Default))
             {
                 fs.OpenFile(out FileHandle nca, entry.FullPath.ToU8Span(), OpenMode.Read);
-                ncas.Add(new Nca(hos.keys, new FileHandleStorage(fs, nca)));
+                BaseNcas.Add(new Nca(hos.keys, new FileHandleStorage(fs, nca)));
+            }
+            if (updatemountname != null)
+            {
+                foreach (DirectoryEntryEx entry in fs.EnumerateEntries(updatemountname.ToString(), "*.nca", SearchOptions.Default))
+                {
+                    fs.OpenFile(out FileHandle nca, entry.FullPath.ToU8Span(), OpenMode.Read);
+                    UpdateNcas.Add(new Nca(hos.keys, new FileHandleStorage(fs, nca)));
+                }
             }
         }
 
         public void MountProgram(HOS hos, string titleid)
         {
-            for(int i = 0; i<ncas.Count; i++)
+            for(int i = 0; i< BaseNcas.Count; i++)
             {
-                if(ncas[i].Header.ContentType == NcaContentType.Program)
+                if(BaseNcas[i].Header.ContentType == NcaContentType.Program)
                 {
-                    if (ncas[i].Header.TitleId.ToString("X16") == titleid)
+                    if (BaseNcas[i].Header.TitleId.ToString("X16") == titleid)
                     {
                         if (hos.CheckSignature == true)
                         {
-                            if (ncas[i].VerifyHeaderSignature() == LibHac.Validity.Valid)
+                            if (BaseNcas[i].VerifyHeaderSignature() == LibHac.Validity.Valid)
                             {
                                 FileSystemClient fs = hos.horizon.Fs;
-                                fs.Register("exefs".ToU8Span(), OpenFileSystemByType(NcaSectionType.Code, ncas[i]));
-                                fs.Register("romfs".ToU8Span(), OpenFileSystemByType(NcaSectionType.Data, ncas[i]));
+                                fs.Register("exefs".ToU8Span(), OpenFileSystemByType(NcaSectionType.Code, BaseNcas[i]));
+                                fs.Register("romfs".ToU8Span(), OpenFileSystemByType(NcaSectionType.Data, BaseNcas[i]));
                             }
                             else
                             {
@@ -45,8 +54,8 @@ namespace Mara.Lib.Platforms.Switch
                         else
                         {
                             FileSystemClient fs = hos.horizon.Fs;
-                            fs.Register("exefs".ToU8Span(), OpenFileSystemByType(NcaSectionType.Code, ncas[i]));
-                            fs.Register("romfs".ToU8Span(), OpenFileSystemByType(NcaSectionType.Data, ncas[i]));
+                            fs.Register("exefs".ToU8Span(), OpenFileSystemByType(NcaSectionType.Code, BaseNcas[i]));
+                            fs.Register("romfs".ToU8Span(), OpenFileSystemByType(NcaSectionType.Data, BaseNcas[i]));
                         }
                     }
                     else
@@ -64,6 +73,30 @@ namespace Mara.Lib.Platforms.Switch
 
         private IFileSystem OpenFileSystem(int index, Nca nca)
         {
+            if(UpdateNcas.Count > 0)
+            {
+                for (int i = 0; i < UpdateNcas.Count; i++)
+                {
+                    if (UpdateNcas[i].Header.ContentType == NcaContentType.Program)
+                    {
+                        var titleid = nca.Header.TitleId.ToString("X16").ToCharArray();
+                        titleid[13] = '8';
+                        if (UpdateNcas[i].Header.TitleId.ToString("X16") == titleid.ToString())
+                        {
+                            // Si o si hay que verificar la firma del update ya que sino el resultado puede ser catastrófico
+                            if (UpdateNcas[i].VerifyHeaderSignature() == LibHac.Validity.Valid)
+                            {
+                                nca.OpenFileSystemWithPatch(UpdateNcas[i], index, 0);
+                            }
+                        }
+                        else
+                        {
+                            throw new Exception("Mismatch TitleID: The game doesnt match with the update.");
+                        }
+                    }
+                }
+            }
+                
             return nca.OpenFileSystem(index, 0);
         }
     }
