@@ -29,7 +29,7 @@ namespace Mara.Lib.Platforms.Switch
             FileSystemClient fs = hos.horizon.Fs;
             fs.Register(mountname.ToU8Span(), this.PFS0);
 
-            foreach(DirectoryEntryEx entry in fs.EnumerateEntries(mountname + ":/", "*.tik", SearchOptions.Default))
+            foreach (DirectoryEntryEx entry in fs.EnumerateEntries(mountname + ":/", "*.tik", SearchOptions.Default))
             {
                 tikfound = true;
                 fs.OpenFile(out FileHandle ticket, entry.FullPath.ToU8Span(), OpenMode.Read);

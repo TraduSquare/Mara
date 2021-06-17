@@ -32,9 +32,9 @@ namespace Mara.Lib.Platforms.Switch
 
         public void MountProgram(HOS hos, string titleid)
         {
-            for(int i = 0; i< BaseNcas.Count; i++)
+            for (int i = 0; i < BaseNcas.Count; i++)
             {
-                if(BaseNcas[i].Header.ContentType == NcaContentType.Program)
+                if (BaseNcas[i].Header.ContentType == NcaContentType.Program)
                 {
                     if (BaseNcas[i].Header.TitleId.ToString("X16") == titleid)
                     {
@@ -64,6 +64,7 @@ namespace Mara.Lib.Platforms.Switch
                     }
                 }
             }
+            throw new Exception("NCA: The Program NCA not found.");
         }
 
         private IFileSystem OpenFileSystemByType(NcaSectionType type, Nca nca)
@@ -73,7 +74,7 @@ namespace Mara.Lib.Platforms.Switch
 
         private IFileSystem OpenFileSystem(int index, Nca nca)
         {
-            if(UpdateNcas.Count > 0)
+            if (UpdateNcas.Count > 0)
             {
                 for (int i = 0; i < UpdateNcas.Count; i++)
                 {
@@ -81,10 +82,14 @@ namespace Mara.Lib.Platforms.Switch
                     {
                         if (UpdateNcas[i].Header.TitleId.ToString("X16") == nca.Header.TitleId.ToString("X16"))
                         {
-                            // Si o si hay que verificar la firma del update ya que sino el resultado puede ser catastrófico
-                            if (UpdateNcas[i].VerifyHeaderSignature() == LibHac.Validity.Valid)
+                            try
                             {
-                                nca.OpenFileSystemWithPatch(UpdateNcas[i], index, 0);
+                                return nca.OpenFileSystemWithPatch(UpdateNcas[i], index, 0);
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine("Partición del tipo: {0} no encontrado en la update, procediendo a abrir la partición {0} del nca base.", index);
+                                return nca.OpenFileSystem(index, 0);
                             }
                         }
                         else
@@ -93,9 +98,12 @@ namespace Mara.Lib.Platforms.Switch
                         }
                     }
                 }
+                throw new Exception("NCA: The Program NCA not found.");
             }
-                
-            return nca.OpenFileSystem(index, 0);
+            else
+            {
+                return nca.OpenFileSystem(index, 0);
+            }
         }
     }
 }
