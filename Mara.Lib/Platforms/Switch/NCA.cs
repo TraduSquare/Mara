@@ -79,9 +79,7 @@ namespace Mara.Lib.Platforms.Switch
                 {
                     if (UpdateNcas[i].Header.ContentType == NcaContentType.Program)
                     {
-                        var titleid = nca.Header.TitleId.ToString("X16").ToCharArray();
-                        titleid[13] = '8';
-                        if (UpdateNcas[i].Header.TitleId.ToString("X16") == titleid.ToString())
+                        if (UpdateNcas[i].Header.TitleId.ToString("X16") == nca.Header.TitleId.ToString("X16"))
                         {
                             // Si o si hay que verificar la firma del update ya que sino el resultado puede ser catastrófico
                             if (UpdateNcas[i].VerifyHeaderSignature() == LibHac.Validity.Valid)
