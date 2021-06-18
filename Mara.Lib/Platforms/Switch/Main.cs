@@ -44,8 +44,9 @@ namespace Mara.Lib.Platforms.Switch
             else
                 throw new Exception("Unrecognized file.");
 
-            NCAS.MountProgram(horizon, titleid);
-
+            Result rc = NCAS.MountProgram(horizon, titleid);
+            if (rc.IsFailure())
+                throw new Exception("Unable to mount the NCAS.");
         }
 
         public override (int, string) ApplyTranslation()

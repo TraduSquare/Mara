@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using LibHac;
 using LibHac.Common;
 using LibHac.Fs;
 using LibHac.Fs.Fsa;
@@ -18,19 +19,19 @@ namespace Mara.Lib.Platforms.Switch
             foreach (DirectoryEntryEx entry in fs.EnumerateEntries(basemountname.ToString(), "*.nca", SearchOptions.Default))
             {
                 fs.OpenFile(out FileHandle nca, entry.FullPath.ToU8Span(), OpenMode.Read);
-                BaseNcas.Add(new Nca(hos.keys, new FileHandleStorage(fs, nca)));
+                BaseNcas.Add(new Nca(hos.keys, new Nca(hos.keys, new FileHandleStorage(fs, nca)).OpenDecryptedNca()));
             }
             if (updatemountname != null)
             {
                 foreach (DirectoryEntryEx entry in fs.EnumerateEntries(updatemountname.ToString(), "*.nca", SearchOptions.Default))
                 {
                     fs.OpenFile(out FileHandle nca, entry.FullPath.ToU8Span(), OpenMode.Read);
-                    UpdateNcas.Add(new Nca(hos.keys, new FileHandleStorage(fs, nca)));
+                    UpdateNcas.Add(new Nca(hos.keys, new Nca(hos.keys, new FileHandleStorage(fs, nca)).OpenDecryptedNca()));
                 }
             }
         }
 
-        public void MountProgram(HOS hos, string titleid)
+        public Result MountProgram(HOS hos, string titleid)
         {
             for (int i = 0; i < BaseNcas.Count; i++)
             {
@@ -45,6 +46,7 @@ namespace Mara.Lib.Platforms.Switch
                                 FileSystemClient fs = hos.horizon.Fs;
                                 fs.Register("exefs".ToU8Span(), OpenFileSystemByType(NcaSectionType.Code, BaseNcas[i]));
                                 fs.Register("romfs".ToU8Span(), OpenFileSystemByType(NcaSectionType.Data, BaseNcas[i]));
+                                return Result.Success;
                             }
                             else
                             {
@@ -56,6 +58,7 @@ namespace Mara.Lib.Platforms.Switch
                             FileSystemClient fs = hos.horizon.Fs;
                             fs.Register("exefs".ToU8Span(), OpenFileSystemByType(NcaSectionType.Code, BaseNcas[i]));
                             fs.Register("romfs".ToU8Span(), OpenFileSystemByType(NcaSectionType.Data, BaseNcas[i]));
+                            return Result.Success;
                         }
                     }
                     else
