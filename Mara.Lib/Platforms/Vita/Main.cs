@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace Mara.Lib.Platforms.Vita
 {
-    class Main
+    public class Main : PatchProcess
     {
+        public Main(string oriFolder, string outFolder, string filePath, string[] mediaId, bool dlc) : base(oriFolder, outFolder, filePath)
+        {
+        }
     }
 }
