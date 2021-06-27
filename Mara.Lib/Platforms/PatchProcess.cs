@@ -43,6 +43,10 @@ namespace Mara.Lib.Platforms
             if (Md5.CalculateMd5(file) != md5)
                 return (1, $"The file \"{file}\" is not equal than the original file.");
 
+            var outdir = Path.GetDirectoryName(result);
+            if (!Directory.Exists(outdir))
+                Directory.CreateDirectory(outdir);
+
             try
             {
                 Common.Xdelta.Apply(File.Open(file, FileMode.Open), File.ReadAllBytes(xdelta), result);
