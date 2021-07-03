@@ -40,6 +40,11 @@ namespace Mara.Lib.Platforms.Switch
                     {
                         throw new Exception("Invalid ticket Signature.");
                     }
+
+                    if (Signatures.CheckDeviceID(tik.DeviceId) != Result.Success)
+                    {
+                        throw new Exception("Invalid ticket Signature.");
+                    }
                 }
                 hos.keys = Signatures.AddKey(tik.RightsId, tik.GetTitleKey(hos.keys), hos.keys);
             }
