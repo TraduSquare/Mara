@@ -40,10 +40,13 @@ namespace Mara.Lib.Platforms.Switch
                     {
                         throw new Exception("Invalid ticket Signature.");
                     }
-
-                    if (Signatures.CheckDeviceID(tik.DeviceId) != Result.Success)
+                    // Si no contiene esa secuencia es un juego base
+                    if (!BitConverter.ToString(tik.RightsId).Contains("80000000"))
                     {
-                        throw new Exception("Invalid ticket Signature.");
+                        if (Signatures.CheckDeviceID(tik.DeviceId) != Result.Success)
+                        {
+                            throw new Exception("Invalid ticket.");
+                        }
                     }
                 }
                 hos.keys = Signatures.AddKey(tik.RightsId, tik.GetTitleKey(hos.keys), hos.keys);
