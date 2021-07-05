@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Mara.Tester": {
+      "commandName": "Project",
+      "commandLineArgs": "\"E:\\Games\\SteamLibrary\\steamapps\\common\\Neptunia U\" \"E:\\Proyectos\\NEP U\\PARCHE DEFINITIVO\\PC TEST\" \"E:\\Proyectos\\NEP U\\PARCHE DEFINITIVO\\PC_XDELTA.zip\""
+    }
+  }
+}
