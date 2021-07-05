@@ -17,7 +17,7 @@ namespace Mara.Lib.Platforms.Vita
 
         private bool CheckTitleId()
         {
-            var sfo = new Sfo($"{oriFolder}{Path.DirectorySeparatorChar}sce_sys{Path.DirectorySeparatorChar}param.sfo");
+            var sfo = new Sfo($"{oriFolder}{Path.DirectorySeparatorChar}GAME{Path.DirectorySeparatorChar}sce_sys{Path.DirectorySeparatorChar}param.sfo");
             var titleId = File.ReadAllLines($"{tempFolder}{Path.DirectorySeparatorChar}titleids.txt");
             foreach (var id in titleId)
             {
@@ -51,10 +51,10 @@ namespace Mara.Lib.Platforms.Vita
                 else
                 {
                     // Check if the DLC exist!
-                    if (!File.Exists(oriFile))
+                    if (File.Exists(oriFile) || File.Exists(oriFile+"_ori"))
+                        outFile = $"{outFolder}{Path.DirectorySeparatorChar}reAddcont{Path.DirectorySeparatorChar}{titleIdSelected}{outFile.Substring(3)}";
+                    else
                         continue;
-
-                    outFile = $"{outFolder}{Path.DirectorySeparatorChar}reAddcont{Path.DirectorySeparatorChar}{titleIdSelected}{outFile.Substring(3)}";
                 }
                 
                 var result = ApplyXdelta(oriFile, xdelta, outFile, files.ListMd5Files[i]);
@@ -69,7 +69,7 @@ namespace Mara.Lib.Platforms.Vita
         private (int, string) CheckGame()
         {
             // Check if the GAME folder exists
-            if (!Directory.Exists(outFolder + Path.DirectorySeparatorChar + "GAME"))
+            if (!Directory.Exists(oriFolder + Path.DirectorySeparatorChar + "GAME"))
                 return (5, "The GAME folder doesn't exist!");
 
             // Check the current game
