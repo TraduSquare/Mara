@@ -57,12 +57,4 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="label5.Text" xml:space="preserve">
-    <value>1. Select the path for original files.
-2. Select the path for translated files.
-3. Select the out folder for xdelta files.
-4. Fill the required information about your patch.
-5. Press "GENERATE PATH"
-6. Profit!</value>
-  </data>
 </root>
