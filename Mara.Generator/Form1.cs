@@ -51,7 +51,7 @@ namespace Mara.Generator
             config = generator.GeneratePatch(config);
 
             var json = JsonConvert.SerializeObject(config, Formatting.Indented);
-            File.WriteAllText($"{generator.OutPath}{Path.DirectorySeparatorChar}info.json", json);
+            File.WriteAllText($"{generator.OutPath}{Path.DirectorySeparatorChar}data.json", json);
             UpdateLog("Generating zip file, please wait...");
             GenerateZip();
 
@@ -144,18 +144,11 @@ namespace Mara.Generator
             File.WriteAllBytes($"{tempPath}{Path.DirectorySeparatorChar}7za.exe", Properties.Resources.sevenzaexe);
             File.WriteAllBytes($"{tempPath}{Path.DirectorySeparatorChar}7zxa.dll", Properties.Resources.sevenxzadll);
 
-            var files = $"\"{generator.OutPath}{Path.DirectorySeparatorChar}info.json\" ";
             var zip = $"\"{generator.OutPath}{Path.DirectorySeparatorChar}result.zip\" ";
-
-            foreach (var file in config.FilesInfo.ListXdeltaFiles)
-            {
-                files += $"\"{generator.OutPath}{Path.DirectorySeparatorChar}{file}\" ";
-            }
 
             var generateZip = new ProcessStartInfo();
             {
                 string arguments =
-                    //$" a -mx9 -tzip {zip}{files}-mx=7 -mm=LZMA";
                     $" a -mx9 -tzip {zip}-r \"{generator.OutPath}\\.\" -mx=7 -mm=LZMA";
                 generateZip.FileName = $"{tempPath}{Path.DirectorySeparatorChar}7za.exe";
                 generateZip.Arguments = arguments;
