@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 
 namespace Mara.Lib.Platforms.Generic
 {
@@ -16,8 +17,17 @@ namespace Mara.Lib.Platforms.Generic
 
             for (int i = 0; i < count; i++)
             {
+                var excludeFile = false;
+
+                if (files.ListExcludeFiles != null)
+                    excludeFile = CheckExcludeFile(files.ListOriFiles[i]);
+
                 var oriFile = $"{oriFolder}{Path.DirectorySeparatorChar}{files.ListOriFiles[i]}";
                 var xdelta = $"{tempFolder}{Path.DirectorySeparatorChar}{files.ListXdeltaFiles[i]}";
+
+                if (excludeFile)
+                    if (!File.Exists(oriFile))
+                        continue;
 
                 var result = ApplyXdelta(oriFile, xdelta, oriFile, files.ListMd5Files[i]);
 
@@ -26,6 +36,17 @@ namespace Mara.Lib.Platforms.Generic
             }
 
             return base.ApplyTranslation();
+        }
+
+        private bool CheckExcludeFile(string file)
+        {
+            foreach (var excludeFile in maraConfig.FilesInfo.ListExcludeFiles)
+            {
+                if (excludeFile == file)
+                    return true;
+            }
+
+            return false;
         }
 
     }
