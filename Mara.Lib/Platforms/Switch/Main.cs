@@ -20,7 +20,7 @@ namespace Mara.Lib.Platforms.Switch
         public NCA NCAS;
         private string titleid;
         private bool NeedExefs;
-        public Main(string oriFolder, string outFolder, string filePath, string Keys, string TitleID, bool extractExefs = false, bool checkSignature = true) : base(oriFolder, outFolder, filePath)
+        public Main(string oriFolder, string outFolder, string filePath, string Keys, string TitleID, string UpdateFile = null, bool extractExefs = false, bool checkSignature = true) : base(oriFolder, outFolder, filePath)
         {
             this.titleid = TitleID;
             this.horizon = new HOS(Keys, checkSignature);
@@ -28,18 +28,25 @@ namespace Mara.Lib.Platforms.Switch
             if (oriFolder.Contains(".nsp"))
             {
                 this.NSP = new PartitionFS(oriFolder);
-                this.NCAS = new NCA(horizon, this.NSP.MountPFS0(horizon));
-            } 
+                if (UpdateFile != null)
+                    this.NCAS = new NCA(horizon, this.NSP.MountPFS0(horizon, "base"), new PartitionFS(UpdateFile).MountPFS0(horizon, "Update"));
+                else
+                    this.NCAS = new NCA(horizon, this.NSP.MountPFS0(horizon, "base"));
+            }
             else if (oriFolder.Contains(".xci"))
             {
                 this.XCI = new GameCard(horizon, oriFolder);
-                this.NCAS = new NCA(horizon, this.XCI.MountGameCard(horizon));
+                if (UpdateFile != null)
+                    this.NCAS = new NCA(horizon, this.XCI.MountGameCard(horizon), new PartitionFS(UpdateFile).MountPFS0(horizon, "Update"));
+                else
+                    this.NCAS = new NCA(horizon, this.XCI.MountGameCard(horizon));
             }
             else
                 throw new Exception("Unrecognized file.");
 
-            NCAS.MountProgram(horizon, titleid);
-
+            Result rc = NCAS.MountProgram(horizon, titleid);
+            if (rc.IsFailure())
+                throw new Exception("Unable to mount the NCAS.");
         }
 
         public override (int, string) ApplyTranslation()
@@ -53,7 +60,7 @@ namespace Mara.Lib.Platforms.Switch
             /* Init Dirs */
             if (!Directory.Exists(fileTemp))
                 Directory.CreateDirectory(fileTemp);
-            if(NeedExefs == true)
+            if (NeedExefs == true)
                 if (!Directory.Exists(exefsdir))
                     Directory.CreateDirectory(exefsdir);
             if (!Directory.Exists(romfsdir))
@@ -70,7 +77,7 @@ namespace Mara.Lib.Platforms.Switch
                 result = FSUtils.MountFolder(horizon.horizon.Fs, exefsdir, "OutExefs");
                 if (result.IsFailure()) return (2, $"Error mounting exeFs\n{result.Description}");
             }
-                
+
             result = FSUtils.MountFolder(horizon.horizon.Fs, romfsdir, "OutRomfs");
             if (result.IsFailure()) return (3, $"Error mounting romFs\n{result.Description}");
             foreach (string file in files.ListOriFiles)
@@ -80,7 +87,7 @@ namespace Mara.Lib.Platforms.Switch
                 if (file.Contains("exefs") == true && NeedExefs == true)
                 {
                     result = FSUtils.CopyFile(horizon.horizon.Fs, "exefs:/" + file.Replace("exefs", ""), "OutExefs:/" + file.Substring(6).Replace("\\", "/"));
-                } 
+                }
                 else if (file.Contains("romfs"))
                 {
                     result = FSUtils.CopyFile(horizon.horizon.Fs, "romfs:/" + file.Substring(6).Replace("\\", "/"), "OutRomfs:/" + file.Substring(6).Replace("\\", "/"));
@@ -88,7 +95,7 @@ namespace Mara.Lib.Platforms.Switch
                 if (result.IsFailure()) return (4, $"Error copying switch Files\n{result.Description}");
             }
 
-            
+
             for (int i = 0; i < count; i++)
             {
                 var oriFile = $"{tempFolder}{Path.DirectorySeparatorChar}{files.ListOriFiles[i]}";

@@ -23,14 +23,13 @@ namespace Mara.Lib.Platforms.Switch
             this.PFS0 = new PartitionFileSystem(new LocalStorage(path, FileAccess.Read));
         }
 
-        public string MountPFS0(HOS hos)
+        public string MountPFS0(HOS hos, string mountname)
         {
             bool tikfound = false;
             FileSystemClient fs = hos.horizon.Fs;
-            string mountname = "PFS0";
             fs.Register(mountname.ToU8Span(), this.PFS0);
 
-            foreach(DirectoryEntryEx entry in fs.EnumerateEntries(mountname + ":/", "*.tik", SearchOptions.Default))
+            foreach (DirectoryEntryEx entry in fs.EnumerateEntries(mountname + ":/", "*.tik", SearchOptions.Default))
             {
                 tikfound = true;
                 fs.OpenFile(out FileHandle ticket, entry.FullPath.ToU8Span(), OpenMode.Read);
@@ -40,6 +39,14 @@ namespace Mara.Lib.Platforms.Switch
                     if (tik.Signature.SequenceEqual(Signatures.InvalidTikSig))
                     {
                         throw new Exception("Invalid ticket Signature.");
+                    }
+                    // Si no contiene esa secuencia es un juego base
+                    if (!BitConverter.ToString(tik.RightsId).Contains("80000000"))
+                    {
+                        if (Signatures.CheckDeviceID(tik.DeviceId) != Result.Success)
+                        {
+                            throw new Exception("Invalid ticket.");
+                        }
                     }
                 }
                 hos.keys = Signatures.AddKey(tik.RightsId, tik.GetTitleKey(hos.keys), hos.keys);
