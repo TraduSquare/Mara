@@ -8,26 +8,14 @@
     "documentationUrl": "https://tradusquare.es/",
     "changelogUrl": "https://tradusquare.es/changelog.html",
     "licensesUrl": "https://tradusquare.es/licensing.html",
-    "dependencies": {
-        "jillejr.newtonsoft.json-for-unity": "13.0.102"
+    "samples": {
+        "displayName": "Test",
+        "description": "<brief-description>",
+        "path": "Samples/"
     },
     "author": {
         "name": "TraduSquare",
         "email": "admin@TraduSquare.es",
         "url": "https://tradusquare.es/"
-    },
-    "samples": {
-        "displayName": "Test",
-        "description": "<brief-description>",
-        "path": "Samples~/"
-    },
-    "scopedRegistries": [
-        {
-            "name": "jilleJr",
-            "url": "https://npm.cloudsmith.io/jillejr/newtonsoft-json-for-unity",
-            "scopes": [
-                "jillejr.newtonsoft.json-for-unity"
-            ]
-        }
-    ]
+    }
 }
