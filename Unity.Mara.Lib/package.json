@@ -1,6 +1,6 @@
 {
     "name": "com.unity.mara.lib",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "displayName": "Mara Lib",
     "description": "This is an example package",
     "unity": "2021.1",
@@ -8,6 +8,11 @@
     "documentationUrl": "https://tradusquare.es/",
     "changelogUrl": "https://tradusquare.es/changelog.html",
     "licensesUrl": "https://tradusquare.es/licensing.html",
+    "samples": {
+        "displayName": "Test",
+        "description": "<brief-description>",
+        "path": "Samples/"
+    },
     "author": {
         "name": "TraduSquare",
         "email": "admin@TraduSquare.es",
