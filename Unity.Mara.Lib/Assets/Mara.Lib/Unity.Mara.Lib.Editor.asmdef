@@ -1,0 +1,18 @@
+{
+    "name": "Unity.Mara.Lib.Editor",
+    "rootNamespace": "Unity.Mara.Lib",
+    "references": [
+        "GUID:1ea251d9b8d73c545a7d8b82b9a58e54"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

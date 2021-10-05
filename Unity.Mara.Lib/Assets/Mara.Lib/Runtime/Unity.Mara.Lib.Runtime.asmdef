@@ -1,9 +1,7 @@
 {
-    "name": "Unity.Mara.Lib",
+    "name": "Unity.Mara.Lib.Runtime",
     "rootNamespace": "Unity.Mara.Lib",
-    "references": [
-        ""
-    ],
+    "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
