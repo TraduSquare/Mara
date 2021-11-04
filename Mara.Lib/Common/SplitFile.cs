@@ -10,7 +10,7 @@ namespace Mara.Lib.Common
     public class SplitFile
     {
         /* Code: https://stackoverflow.com/a/3967595 */
-        public void Split(string inputFile, int chunkSize, string path)
+        public static void Split(string inputFile, int chunkSize, string path)
         {
             const int BUFFER_SIZE = 20 * 2048;
             byte[] buffer = new byte[BUFFER_SIZE];
@@ -36,7 +36,7 @@ namespace Mara.Lib.Common
             SetArchiveBit(path + "\\");
         }
 
-        public void SetArchiveBit(string path)
+        public static void SetArchiveBit(string path)
         {
             DirectoryInfo dir = new DirectoryInfo(path);
             dir.Attributes |= FileAttributes.Archive;

@@ -20,11 +20,13 @@ namespace Mara.Lib.Platforms.Switch
         public NCA NCAS;
         private string titleid;
         private bool NeedExefs;
-        public Main(string oriFolder, string outFolder, string filePath, string Keys, string TitleID, string UpdateFile = null, bool extractExefs = false, bool checkSignature = true) : base(oriFolder, outFolder, filePath)
+        private bool BuildRomfs;
+        public Main(string oriFolder, string outFolder, string filePath, string Keys, string TitleID, string UpdateFile = null, bool extractExefs = false, bool checkSignature = true, bool buildromfs = true) : base(oriFolder, outFolder, filePath)
         {
             this.titleid = TitleID;
             this.horizon = new HOS(Keys, checkSignature);
             this.NeedExefs = extractExefs;
+            this.BuildRomfs = buildromfs;
             if (oriFolder.Contains(".nsp"))
             {
                 this.NSP = new PartitionFS(oriFolder);
@@ -118,6 +120,19 @@ namespace Mara.Lib.Platforms.Switch
             {
                 UnmountPartition("exefs");
                 UnmountPartition("OutExefs");
+            }
+
+            if (BuildRomfs)
+            {
+                Romfs romfs = new Romfs(Path.Combine(layeredOut, "romfs"));
+                if (romfs.DumpToFile(Path.Combine(layeredOut, "romfs.bin")) != Result.Success)
+                    throw new Exception("Failed to build the romfs.bin");
+                int filesize = (int)new FileInfo(Path.Combine(layeredOut, "romfs.bin")).Length;
+                if (filesize / 1024d / 1024d > 2048)
+                {
+                    Common.SplitFile.Split(Path.Combine(layeredOut, "romfs.bin"), filesize, Path.Combine(layeredOut, "romfs.bin"));
+                    File.Delete(Path.Combine(Path.Combine(layeredOut, "romfs.bin")));
+                }
             }
 
             return base.ApplyTranslation();
