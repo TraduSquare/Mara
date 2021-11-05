@@ -12,8 +12,12 @@ namespace Mara.Lib.Common
         /* Code: https://stackoverflow.com/a/3967595 */
         public static void Split(string inputFile, int chunkSize, string path)
         {
+            File.Move(inputFile, inputFile.Replace('.', '-'));
+            inputFile = inputFile.Replace('.', '-');
             const int BUFFER_SIZE = 20 * 2048;
             byte[] buffer = new byte[BUFFER_SIZE];
+            if (!Directory.Exists(path))
+                Directory.CreateDirectory(path);
 
             using (Stream input = File.OpenRead(inputFile))
             {
