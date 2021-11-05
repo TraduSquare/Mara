@@ -131,7 +131,7 @@ namespace Mara.Lib.Platforms.Switch
                 if (filesize / 1024d / 1024d > 2048)
                 {
                     Common.SplitFile.Split(Path.Combine(layeredOut, "romfs.bin"), filesize, Path.Combine(layeredOut, "romfs.bin"));
-                    File.Delete(Path.Combine(Path.Combine(layeredOut, "romfs.bin")));
+                    File.Delete(Path.Combine(layeredOut, "romfs-bin"));
                 }
             }
 
