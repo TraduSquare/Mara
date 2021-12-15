@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using Mara.Lib.Common;
+using Mara.Lib.Configs;
 using Newtonsoft.Json;
 
 namespace Mara.Lib.Platforms
@@ -76,5 +77,9 @@ namespace Mara.Lib.Platforms
             Directory.Delete(tempFolder, true);
         }
 
+        public PatchInfo GetInfo()
+        {
+            return maraConfig.Info;
+        }
     }
 }

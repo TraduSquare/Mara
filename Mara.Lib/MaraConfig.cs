@@ -11,5 +11,15 @@ namespace Mara.Lib
         public string OutFolder { get; set; }
         public string TempFolder { get; set; }
         public string FilePath { get; set; }
+        public MaraPlatform Platform { get; set; }
+    }
+
+    public enum MaraPlatform
+    {
+        Nintendo3ds,
+        Generic,
+        Playstation4,
+        NintendoSwitch,
+        PlaystationVita
     }
 }

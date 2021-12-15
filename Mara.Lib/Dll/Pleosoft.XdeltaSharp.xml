@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Pleosoft.XdeltaSharp</name>
+    </assembly>
+    <members>
+        <member name="T:Pleosoft.XdeltaSharp.Adler32">
+            <summary>
+            Adler-32 checksum algorithm.
+            </summary>
+            <remarks>
+            <para>For more information: https://en.wikipedia.org/wiki/Adler-32.</para>
+            </remarks>
+        </member>
+        <member name="M:Pleosoft.XdeltaSharp.Adler32.Run(System.IO.Stream,System.Int64,System.UInt32)">
+            <summary>
+            Computes the checksum Adler-32 from a stream.
+            </summary>
+            <param name="stream">The stream to read data. It starts at the current position.</param>
+            <param name="length">The amount of bytes to read from the stream for the checksum.</param>
+            <param name="start">The start value of the checksum.</param>
+            <returns>The Adler-32 checksum of the data.</returns>
+        </member>
+        <member name="M:Pleosoft.XdeltaSharp.VcdReader.DecodeInteger">
+            <summary>
+            Decodes an integer of variable length.
+            Defined in RCF-3284, the VCDIFF format uses a variable-length integer.
+            Each byte contains 7-bits of data and the last bit indicates if there
+            more bytes to decode.
+            </summary>
+            <returns>The integer.</returns>
+        </member>
+    </members>
+</doc>
