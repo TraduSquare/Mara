@@ -41,7 +41,7 @@ namespace Mara.Lib.Platforms.Switch
                         throw new Exception("Invalid ticket Signature.");
                     }
                     // Si no contiene esa secuencia es un juego base
-                    if (!BitConverter.ToString(tik.RightsId).Contains("80000000"))
+                    if (!BitConverter.ToString(tik.RightsId).Replace("-", "").Contains("80000000"))
                     {
                         if (Signatures.CheckDeviceID(tik.DeviceId) != Result.Success)
                         {
