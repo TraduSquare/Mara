@@ -133,6 +133,8 @@ namespace Mara.Lib.Platforms.Switch
                     Common.SplitFile.Split(Path.Combine(layeredOut, "romfs.bin"), filesize, Path.Combine(layeredOut, "romfs.bin"));
                     File.Delete(Path.Combine(layeredOut, "romfs-bin"));
                 }
+
+                Directory.Delete(Path.Combine(layeredOut, "romfs"), true);
             }
 
             return base.ApplyTranslation();
