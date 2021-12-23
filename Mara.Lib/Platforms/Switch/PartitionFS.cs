@@ -27,7 +27,8 @@ namespace Mara.Lib.Platforms.Switch
         {
             bool tikfound = false;
             FileSystemClient fs = hos.horizon.Fs;
-            fs.Register(mountname.ToU8Span(), this.PFS0);
+            using var PFS0_FS = new UniqueRef<IFileSystem>(this.PFS0);
+            fs.Register(mountname.ToU8Span(), ref PFS0_FS.Ref());
 
             foreach (DirectoryEntryEx entry in fs.EnumerateEntries(mountname + ":/", "*.tik", SearchOptions.Default))
             {

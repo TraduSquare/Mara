@@ -50,8 +50,8 @@ namespace Mara.Lib.Platforms.Switch
                     throw new Exception("Invalid GameCard Signature.");
                 }
             }
-
-            fs.Register(mountname.ToU8Span(), Gamecard.OpenPartition(XciPartitionType.Secure));
+            using var HFS0 = new UniqueRef<IFileSystem>(Gamecard.OpenPartition(XciPartitionType.Secure));
+            fs.Register(mountname.ToU8Span(), ref HFS0.Ref());
 
             return mountname + ":/";
         }

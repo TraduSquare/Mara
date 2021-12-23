@@ -44,8 +44,13 @@ namespace Mara.Lib.Platforms.Switch
                             if (BaseNcas[i].VerifyHeaderSignature() == LibHac.Validity.Valid)
                             {
                                 FileSystemClient fs = hos.horizon.Fs;
-                                fs.Register("exefs".ToU8Span(), OpenFileSystemByType(NcaSectionType.Code, BaseNcas[i]));
-                                fs.Register("romfs".ToU8Span(), OpenFileSystemByType(NcaSectionType.Data, BaseNcas[i]));
+
+                                using var ExeFS = new UniqueRef<IFileSystem>(OpenFileSystemByType(NcaSectionType.Code, BaseNcas[i]));
+                                using var RomFS = new UniqueRef<IFileSystem>(OpenFileSystemByType(NcaSectionType.Data, BaseNcas[i]));
+
+                                fs.Register("exefs".ToU8Span(), ref ExeFS.Ref());
+                                fs.Register("romfs".ToU8Span(), ref RomFS.Ref());
+
                                 return Result.Success;
                             }
                             else
@@ -56,8 +61,13 @@ namespace Mara.Lib.Platforms.Switch
                         else
                         {
                             FileSystemClient fs = hos.horizon.Fs;
-                            fs.Register("exefs".ToU8Span(), OpenFileSystemByType(NcaSectionType.Code, BaseNcas[i]));
-                            fs.Register("romfs".ToU8Span(), OpenFileSystemByType(NcaSectionType.Data, BaseNcas[i]));
+
+                            using var ExeFS = new UniqueRef<IFileSystem>(OpenFileSystemByType(NcaSectionType.Code, BaseNcas[i]));
+                            using var RomFS = new UniqueRef<IFileSystem>(OpenFileSystemByType(NcaSectionType.Data, BaseNcas[i]));
+
+                            fs.Register("exefs".ToU8Span(), ref ExeFS.Ref());
+                            fs.Register("romfs".ToU8Span(), ref RomFS.Ref());
+
                             return Result.Success;
                         }
                     }

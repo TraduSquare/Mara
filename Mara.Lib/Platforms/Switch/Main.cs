@@ -1,14 +1,9 @@
 ﻿using System;
 using System.IO;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using LibHac;
 using LibHac.Common;
 using LibHac.Fs;
 using LibHac.Fs.Fsa;
-using LibHac.FsSystem;
 
 namespace Mara.Lib.Platforms.Switch
 {
@@ -54,10 +49,10 @@ namespace Mara.Lib.Platforms.Switch
         public override (int, string) ApplyTranslation()
         {
             var count = maraConfig.FilesInfo.ListOriFiles.Length;
-            var fileTemp = $"{tempFolder}{Path.DirectorySeparatorChar}files";
-            var exefsdir = $"{tempFolder}{Path.DirectorySeparatorChar}exefs";
-            var romfsdir = $"{tempFolder}{Path.DirectorySeparatorChar}romfs";
-            var layeredOut = $"{Path.GetDirectoryName(oriFolder)}{Path.DirectorySeparatorChar}LayeredFS{Path.DirectorySeparatorChar}{this.titleid}";
+            var fileTemp = $"{tempFolder}{System.IO.Path.DirectorySeparatorChar}files";
+            var exefsdir = $"{tempFolder}{System.IO.Path.DirectorySeparatorChar}exefs";
+            var romfsdir = $"{tempFolder}{System.IO.Path.DirectorySeparatorChar}romfs";
+            var layeredOut = $"{System.IO.Path.GetDirectoryName(oriFolder)}{System.IO.Path.DirectorySeparatorChar}LayeredFS{System.IO.Path.DirectorySeparatorChar}{this.titleid}";
 
             /* Init Dirs */
             if (!Directory.Exists(fileTemp))
@@ -100,11 +95,11 @@ namespace Mara.Lib.Platforms.Switch
 
             for (int i = 0; i < count; i++)
             {
-                var oriFile = $"{tempFolder}{Path.DirectorySeparatorChar}{files.ListOriFiles[i]}";
-                var xdelta = $"{tempFolder}{Path.DirectorySeparatorChar}{files.ListXdeltaFiles[i]}";
-                var outFile = $"{layeredOut}{Path.DirectorySeparatorChar}{files.ListOriFiles[i]}";
+                var oriFile = $"{tempFolder}{System.IO.Path.DirectorySeparatorChar}{files.ListOriFiles[i]}";
+                var xdelta = $"{tempFolder}{System.IO.Path.DirectorySeparatorChar}{files.ListXdeltaFiles[i]}";
+                var outFile = $"{layeredOut}{System.IO.Path.DirectorySeparatorChar}{files.ListOriFiles[i]}";
 
-                var folderFile = Path.GetDirectoryName(outFile);
+                var folderFile = System.IO.Path.GetDirectoryName(outFile);
                 if (!Directory.Exists(folderFile))
                     Directory.CreateDirectory(folderFile);
 
@@ -124,17 +119,17 @@ namespace Mara.Lib.Platforms.Switch
 
             if (BuildRomfs)
             {
-                Romfs romfs = new Romfs(Path.Combine(layeredOut, "romfs"));
-                if (romfs.DumpToFile(Path.Combine(layeredOut, "romfs.bin")) != Result.Success)
+                Romfs romfs = new Romfs(System.IO.Path.Combine(layeredOut, "romfs"));
+                if (romfs.DumpToFile(System.IO.Path.Combine(layeredOut, "romfs.bin")) != Result.Success)
                     throw new Exception("Failed to build the romfs.bin");
-                int filesize = (int)new FileInfo(Path.Combine(layeredOut, "romfs.bin")).Length;
+                int filesize = (int)new FileInfo(System.IO.Path.Combine(layeredOut, "romfs.bin")).Length;
                 if (filesize / 1024d / 1024d > 2048)
                 {
-                    Common.SplitFile.Split(Path.Combine(layeredOut, "romfs.bin"), filesize, Path.Combine(layeredOut, "romfs.bin"));
-                    File.Delete(Path.Combine(layeredOut, "romfs-bin"));
+                    Common.SplitFile.Split(System.IO.Path.Combine(layeredOut, "romfs.bin"), filesize, System.IO.Path.Combine(layeredOut, "romfs.bin"));
+                    File.Delete(System.IO.Path.Combine(layeredOut, "romfs-bin"));
                 }
 
-                Directory.Delete(Path.Combine(layeredOut, "romfs"), true);
+                Directory.Delete(System.IO.Path.Combine(layeredOut, "romfs"), true);
             }
 
             return base.ApplyTranslation();
