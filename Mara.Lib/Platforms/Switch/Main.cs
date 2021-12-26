@@ -52,6 +52,7 @@ namespace Mara.Lib.Platforms.Switch
             var fileTemp = $"{tempFolder}{System.IO.Path.DirectorySeparatorChar}files";
             var exefsdir = $"{tempFolder}{System.IO.Path.DirectorySeparatorChar}exefs";
             var romfsdir = $"{tempFolder}{System.IO.Path.DirectorySeparatorChar}romfs";
+            var romfs_romdir = $"{tempFolder}{System.IO.Path.DirectorySeparatorChar}romfs_rom";
             var layeredOut = $"{System.IO.Path.GetDirectoryName(oriFolder)}{System.IO.Path.DirectorySeparatorChar}LayeredFS{System.IO.Path.DirectorySeparatorChar}{this.titleid}";
 
             /* Init Dirs */
@@ -66,6 +67,8 @@ namespace Mara.Lib.Platforms.Switch
                 Directory.CreateDirectory(romfsdir);
             if (!Directory.Exists(layeredOut))
                 Directory.CreateDirectory(layeredOut);
+            if (!Directory.Exists(romfs_romdir))
+                Directory.CreateDirectory(romfs_romdir);
 
             var files = maraConfig.FilesInfo;
             Result result;
@@ -97,7 +100,12 @@ namespace Mara.Lib.Platforms.Switch
             {
                 var oriFile = $"{tempFolder}{System.IO.Path.DirectorySeparatorChar}{files.ListOriFiles[i]}";
                 var xdelta = $"{tempFolder}{System.IO.Path.DirectorySeparatorChar}{files.ListXdeltaFiles[i]}";
-                var outFile = $"{layeredOut}{System.IO.Path.DirectorySeparatorChar}{files.ListOriFiles[i]}";
+                string outFile;
+
+                if (BuildRomfs)
+                    outFile = $"{tempFolder}{System.IO.Path.DirectorySeparatorChar}romfs_rom{System.IO.Path.DirectorySeparatorChar}{files.ListOriFiles[i]}";
+                else
+                    outFile = $"{layeredOut}{System.IO.Path.DirectorySeparatorChar}{files.ListOriFiles[i]}";
 
                 var folderFile = System.IO.Path.GetDirectoryName(outFile);
                 if (!Directory.Exists(folderFile))
@@ -119,7 +127,7 @@ namespace Mara.Lib.Platforms.Switch
 
             if (BuildRomfs)
             {
-                Romfs romfs = new Romfs(System.IO.Path.Combine(layeredOut, "romfs"));
+                Romfs romfs = new Romfs(System.IO.Path.Combine(romfs_romdir, "romfs"));
                 if (romfs.DumpToFile(System.IO.Path.Combine(layeredOut, "romfs.bin")) != Result.Success)
                     throw new Exception("Failed to build the romfs.bin");
                 int filesize = (int)new FileInfo(System.IO.Path.Combine(layeredOut, "romfs.bin")).Length;
@@ -128,8 +136,6 @@ namespace Mara.Lib.Platforms.Switch
                     Common.SplitFile.Split(System.IO.Path.Combine(layeredOut, "romfs.bin"), filesize, System.IO.Path.Combine(layeredOut, "romfs.bin"));
                     File.Delete(System.IO.Path.Combine(layeredOut, "romfs-bin"));
                 }
-
-                Directory.Delete(System.IO.Path.Combine(layeredOut, "romfs"), true);
             }
 
             return base.ApplyTranslation();
