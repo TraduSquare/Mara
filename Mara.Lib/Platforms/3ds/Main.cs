@@ -14,8 +14,9 @@ namespace Mara.Lib.Platforms._3ds
     public class Main : PatchProcess
     {
         public PatchMode PatchMode { get; set; }
-        Node cia { get; set; }
-        Node programNode { get; set; }
+        Node Cia { get; set; }
+        Node ContentNode { get; set; }
+        List<string> ContentToPatch = new List<string>();
 
         public Main(string oriFile, string outFile, string patchPath, PatchMode patchMode) : base(oriFile, outFile, patchPath)
         {
@@ -23,17 +24,36 @@ namespace Mara.Lib.Platforms._3ds
 
             try
             {
-                cia = NodeFactory.FromFile(oriFile, "root").TransformWith<BinaryCia2NodeContainer>();
+                Cia = NodeFactory.FromFile(oriFile, "root").TransformWith<BinaryCia2NodeContainer>();
             }
             catch (Exception ex)
             {
-                throw new FormatException($"{Path.GetFileName(oriFile)} is an invalid CIA file.", ex);
+                if (ex is FormatException)
+                {
+                    throw new FormatException($"{Path.GetFileName(oriFile)} is an invalid CIA file.", ex);
+                }
+                else
+                {
+                    throw new Exception($"An error has ocurred while reading the file.", ex);
+                }
             }
 
-            programNode = cia.Children["content"].Children["program"];
-            if (programNode.Tags.ContainsKey("LEMON_NCCH_ENCRYPTED"))
+            ContentNode = Cia.Children["content"];
+
+            foreach (var content in ContentNode.Children)
             {
-                throw new Exception("Encrypted (legit) CIA not supported");
+                if (content.Tags.ContainsKey("LEMON_NCCH_ENCRYPTED"))
+                {
+                    throw new Exception("Encrypted (legit) CIA not supported");
+                }
+
+                for (int i = 0; i < maraConfig.FilesInfo.ListOriFiles.Length; i++)
+                {
+                    if (maraConfig.FilesInfo.ListOriFiles[i].StartsWith(content.Name))
+                    {
+                        ContentToPatch.Add(content.Name);
+                    }
+                }
             }
         }
 
@@ -42,14 +62,18 @@ namespace Mara.Lib.Platforms._3ds
             var count = maraConfig.FilesInfo.ListOriFiles.Length;
             var files = maraConfig.FilesInfo;
 
-            programNode.TransformWith<Binary2Ncch>();
-
             switch (PatchMode)
             {
                 case PatchMode.General:
-                    foreach (var node in Navigator.IterateNodes(programNode))
+                    foreach (var contentToPatch in ContentToPatch)
                     {
-                        node.Stream.WriteTo(tempFolder + Path.DirectorySeparatorChar + node.Name);
+                        var contentChildNode = ContentNode.Children[contentToPatch];
+                        contentChildNode.TransformWith<Binary2Ncch>();
+
+                        foreach (var node in Navigator.IterateNodes(contentChildNode))
+                        {
+                            node.Stream.WriteTo(tempFolder + Path.DirectorySeparatorChar + contentToPatch + Path.DirectorySeparatorChar + node.Name);
+                        }
                     }
 
                     for (int i = 0; i < count; i++)
@@ -62,25 +86,29 @@ namespace Mara.Lib.Platforms._3ds
                         if (result.Item1 != 0)
                             return result;
 
-                        programNode.Add(NodeFactory.FromFile(file, files.ListOriFiles[i]));
+                        var content = files.ListOriFiles[i].Split('\\')[0];
+                        ContentNode.Children[content].Add(NodeFactory.FromFile(file, Path.GetFileName(files.ListOriFiles[i])));
+                    }
+
+                    foreach (var contentToPatch in ContentToPatch)
+                    {
+                        var contentChildNode = ContentNode.Children[contentToPatch];
+                        contentChildNode.TransformWith<Ncch2Binary>();
                     }
                     break;
                 case PatchMode.Specific:
                     throw new NotImplementedException();
-                    programNode.Children["rom"].TransformWith<BinaryIvfc2NodeContainer>();
-                    programNode.Children["system"].TransformWith<BinaryExeFs2NodeContainer>();
             }
 
-            programNode.TransformWith<Ncch2Binary>();
-            cia.TransformWith<NodeContainer2BinaryCia>();
+            Cia.TransformWith<NodeContainer2BinaryCia>();
 
             if (File.Exists(outFolder))
             {
                 File.Delete(outFolder);
             }
 
-            cia.Stream.WriteTo(outFolder);
-            cia.Stream?.Dispose();
+            Cia.Stream.WriteTo(outFolder);
+            Cia.Stream?.Dispose();
 
             return base.ApplyTranslation();
         }
