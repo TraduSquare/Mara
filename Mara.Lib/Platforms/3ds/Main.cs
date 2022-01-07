@@ -16,7 +16,7 @@ namespace Mara.Lib.Platforms._3ds
         public PatchMode PatchMode { get; set; }
         Node Cia { get; set; }
         Node ContentNode { get; set; }
-        List<string> ContentToPatch = new List<string>();
+        Dictionary<string, List<string>> ContentToPatch = new Dictionary<string, List<string>>();
 
         public Main(string oriFile, string outFile, string patchPath, PatchMode patchMode) : base(oriFile, outFile, patchPath)
         {
@@ -49,9 +49,26 @@ namespace Mara.Lib.Platforms._3ds
 
                 for (int i = 0; i < maraConfig.FilesInfo.ListOriFiles.Length; i++)
                 {
-                    if (maraConfig.FilesInfo.ListOriFiles[i].StartsWith(content.Name))
+                    var splitLine = maraConfig.FilesInfo.ListOriFiles[i].Split('\\');
+
+                    if (splitLine[0] == content.Name)
                     {
-                        ContentToPatch.Add(content.Name);
+                        if (ContentToPatch.ContainsKey(splitLine[0]))
+                        {
+                            if (!ContentToPatch[splitLine[0]].Contains(splitLine[1]))
+                            {
+                                ContentToPatch[splitLine[0]].Add(splitLine[1]);
+                            }
+                        }
+                        else
+                        {
+                            ContentToPatch.Add(splitLine[0], new List<string> { splitLine[1] });
+                        }
+
+                        if (patchMode == PatchMode.Specific && splitLine[1] != "rom")
+                        {
+                            throw new FormatException($"Unsupported specific patching for {splitLine[1]}");
+                        }
                     }
                 }
             }
@@ -67,12 +84,12 @@ namespace Mara.Lib.Platforms._3ds
                 case PatchMode.General:
                     foreach (var contentToPatch in ContentToPatch)
                     {
-                        var contentChildNode = ContentNode.Children[contentToPatch];
+                        var contentChildNode = ContentNode.Children[contentToPatch.Key];
                         contentChildNode.TransformWith<Binary2Ncch>();
 
                         foreach (var node in Navigator.IterateNodes(contentChildNode))
                         {
-                            node.Stream.WriteTo(tempFolder + Path.DirectorySeparatorChar + contentToPatch + Path.DirectorySeparatorChar + node.Name);
+                            node.Stream.WriteTo(tempFolder + Path.DirectorySeparatorChar + contentToPatch.Key + Path.DirectorySeparatorChar + node.Name);
                         }
                     }
 
@@ -92,12 +109,81 @@ namespace Mara.Lib.Platforms._3ds
 
                     foreach (var contentToPatch in ContentToPatch)
                     {
-                        var contentChildNode = ContentNode.Children[contentToPatch];
+                        var contentChildNode = ContentNode.Children[contentToPatch.Key];
                         contentChildNode.TransformWith<Ncch2Binary>();
                     }
                     break;
                 case PatchMode.Specific:
-                    throw new NotImplementedException();
+                    foreach (var contentToPatch in ContentToPatch)
+                    {
+                        var contentNode = ContentNode.Children[contentToPatch.Key];
+                        contentNode.TransformWith<Binary2Ncch>();
+
+                        foreach (var node in Navigator.IterateNodes(contentNode))
+                        {
+                            switch(node.Name)
+                            {
+                                case "rom":
+                                    node.TransformWith<BinaryIvfc2NodeContainer>();
+                                    break;
+                            }
+
+                            foreach(var nodeChild in Navigator.IterateNodes(node))
+                            {
+                                var path = nodeChild.Path.Replace($"/root/content/{contentToPatch.Key}/", "").Replace('/', Path.DirectorySeparatorChar);
+
+                                // Using node.Stream will return null for some reason
+                                var nodeChildFromRoot = Navigator.SearchNode(Cia, nodeChild.Path);
+                                if (!nodeChildFromRoot.IsContainer)
+                                {
+                                    nodeChildFromRoot.Stream.WriteTo(tempFolder + Path.DirectorySeparatorChar + contentToPatch.Key + Path.DirectorySeparatorChar + path);
+                                }
+                            }
+                        }
+                    }
+
+                    for (int i = 0; i < count; i++)
+                    {
+                        var file = $"{tempFolder}{Path.DirectorySeparatorChar}{files.ListOriFiles[i]}";
+                        var xdelta = $"{tempFolder}{Path.DirectorySeparatorChar}{files.ListXdeltaFiles[i]}";
+
+                        var result = ApplyXdelta(file, xdelta, file, files.ListMd5Files[i]);
+
+                        if (result.Item1 != 0)
+                            return result;
+
+                        // We need to delete these since later we're going to make a new Node container with this folder
+                        if (File.Exists($"{file}_ori"))
+                        {
+                            File.Delete($"{file}_ori");
+                        }
+
+                        if (File.Exists(xdelta))
+                        {
+                            File.Delete(xdelta);
+                        }
+                    }
+
+                    foreach (var contentToPatch in ContentToPatch)
+                    {
+                        var contentPath = $"{tempFolder}{Path.DirectorySeparatorChar}{contentToPatch.Key}{Path.DirectorySeparatorChar}";
+
+                        foreach (var contentChild in ContentToPatch[contentToPatch.Key])
+                        {
+                            var contentChildPath = $"{contentPath}{Path.DirectorySeparatorChar}{contentChild}";
+
+                            switch (contentChild)
+                            {
+                                case "rom":
+                                    ContentNode.Children[contentToPatch.Key].Add(NodeFactory.FromDirectory(contentChildPath, "*", contentChild, true));
+                                    ContentNode.Children[contentToPatch.Key].Children[contentChild].TransformWith<NodeContainer2BinaryIvfc>();
+                                    break;
+                            }
+                        }
+
+                        ContentNode.Children[contentToPatch.Key].TransformWith<Ncch2Binary>();
+                    }
+                    break;
             }
 
             Cia.TransformWith<NodeContainer2BinaryCia>();
