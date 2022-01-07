@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="PleOps.XdeltaSharp" Version="1.3.0-preview.14" />
     <PackageReference Include="SceneGate.Lemon" Version="0.1.0-preview.86" />
     <PackageReference Include="SharpCompress" Version="0.28.1" />
     <PackageReference Include="Yarhl" Version="3.1.1-preview.55" />
@@ -18,9 +19,6 @@
   <ItemGroup>
     <Reference Include="LibHac">
       <HintPath>Dll\LibHac.dll</HintPath>
-    </Reference>
-    <Reference Include="Pleosoft.XdeltaSharp">
-      <HintPath>Dll\Pleosoft.XdeltaSharp.dll</HintPath>
     </Reference>
   </ItemGroup>
 

@@ -1,5 +1,5 @@
 ﻿using System.IO;
-using Pleosoft.XdeltaSharp;
+using PleOps.XdeltaSharp.Decoder;
 
 namespace Mara.Lib.Common
 {
