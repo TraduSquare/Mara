@@ -1,14 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="SceneGate.Lemon" Version="0.1.0-preview.69" />
+    <PackageReference Include="SceneGate.Lemon" Version="0.1.0-preview.86" />
     <PackageReference Include="SharpCompress" Version="0.28.1" />
-    <PackageReference Include="Yarhl" Version="3.1.1-preview.23" />
+    <PackageReference Include="Yarhl" Version="3.1.1-preview.55" />
   </ItemGroup>
 
   <ItemGroup>
