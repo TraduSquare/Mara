@@ -80,18 +80,20 @@ namespace Mara.Tester
             {
                 case "3DS-GENERAL":
                     isDirectory = false;
+                    outPath = Path.GetDirectoryName(outPath);
                     break;
                 case "3DS-SPECIFIC":
                     isDirectory = false;
+                    outPath = Path.GetDirectoryName(outPath);
                     break;
             }
 
-            // Check ori folder
+            // Check ori folder/file
             if (!CheckDirectoryOrFile(oriPath, isDirectory))
                 return;
 
             // Check result folder
-            if (!CheckDirectoryOrFile(outPath, isDirectory))
+            if (!CheckDirectoryOrFile(outPath, true))
                 return;
 
             // Check zip file
