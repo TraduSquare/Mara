@@ -69,7 +69,7 @@ namespace Mara.Lib.Platforms
         private void ExtractPatch()
         {
             Lzma.Unpack(filePath, tempFolder);
-            maraConfig = JsonConvert.DeserializeObject<MaraConfig>(File.ReadAllText($"{tempFolder}{Path.DirectorySeparatorChar}data.json"));
+            maraConfig = JsonConvert.DeserializeObject<MaraConfig>(File.ReadAllText($"{tempFolder}{Path.DirectorySeparatorChar}data.json").Replace('\\', Path.DirectorySeparatorChar));
         }
 
         private void DeleteTempFolder()
