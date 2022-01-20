@@ -46,15 +46,15 @@ namespace Mara.Tester
             PrintResult(mainVita.ApplyTranslation());
         }
 
-        private static void Import3dsGeneral(string oriFolder, string outFolder, string zipPatch)
+        private static void Import3dsGeneral(string oriFile, string outFile, string zipPatch)
         {
-            var main3DS = new Lib.Platforms._3ds.Main(oriFolder, outFolder, zipPatch, Lib.Platforms._3ds.PatchMode.General);
+            var main3DS = new Lib.Platforms._3ds.Main(oriFile, outFile, zipPatch, Lib.Platforms._3ds.PatchMode.General);
             PrintResult(main3DS.ApplyTranslation());
         }
 
-        private static void Import3dsSpecific(string oriFolder, string outFolder, string zipPatch)
+        private static void Import3dsSpecific(string oriFile, string outFile, string zipPatch)
         {
-            var main3DS = new Lib.Platforms._3ds.Main(oriFolder, outFolder, zipPatch, Lib.Platforms._3ds.PatchMode.Specific);
+            var main3DS = new Lib.Platforms._3ds.Main(oriFile, outFile, zipPatch, Lib.Platforms._3ds.PatchMode.Specific);
             PrintResult(main3DS.ApplyTranslation());
         }
 
@@ -93,7 +93,7 @@ namespace Mara.Tester
                 return;
 
             // Check result folder
-            if (!CheckDirectoryOrFile(outPath, true))
+            if (!CheckDirectoryOrFile(outPath, true, true))
                 return;
 
             // Check zip file
@@ -101,9 +101,9 @@ namespace Mara.Tester
                 return;
         }
 
-        private static bool CheckDirectoryOrFile(string path, bool isDirectory)
+        private static bool CheckDirectoryOrFile(string path, bool isDirectory, bool isOut = false)
         {
-            if (!isDirectory)
+            if (!isDirectory && !isOut)
             {
                 if (File.Exists(path))
                     return true;
@@ -111,6 +111,10 @@ namespace Mara.Tester
                 Console.WriteLine($"The file \"{path}\" doesn't exist!");
                 return false;
 
+            }
+            else if (!isDirectory && isOut)
+            {
+                path = Path.GetDirectoryName(path);
             }
 
             if (Directory.Exists(path))

@@ -15,13 +15,15 @@ namespace Mara.Lib.Platforms._3ds
     public class Main : PatchProcess
     {
         public PatchMode PatchMode { get; set; }
+        bool UseFileStream { get; set; }
         Node Cia { get; set; }
         Node ContentNode { get; set; }
         Dictionary<string, List<string>> ContentToPatch = new Dictionary<string, List<string>>();
 
-        public Main(string oriFile, string outFile, string patchPath, PatchMode patchMode) : base(oriFile, outFile, patchPath)
+        public Main(string oriFile, string outFile, string patchPath, PatchMode patchMode, bool useFileStream = false) : base(oriFile, outFile, patchPath)
         {
             PatchMode = patchMode;
+            UseFileStream = useFileStream;
 
             try
             {
@@ -107,7 +109,7 @@ namespace Mara.Lib.Platforms._3ds
                         var file = $"{tempFolder}{Path.DirectorySeparatorChar}{files.ListOriFiles[i]}";
                         var xdelta = $"{tempFolder}{Path.DirectorySeparatorChar}{files.ListXdeltaFiles[i]}";
 
-                        var result = ApplyXdelta(file, xdelta, file, files.ListMd5Files[i]);
+                        var result = ApplyXdelta(file, xdelta, file, files.ListMd5Files[i], UseFileStream);
 
                         if (result.Item1 != 0)
                             return result;
@@ -119,7 +121,14 @@ namespace Mara.Lib.Platforms._3ds
                     foreach (var contentToPatch in ContentToPatch)
                     {
                         var contentChildNode = ContentNode.Children[contentToPatch.Key];
+                        var contentChildPath = $"{tempFolder}{Path.DirectorySeparatorChar}{contentToPatch.Key}";
                         contentChildNode.TransformWith<Ncch2Binary>();
+
+                        // Doing this reduces the amount of memory used.
+                        Directory.Delete(contentChildPath, true);
+                        contentChildNode.Stream.WriteTo(contentChildPath);
+
+                        ContentNode.Add(NodeFactory.FromFile(contentChildPath, contentToPatch.Key));
                     }
                     break;
                 case PatchMode.Specific:
@@ -164,7 +173,7 @@ namespace Mara.Lib.Platforms._3ds
                         var file = $"{tempFolder}{Path.DirectorySeparatorChar}{files.ListOriFiles[i]}";
                         var xdelta = $"{tempFolder}{Path.DirectorySeparatorChar}{files.ListXdeltaFiles[i]}";
 
-                        var result = ApplyXdelta(file, xdelta, file, files.ListMd5Files[i]);
+                        var result = ApplyXdelta(file, xdelta, file, files.ListMd5Files[i], UseFileStream);
 
                         if (result.Item1 != 0)
                             return result;
@@ -183,7 +192,7 @@ namespace Mara.Lib.Platforms._3ds
 
                     foreach (var contentToPatch in ContentToPatch)
                     {
-                        var contentPath = $"{tempFolder}{Path.DirectorySeparatorChar}{contentToPatch.Key}{Path.DirectorySeparatorChar}";
+                        var contentPath = $"{tempFolder}{Path.DirectorySeparatorChar}{contentToPatch.Key}";
 
                         foreach (var contentChild in ContentToPatch[contentToPatch.Key])
                         {
@@ -204,6 +213,13 @@ namespace Mara.Lib.Platforms._3ds
                         }
 
                         ContentNode.Children[contentToPatch.Key].TransformWith<Ncch2Binary>();
+
+                        // Doing this reduces the amount of memory used.
+                        Directory.Delete(contentPath, true);
+                        ContentNode.Children[contentToPatch.Key].Stream.WriteTo(contentPath);
+                        ContentNode.Children[contentToPatch.Key].Dispose();
+
+                        ContentNode.Add(NodeFactory.FromFile(contentPath, contentToPatch.Key));
                     }
                     break;
             }
