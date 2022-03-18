@@ -1,5 +1,5 @@
 ﻿using System.IO;
-using Xdelta;
+using PleOps.XdeltaSharp.Decoder;
 
 namespace Unity.Mara.Lib.Common
 {
