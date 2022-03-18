@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -69,7 +69,7 @@ namespace Mara.Lib.Common
     internal class LibraryFolders
     {
         public List<string> SteamLibraries = new List<string>();
-        public LibraryFolders(string path) 
+        public LibraryFolders(string path)
         {
             if (File.Exists(path))
             {
@@ -79,10 +79,10 @@ namespace Mara.Lib.Common
                 {
                     if (s.Contains("\"path\""))
                     {
-                        SteamLibraries.Add(s.Replace("		\"path\"		\"","").Replace("\"",""));
+                        SteamLibraries.Add(s.Replace("		\"path\"		\"", "").Replace("\"", ""));
                     }
                 }
-            } 
+            }
             else
             {
                 throw new Exception("Archivo no encontrado");
@@ -96,9 +96,9 @@ namespace Mara.Lib.Common
         private LibraryFolders SteamGameLibraries;
         public Steam()
         {
-                // deberia ser igual en todos lados desconozco si en Deck es diferente
-                packageinfo = new PackageInfo(Path.Combine(GetSteamPath(), "appcache", "packageinfo.vdf"));
-                SteamGameLibraries = new LibraryFolders(Path.Combine(GetSteamPath(), "config", "libraryfolders.vdf"));
+            // deberia ser igual en todos lados desconozco si en Deck es diferente
+            packageinfo = new PackageInfo(Path.Combine(GetSteamPath(), "appcache", "packageinfo.vdf"));
+            SteamGameLibraries = new LibraryFolders(Path.Combine(GetSteamPath(), "config", "libraryfolders.vdf"));
         }
 
         /// <summary>
@@ -120,7 +120,11 @@ namespace Mara.Lib.Common
 
         public static string GetSteamPath()
         {
+#if UNITY_STANDALONE_LINUX && !UNITY_EDITOR
+            if (UnityEngine.Application.platform == UnityEngine.RuntimePlatform.LinuxPlayer)
+#else
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+#endif
             {
                 var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
                 var paths = new[] { ".steam", ".steam/steam", ".steam/root", ".local/share/Steam" };
@@ -128,7 +132,7 @@ namespace Mara.Lib.Common
                 return paths
                     .Select(path => Path.Join(home, path))
                     .FirstOrDefault(steamPath => Directory.Exists(Path.Join(steamPath, "appcache")));
-            } 
+            }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 var key = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Valve\\Steam") ??
@@ -160,3 +164,4 @@ namespace Mara.Lib.Common
         }
     }
 }
+
