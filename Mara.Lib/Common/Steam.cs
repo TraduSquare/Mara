@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using Yarhl.IO;
+using Microsoft.Win32;
 
 namespace Mara.Lib.Common
 {
@@ -65,23 +66,39 @@ namespace Mara.Lib.Common
         }
     }
 
-    public class Steam
+    internal class LibraryFolders
     {
-        PackageInfo packageinfo;
-
-        public Steam()
+        public List<string> SteamLibraries = new List<string>();
+        public LibraryFolders(string path) 
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            if (File.Exists(path))
             {
-                // deberia ser igual en todos lados desconozco si en Deck es diferente
-                packageinfo = new PackageInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), $".steam{Path.PathSeparator}" +
-                    $"debian-installation{Path.PathSeparator}appcache{Path.PathSeparator}packageinfo.vdf"));
+                var txt = File.ReadAllLines(path);
+
+                foreach (var s in txt)
+                {
+                    if (s.Contains("\"path\""))
+                    {
+                        SteamLibraries.Add(s.Replace("		\"path\"		\"","").Replace("\"",""));
+                    }
+                }
             } 
             else
             {
-                // No se si esto puede variar
-                packageinfo = new PackageInfo("C:\\Program Files (x86)\\Steam\\appcache\\packageinfo.vdf");
+                throw new Exception("Archivo no encontrado");
             }
+        }
+    }
+
+    public class Steam
+    {
+        private PackageInfo packageinfo;
+        private LibraryFolders SteamGameLibraries;
+        public Steam()
+        {
+                // deberia ser igual en todos lados desconozco si en Deck es diferente
+                packageinfo = new PackageInfo(Path.Combine(GetSteamPath(), "appcache", "packageinfo.vdf"));
+                SteamGameLibraries = new LibraryFolders(Path.Combine(GetSteamPath(), "config", "libraryfolders.vdf"));
         }
 
         /// <summary>
@@ -99,6 +116,47 @@ namespace Mara.Lib.Common
             {
                 return false;
             }
+        }
+
+        public static string GetSteamPath()
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+                var paths = new[] { ".steam", ".steam/steam", ".steam/root", ".local/share/Steam" };
+
+                return paths
+                    .Select(path => Path.Join(home, path))
+                    .FirstOrDefault(steamPath => Directory.Exists(Path.Join(steamPath, "appcache")));
+            } 
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                var key = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Valve\\Steam") ??
+                          RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry64)
+                              .OpenSubKey("SOFTWARE\\Valve\\Steam");
+
+                if (key != null && key.GetValue("SteamPath") is string steamPath)
+                {
+                    return steamPath;
+                }
+            }
+
+            throw new PlatformNotSupportedException();
+        }
+
+        public static string GetPackageInfoPath()
+        {
+            return Path.Combine(GetSteamPath(), "appcache", "packageinfo.vdf");
+        }
+
+        public static string GetLibraryFoldersPath()
+        {
+            return Path.Combine(GetSteamPath(), "config", "libraryfolders.vdf");
+        }
+
+        public List<string> GetSteamLibraries()
+        {
+            return SteamGameLibraries.SteamLibraries;
         }
     }
 }
