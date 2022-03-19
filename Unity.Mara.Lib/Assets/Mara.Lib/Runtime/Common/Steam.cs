@@ -120,7 +120,7 @@ namespace Mara.Lib.Common
 
         public static string GetSteamPath()
         {
-#if UNITY_STANDALONE_LINUX && !UNITY_EDITOR
+#if !UNITY_EDITOR && UNITY_STANDALONE
             if (UnityEngine.Application.platform == UnityEngine.RuntimePlatform.LinuxPlayer)
 #else
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
@@ -158,10 +158,22 @@ namespace Mara.Lib.Common
             return Path.Combine(GetSteamPath(), "config", "libraryfolders.vdf");
         }
 
+        public string GetGameFolderPath(string FolderName)
+        {
+            foreach (var library in GetSteamLibraries())
+            {
+                string tmpPath = Path.Combine(library, "steamapps", "common", FolderName);
+                if (Directory.Exists(tmpPath))
+                {
+                    return tmpPath;
+                }
+            }
+            return null;
+        }
+
         public List<string> GetSteamLibraries()
         {
             return SteamGameLibraries.SteamLibraries;
         }
     }
 }
-
