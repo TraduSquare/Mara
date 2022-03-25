@@ -15,7 +15,7 @@ namespace Mara.Lib.Common
                 credentials = Convert.ToBase64String(Encoding.ASCII.GetBytes(credentials));
                 client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", credentials);
                 var contents = client.GetByteArrayAsync(url).Result;
-                File.WriteAllBytes(@Folder + "/" + name, contents);
+                File.WriteAllBytes(@Folder + Path.PathSeparator + name, contents);
             }
         }
     }
