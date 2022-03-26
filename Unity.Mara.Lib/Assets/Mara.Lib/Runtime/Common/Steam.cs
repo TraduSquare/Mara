@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Yarhl.IO;
 using Microsoft.Win32;
 
-namespace Mara.Lib.Common
+namespace Unity.Mara.Lib.Common
 {
     /// <summary>
     /// Extrae el listado de appsIDs de los juegos de steam
