@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
 using Mara.Lib;
+using Mara.Lib.Configs;
 using Newtonsoft.Json;
 
 namespace Mara.Generator
@@ -11,6 +12,7 @@ namespace Mara.Generator
     {
         private MaraConfig config;
         private PatchGenerator generator;
+        private string[] patcherInfo;
 
         public Form1()
         {
@@ -47,7 +49,35 @@ namespace Mara.Generator
                 return;
             }
 
+            if (patcherInfo == null)
+            {
+                MessageBox.Show("Please follow step 4 for generating the GUI Config.",
+                    "Gui Config not generated.",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            for (int i = 0; i < 3; i++)
+            {
+                if (string.IsNullOrWhiteSpace(patcherInfo[i]))
+                {
+                    MessageBox.Show("Please follow step 4 and fill all data for generating the GUI Config.",
+                        "Gui Config not properly generated.",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+
+                }
+            }
+
+
             UpdateLog("Generating patch, please wait...");
+            config.GuiConfig = new GuiConfig
+            {
+                GameTitle = patcherInfo[0],
+                Credits = patcherInfo[1],
+                MainBackgroundImage = Path.GetFileName(patcherInfo[2])
+            };
+
             config = generator.GeneratePatch(config);
 
             var json = JsonConvert.SerializeObject(config, Formatting.Indented);
@@ -87,13 +117,8 @@ namespace Mara.Generator
 
         private void patcherButton_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("WIP, wait for the final version from this generator.",
-                "Not finished.",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
-            /*
-            var patcherWindow = new PatcherForm();
-
-            patcherWindow.ShowDialog();*/
+            var patcherWindow = new PatcherForm(patcherInfo);
+            patcherInfo = patcherWindow.GetData();
         }
 
         private void Button3ds_CheckedChanged(object sender, EventArgs e)
@@ -139,6 +164,9 @@ namespace Mara.Generator
         private void GenerateZip()
         {
             var tempPath = Path.GetTempPath();
+
+            // Copy the image
+            File.Copy(patcherInfo[2], $"{generator.OutPath}{Path.DirectorySeparatorChar}{Path.GetFileName(patcherInfo[2])}");
 
             File.WriteAllBytes($"{tempPath}{Path.DirectorySeparatorChar}7za.dll", Properties.Resources.sevenzadll);
             File.WriteAllBytes($"{tempPath}{Path.DirectorySeparatorChar}7za.exe", Properties.Resources.sevenzaexe);
