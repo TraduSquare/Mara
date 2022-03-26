@@ -7,7 +7,7 @@ namespace Unity.Mara.Lib.Platforms
 {
     public class PatchProcess
     {
-        protected MaraConfig maraConfig;
+        public MaraConfig maraConfig { get; set; }
         protected string tempFolder;
         protected string oriFolder;
         protected string outFolder;
