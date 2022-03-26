@@ -8,7 +8,7 @@ namespace Unity.Mara.Lib.Platforms
     public class PatchProcess
     {
         public MaraConfig maraConfig { get; set; }
-        protected string tempFolder;
+        public string tempFolder { get; set; }
         protected string oriFolder;
         protected string outFolder;
         protected string filePath;
@@ -74,6 +74,12 @@ namespace Unity.Mara.Lib.Platforms
         private void DeleteTempFolder()
         {
             Directory.Delete(tempFolder, true);
+        }
+
+        public void UpdateFolders(string newOriFolder, string newOutFolder)
+        {
+            this.oriFolder = newOriFolder;
+            this.outFolder = newOutFolder;
         }
 
     }

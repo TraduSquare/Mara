@@ -7,8 +7,8 @@ namespace Mara.Lib.Platforms
 {
     public class PatchProcess
     {
-        protected MaraConfig maraConfig;
-        protected string tempFolder;
+        public MaraConfig maraConfig { get; set; }
+        public string tempFolder { get; set; }
         protected string oriFolder;
         protected string outFolder;
         protected string filePath;
@@ -74,6 +74,12 @@ namespace Mara.Lib.Platforms
         private void DeleteTempFolder()
         {
             Directory.Delete(tempFolder, true);
+        }
+
+        public void UpdateFolders(string newOriFolder, string newOutFolder)
+        {
+            this.oriFolder = newOriFolder;
+            this.outFolder = newOutFolder;
         }
 
     }
