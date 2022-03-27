@@ -1,7 +1,7 @@
-﻿using System.IO;
+using System.IO;
 using System.Linq;
 
-namespace Unity.Mara.Lib.Platforms.Generic
+namespace Mara.Lib.Platforms.Generic
 {
     public class Main : PatchProcess
     { 
@@ -22,8 +22,8 @@ namespace Unity.Mara.Lib.Platforms.Generic
                 if (files.ListExcludeFiles != null)
                     excludeFile = CheckExcludeFile(files.ListOriFiles[i]);
 
-                var oriFile = $"{oriFolder}{Path.DirectorySeparatorChar}{files.ListOriFiles[i]}";
-                var xdelta = $"{tempFolder}{Path.DirectorySeparatorChar}{files.ListXdeltaFiles[i]}";
+                var oriFile = $"{oriFolder}{Path.DirectorySeparatorChar}{files.ListOriFiles[i].Replace('\\', Path.DirectorySeparatorChar)}";
+                var xdelta = $"{tempFolder}{Path.DirectorySeparatorChar}{files.ListXdeltaFiles[i].Replace('\\', Path.DirectorySeparatorChar)}";
 
                 if (excludeFile)
                     if (!File.Exists(oriFile))
@@ -48,6 +48,6 @@ namespace Unity.Mara.Lib.Platforms.Generic
 
             return false;
         }
-        
+
     }
 }
