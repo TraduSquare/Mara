@@ -12,7 +12,7 @@ namespace Unity.Mara.Lib.Platforms.Generic
 
         public override (int, string) ApplyTranslation()
         {
-            var count = maraConfig.FilesInfo.ListOriFiles.Length;
+            var count = maraConfig.FilesInfo.ListXdeltaFiles.Length;
             var files = maraConfig.FilesInfo;
 
             for (int i = 0; i < count; i++)
