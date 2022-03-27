@@ -1,7 +1,7 @@
 using System.IO;
 using System.Linq;
 
-namespace Mara.Lib.Platforms.Generic
+namespace Unity.Mara.Lib.Platforms.Generic
 {
     public class Main : PatchProcess
     { 
