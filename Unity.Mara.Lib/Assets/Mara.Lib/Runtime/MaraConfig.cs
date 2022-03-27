@@ -11,5 +11,7 @@ namespace Unity.Mara.Lib
         public string OutFolder { get; set; }
         public string TempFolder { get; set; }
         public string FilePath { get; set; }
+        
+        public MaraConfig() { }
     }
 }
