@@ -166,7 +166,14 @@ namespace Mara.Generator
             var tempPath = Path.GetTempPath();
 
             // Copy the image
-            File.Copy(patcherInfo[2], $"{generator.OutPath}{Path.DirectorySeparatorChar}{Path.GetFileName(patcherInfo[2])}");
+            try
+            {
+                File.Copy(patcherInfo[2], $"{generator.OutPath}{Path.DirectorySeparatorChar}{Path.GetFileName(patcherInfo[2])}");
+            } 
+            catch(Exception ex)
+            {
+                MessageBox.Show("Image not found, make sure to add the image to the zip if you use the unity templates.");
+            }
 
             File.WriteAllBytes($"{tempPath}{Path.DirectorySeparatorChar}7za.dll", Properties.Resources.sevenzadll);
             File.WriteAllBytes($"{tempPath}{Path.DirectorySeparatorChar}7za.exe", Properties.Resources.sevenzaexe);

@@ -51,26 +51,28 @@ namespace Mara.Generator
 
             for (int i = 0; i < files.Length; i++)
             {
-                var xdeltaFile = $"{files[i]}.xdelta";
-                list.Add(xdeltaFile);
+                if (File.Exists($"{ModPath}{Path.DirectorySeparatorChar}{files[i]}") && File.Exists($"{OriPath}{Path.DirectorySeparatorChar}{files[i]}")) {
+                    var xdeltaFile = $"{files[i]}.xdelta";
+                    list.Add(xdeltaFile);
 
-                var dir = Path.GetDirectoryName($"{OutPath}{Path.DirectorySeparatorChar}{xdeltaFile}");
+                    var dir = Path.GetDirectoryName($"{OutPath}{Path.DirectorySeparatorChar}{xdeltaFile}");
 
-                if (!Directory.Exists(dir))
-                    Directory.CreateDirectory(dir);
+                    if (!Directory.Exists(dir))
+                        Directory.CreateDirectory(dir);
 
-                var generateXdelta = new ProcessStartInfo();
-                {
-                    string arguments =
-                        $" -e -S -f -9 -s \"{OriPath}{Path.DirectorySeparatorChar}{files[i]}\" \"{ModPath}{Path.DirectorySeparatorChar}{files[i]}\" \"{OutPath}{Path.DirectorySeparatorChar}{xdeltaFile}\"";
-                    generateXdelta.FileName = xdelta3;
-                    generateXdelta.Arguments = arguments;
-                    generateXdelta.UseShellExecute = false;
-                    generateXdelta.CreateNoWindow = true;
-                    generateXdelta.ErrorDialog = false;
-                    generateXdelta.RedirectStandardOutput = true;
-                    Process x = Process.Start(generateXdelta);
-                    x.WaitForExit();
+                    var generateXdelta = new ProcessStartInfo();
+                    {
+                        string arguments =
+                            $" -e -S -f -9 -s \"{OriPath}{Path.DirectorySeparatorChar}{files[i]}\" \"{ModPath}{Path.DirectorySeparatorChar}{files[i]}\" \"{OutPath}{Path.DirectorySeparatorChar}{xdeltaFile}\"";
+                        generateXdelta.FileName = xdelta3;
+                        generateXdelta.Arguments = arguments;
+                        generateXdelta.UseShellExecute = false;
+                        generateXdelta.CreateNoWindow = true;
+                        generateXdelta.ErrorDialog = false;
+                        generateXdelta.RedirectStandardOutput = true;
+                        Process x = Process.Start(generateXdelta);
+                        x.WaitForExit();
+                    }
                 }
             }
 
@@ -82,12 +84,13 @@ namespace Mara.Generator
 
         private string[] GenerateMd5(string[] files)
         {
-
             var m5 = new List<string>();
 
-            foreach (var file in files)
+            for (int i = 0; i < files.Length; i++)
             {
-                m5.Add(Md5.CalculateMd5($"{OriPath}{Path.DirectorySeparatorChar}{file}"));
+
+                if (File.Exists($"{ModPath}{Path.DirectorySeparatorChar}{files[i]}") && File.Exists($"{OriPath}{Path.DirectorySeparatorChar}{files[i]}"))
+                    m5.Add(Md5.CalculateMd5($"{OriPath}{Path.DirectorySeparatorChar}{files[i]}"));
             }
 
             return m5.ToArray();
