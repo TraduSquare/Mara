@@ -13,8 +13,19 @@ namespace Unity.Mara.Lib
         public string OutFolder { get; set; }
         public string TempFolder { get; set; }
         public string FilePath { get; set; }
+
         [Preserve]
         [JsonConstructor]
+        public MaraConfig(GuiConfig guiConfig, PatchFilesInfo filesInfo, PatchInfo info, string outFolder, string tempFolder, string filePath)
+        {
+            GuiConfig = guiConfig;
+            FilesInfo = filesInfo;
+            Info = info;
+            OutFolder = outFolder;
+            TempFolder = tempFolder;
+            FilePath = filePath;
+        }
+        
         public MaraConfig() { }
     }
 }

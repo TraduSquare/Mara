@@ -12,6 +12,14 @@ namespace Unity.Mara.Lib.Configs
 
         [Preserve]
         [JsonConstructor]
+        public PatchFilesInfo(string[] listOriFiles, string[] listXdeltaFiles, string[] listMd5Files, string[] listExcludeFiles)
+        {
+            ListOriFiles = listOriFiles;
+            ListXdeltaFiles = listXdeltaFiles;
+            ListMd5Files = listMd5Files;
+            ListExcludeFiles = listExcludeFiles;
+        }
+        
         public PatchFilesInfo() { }
     }
 }

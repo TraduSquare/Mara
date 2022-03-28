@@ -11,6 +11,13 @@ namespace Unity.Mara.Lib.Configs
 
         [Preserve]
         [JsonConstructor]
+        public PatchInfo(int patchId, string patchVersion, string changelog)
+        {
+            PatchId = patchId;
+            PatchVersion = patchVersion;
+            Changelog = changelog;
+        }
+        
         public PatchInfo() { }
     }
 }

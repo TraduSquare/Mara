@@ -11,6 +11,13 @@ namespace Unity.Mara.Lib.Configs
 
         [Preserve]
         [JsonConstructor]
+        public GuiConfig(string credits, string mainBackgroundImage, string gameTitle)
+        {
+            Credits = credits;
+            MainBackgroundImage = mainBackgroundImage;
+            GameTitle = gameTitle;
+        }
+        
         public GuiConfig() { }
     }
 }
