@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using UnityEngine.Scripting;
 
 namespace Unity.Mara.Lib.Configs
 {
@@ -9,6 +10,7 @@ namespace Unity.Mara.Lib.Configs
         public string[] ListMd5Files { get; set; }
         public string[] ListExcludeFiles { get; set; }
 
+        [Preserve]
         [JsonConstructor]
         public PatchFilesInfo() { }
     }

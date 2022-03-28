@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using UnityEngine.Scripting;
 
 namespace Unity.Mara.Lib.Configs
 {
@@ -8,6 +9,7 @@ namespace Unity.Mara.Lib.Configs
         public string MainBackgroundImage { get; set; }
         public string GameTitle { get; set; }
 
+        [Preserve]
         [JsonConstructor]
         public GuiConfig() { }
     }
