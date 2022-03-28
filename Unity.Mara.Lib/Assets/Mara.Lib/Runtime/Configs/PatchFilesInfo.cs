@@ -1,4 +1,6 @@
-﻿namespace Unity.Mara.Lib.Configs
+﻿using Newtonsoft.Json;
+
+namespace Unity.Mara.Lib.Configs
 {
     public class PatchFilesInfo
     {
@@ -6,5 +8,8 @@
         public string[] ListXdeltaFiles { get; set; }
         public string[] ListMd5Files { get; set; }
         public string[] ListExcludeFiles { get; set; }
+
+        [JsonConstructor]
+        public PatchFilesInfo() { }
     }
 }
