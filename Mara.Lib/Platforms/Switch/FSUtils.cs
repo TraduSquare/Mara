@@ -13,7 +13,8 @@ namespace Mara.Lib.Platforms.Switch
     {
         public static Result MountFolder(FileSystemClient fs, string path, string mountname)
         {
-            return fs.Register(mountname.ToU8Span(), new LocalFileSystem(path));
+            using var LocalFS = new UniqueRef<IFileSystem>(new LocalFileSystem(path));
+            return fs.Register(mountname.ToU8Span(), ref LocalFS.Ref());
         }
 
         public static Result CopyFile(FileSystemClient fs, string srcPath, string dstPath)
@@ -22,7 +23,7 @@ namespace Mara.Lib.Platforms.Switch
             U8Span destPath = dstPath.ToU8String();
             Result rc = fs.OpenFile(out FileHandle sourceHandle, sourcePath, OpenMode.Read);
             if (rc.IsFailure()) return rc;
-            fs.EnsureDirectoryExists(Path.GetDirectoryName(dstPath));
+            fs.EnsureDirectoryExists(System.IO.Path.GetDirectoryName(dstPath));
             try
             {
                 rc = fs.GetFileSize(out long oriFileSize, sourceHandle);

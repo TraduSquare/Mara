@@ -1,14 +1,9 @@
 ﻿using System;
 using System.IO;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using LibHac;
 using LibHac.Common;
 using LibHac.Fs;
 using LibHac.Fs.Fsa;
-using LibHac.FsSystem;
 
 namespace Mara.Lib.Platforms.Switch
 {
@@ -20,40 +15,50 @@ namespace Mara.Lib.Platforms.Switch
         public NCA NCAS;
         private string titleid;
         private bool NeedExefs;
-        public Main(string oriFolder, string outFolder, string filePath, string Keys, string TitleID, bool extractExefs = false, bool checkSignature = true) : base(oriFolder, outFolder, filePath)
+        private bool BuildRomfs;
+        public Main(string oriFolder, string outFolder, string filePath, string Keys, string TitleID, string UpdateFile = null, bool extractExefs = false, bool checkSignature = true, bool buildromfs = true) : base(oriFolder, outFolder, filePath)
         {
             this.titleid = TitleID;
             this.horizon = new HOS(Keys, checkSignature);
             this.NeedExefs = extractExefs;
+            this.BuildRomfs = buildromfs;
             if (oriFolder.Contains(".nsp"))
             {
                 this.NSP = new PartitionFS(oriFolder);
-                this.NCAS = new NCA(horizon, this.NSP.MountPFS0(horizon));
-            } 
+                if (UpdateFile != null)
+                    this.NCAS = new NCA(horizon, this.NSP.MountPFS0(horizon, "base"), new PartitionFS(UpdateFile).MountPFS0(horizon, "Update"));
+                else
+                    this.NCAS = new NCA(horizon, this.NSP.MountPFS0(horizon, "base"));
+            }
             else if (oriFolder.Contains(".xci"))
             {
                 this.XCI = new GameCard(horizon, oriFolder);
-                this.NCAS = new NCA(horizon, this.XCI.MountGameCard(horizon));
+                if (UpdateFile != null)
+                    this.NCAS = new NCA(horizon, this.XCI.MountGameCard(horizon), new PartitionFS(UpdateFile).MountPFS0(horizon, "Update"));
+                else
+                    this.NCAS = new NCA(horizon, this.XCI.MountGameCard(horizon));
             }
             else
                 throw new Exception("Unrecognized file.");
 
-            NCAS.MountProgram(horizon, titleid);
-
+            Result rc = NCAS.MountProgram(horizon, titleid);
+            if (rc.IsFailure())
+                throw new Exception("Unable to mount the NCAS.");
         }
 
         public override (int, string) ApplyTranslation()
         {
             var count = maraConfig.FilesInfo.ListOriFiles.Length;
-            var fileTemp = $"{tempFolder}{Path.DirectorySeparatorChar}files";
-            var exefsdir = $"{tempFolder}{Path.DirectorySeparatorChar}exefs";
-            var romfsdir = $"{tempFolder}{Path.DirectorySeparatorChar}romfs";
-            var layeredOut = $"{Path.GetDirectoryName(oriFolder)}{Path.DirectorySeparatorChar}LayeredFS{Path.DirectorySeparatorChar}{this.titleid}";
+            var fileTemp = $"{tempFolder}{System.IO.Path.DirectorySeparatorChar}files";
+            var exefsdir = $"{tempFolder}{System.IO.Path.DirectorySeparatorChar}exefs";
+            var romfsdir = $"{tempFolder}{System.IO.Path.DirectorySeparatorChar}romfs";
+            var romfs_romdir = $"{tempFolder}{System.IO.Path.DirectorySeparatorChar}romfs_rom";
+            var layeredOut = $"{System.IO.Path.GetDirectoryName(oriFolder)}{System.IO.Path.DirectorySeparatorChar}LayeredFS{System.IO.Path.DirectorySeparatorChar}{this.titleid}";
 
             /* Init Dirs */
             if (!Directory.Exists(fileTemp))
                 Directory.CreateDirectory(fileTemp);
-            if(NeedExefs == true)
+            if (NeedExefs == true)
                 if (!Directory.Exists(exefsdir))
                     Directory.CreateDirectory(exefsdir);
             if (!Directory.Exists(romfsdir))
@@ -62,6 +67,8 @@ namespace Mara.Lib.Platforms.Switch
                 Directory.CreateDirectory(romfsdir);
             if (!Directory.Exists(layeredOut))
                 Directory.CreateDirectory(layeredOut);
+            if (!Directory.Exists(romfs_romdir))
+                Directory.CreateDirectory(romfs_romdir);
 
             var files = maraConfig.FilesInfo;
             Result result;
@@ -70,7 +77,7 @@ namespace Mara.Lib.Platforms.Switch
                 result = FSUtils.MountFolder(horizon.horizon.Fs, exefsdir, "OutExefs");
                 if (result.IsFailure()) return (2, $"Error mounting exeFs\n{result.Description}");
             }
-                
+
             result = FSUtils.MountFolder(horizon.horizon.Fs, romfsdir, "OutRomfs");
             if (result.IsFailure()) return (3, $"Error mounting romFs\n{result.Description}");
             foreach (string file in files.ListOriFiles)
@@ -80,7 +87,7 @@ namespace Mara.Lib.Platforms.Switch
                 if (file.Contains("exefs") == true && NeedExefs == true)
                 {
                     result = FSUtils.CopyFile(horizon.horizon.Fs, "exefs:/" + file.Replace("exefs", ""), "OutExefs:/" + file.Substring(6).Replace("\\", "/"));
-                } 
+                }
                 else if (file.Contains("romfs"))
                 {
                     result = FSUtils.CopyFile(horizon.horizon.Fs, "romfs:/" + file.Substring(6).Replace("\\", "/"), "OutRomfs:/" + file.Substring(6).Replace("\\", "/"));
@@ -88,14 +95,19 @@ namespace Mara.Lib.Platforms.Switch
                 if (result.IsFailure()) return (4, $"Error copying switch Files\n{result.Description}");
             }
 
-            
+
             for (int i = 0; i < count; i++)
             {
-                var oriFile = $"{tempFolder}{Path.DirectorySeparatorChar}{files.ListOriFiles[i]}";
-                var xdelta = $"{tempFolder}{Path.DirectorySeparatorChar}{files.ListXdeltaFiles[i]}";
-                var outFile = $"{layeredOut}{Path.DirectorySeparatorChar}{files.ListOriFiles[i]}";
+                var oriFile = $"{tempFolder}{System.IO.Path.DirectorySeparatorChar}{files.ListOriFiles[i]}";
+                var xdelta = $"{tempFolder}{System.IO.Path.DirectorySeparatorChar}{files.ListXdeltaFiles[i]}";
+                string outFile;
 
-                var folderFile = Path.GetDirectoryName(outFile);
+                if (BuildRomfs)
+                    outFile = $"{tempFolder}{System.IO.Path.DirectorySeparatorChar}romfs_rom{System.IO.Path.DirectorySeparatorChar}{files.ListOriFiles[i]}";
+                else
+                    outFile = $"{layeredOut}{System.IO.Path.DirectorySeparatorChar}{files.ListOriFiles[i]}";
+
+                var folderFile = System.IO.Path.GetDirectoryName(outFile);
                 if (!Directory.Exists(folderFile))
                     Directory.CreateDirectory(folderFile);
 
@@ -111,6 +123,19 @@ namespace Mara.Lib.Platforms.Switch
             {
                 UnmountPartition("exefs");
                 UnmountPartition("OutExefs");
+            }
+
+            if (BuildRomfs)
+            {
+                Romfs romfs = new Romfs(System.IO.Path.Combine(romfs_romdir, "romfs"));
+                if (romfs.DumpToFile(System.IO.Path.Combine(layeredOut, "romfs.bin")) != Result.Success)
+                    throw new Exception("Failed to build the romfs.bin");
+                int filesize = (int)new FileInfo(System.IO.Path.Combine(layeredOut, "romfs.bin")).Length;
+                if (filesize / 1024d / 1024d > 2048)
+                {
+                    Common.SplitFile.Split(System.IO.Path.Combine(layeredOut, "romfs.bin"), filesize, System.IO.Path.Combine(layeredOut, "romfs.bin"));
+                    File.Delete(System.IO.Path.Combine(layeredOut, "romfs-bin"));
+                }
             }
 
             return base.ApplyTranslation();

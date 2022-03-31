@@ -31,6 +31,9 @@ namespace Mara.Tester
                 case "PSVITA":
                     ImportVita(args[1], args[2], args[3]);
                     break;
+                case "Switch":
+                    ImportSwitch(args[1], args[2], args[3], args[4], args[5]);
+                    break;
                 default:
                     PrintInfo();
                     break;
@@ -48,6 +51,11 @@ namespace Mara.Tester
         {
             var mainVita = new Lib.Platforms.Generic.Main(oriFolder, outFolder, zipPatch);
             PrintResult(mainVita.ApplyTranslation());
+        }
+
+        private static void ImportSwitch(string oriFolder, string outFolder, string zipPatch, string keyset, string TitleID, string UpdateFile = null)
+        {
+            var mainSwitch = new Lib.Platforms.Switch.Main(oriFolder, outFolder, zipPatch, keyset, TitleID, UpdateFile);
         }
 
         private static void PrintResult((int, string) result)

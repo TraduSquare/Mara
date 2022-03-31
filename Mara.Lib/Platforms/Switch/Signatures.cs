@@ -1,4 +1,5 @@
 ﻿using System;
+using LibHac;
 using LibHac.Fs;
 using LibHac.Spl;
 using LibHac.Common.Keys;
@@ -97,6 +98,26 @@ namespace Mara.Lib.Platforms.Switch
             }
             keys.ExternalKeySet.Add(rightsId, titleKey).ThrowIfFailure();
             return keys;
+        }
+
+        public static Result CheckDeviceID(ulong deviceid)
+        {
+            UInt32 fab = (UInt32)(deviceid >> 50) & 0x3F;
+            UInt32 clot0 = (UInt32)(deviceid >> 24) & 0x3FFFFFF;
+            UInt32 wafer = (UInt32)(deviceid >> 18) & 0x3F;
+            UInt32 x_coord = (UInt32)(deviceid >> 9) & 0x1FF;
+            Int32 y_coord = (Int32)(deviceid >> 0) & 0x1FF;
+
+            if (fab != 25)
+                return new Result(0x12DA);
+            if (wafer < 0 || wafer > 25)
+                return new Result(0x12DA);
+            if (x_coord < -9f || x_coord > 15)
+                return new Result(0x12DA);
+            if (y_coord < 0 || y_coord > 26)
+                return new Result(0x12DA);
+
+            return Result.Success;
         }
     }
 }
