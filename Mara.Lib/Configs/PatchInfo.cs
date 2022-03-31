@@ -1,6 +1,6 @@
 ﻿namespace Mara.Lib.Configs
 {
-    public struct PatchInfo
+    public class PatchInfo
     {
         public int PatchId { get; set; }
         public string PatchVersion { get; set; }

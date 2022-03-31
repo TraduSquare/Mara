@@ -3,7 +3,7 @@ using Mara.Lib.Configs;
 
 namespace Mara.Lib
 {
-    public struct MaraConfig
+    public class MaraConfig
     {
         public GuiConfig GuiConfig { get; set; }
         public PatchFilesInfo FilesInfo { get; set; }

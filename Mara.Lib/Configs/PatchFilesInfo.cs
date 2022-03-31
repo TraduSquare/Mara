@@ -1,6 +1,6 @@
 ﻿namespace Mara.Lib.Configs
 {
-    public struct PatchFilesInfo
+    public class PatchFilesInfo
     {
         public string[] ListOriFiles { get; set; }
         public string[] ListXdeltaFiles { get; set; }
