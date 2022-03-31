@@ -11,17 +11,7 @@ namespace Mara.Tester
             if (args.Length != 4)
                 PrintInfo();
 
-            // Check ori folder
-            if (!CheckDirectoryOrFile(args[1], true))
-                return;
-
-            // Check result folder
-            if (!CheckDirectoryOrFile(args[2], true))
-                return;
-
-            // Check zip file
-            if (!CheckDirectoryOrFile(args[3], false))
-                return;
+            CheckPaths(args[1], args[2], args[3], args[0]);
 
             switch (args[0].ToUpper())
             {
@@ -30,6 +20,12 @@ namespace Mara.Tester
                     break;
                 case "PSVITA":
                     ImportVita(args[1], args[2], args[3]);
+                    break;
+                case "3DS-GENERAL":
+                    Import3dsGeneral(args[1], args[2], args[3]);
+                    break;
+                case "3DS-SPECIFIC":
+                    Import3dsSpecific(args[1], args[2], args[3]);
                     break;
                 default:
                     PrintInfo();
@@ -50,6 +46,18 @@ namespace Mara.Tester
             PrintResult(mainVita.ApplyTranslation());
         }
 
+        private static void Import3dsGeneral(string oriFile, string outFile, string zipPatch)
+        {
+            var main3DS = new Lib.Platforms._3ds.Main(oriFile, outFile, zipPatch, Lib.Platforms._3ds.PatchMode.General);
+            PrintResult(main3DS.ApplyTranslation());
+        }
+
+        private static void Import3dsSpecific(string oriFile, string outFile, string zipPatch)
+        {
+            var main3DS = new Lib.Platforms._3ds.Main(oriFile, outFile, zipPatch, Lib.Platforms._3ds.PatchMode.Specific);
+            PrintResult(main3DS.ApplyTranslation());
+        }
+
         private static void PrintResult((int, string) result)
         {
             Console.WriteLine($"RESULT CODE: {result.Item1}\n" +
@@ -64,9 +72,38 @@ namespace Mara.Tester
             Console.WriteLine("Mara.Tester PSVITA \"ORIGINAL FILES FOLDER\" \"OUT PATCHED FILES FOLDER\" \"ZIP DATA PATH\"");
         }
 
-        private static bool CheckDirectoryOrFile(string path, bool isDirectory)
+        static void CheckPaths(string oriPath, string outPath, string zipPath, string patchPlatform)
         {
-            if (!isDirectory)
+            bool isDirectory = true;
+
+            switch (patchPlatform.ToUpper())
+            {
+                case "3DS-GENERAL":
+                    isDirectory = false;
+                    outPath = Path.GetDirectoryName(outPath);
+                    break;
+                case "3DS-SPECIFIC":
+                    isDirectory = false;
+                    outPath = Path.GetDirectoryName(outPath);
+                    break;
+            }
+
+            // Check ori folder/file
+            if (!CheckDirectoryOrFile(oriPath, isDirectory))
+                return;
+
+            // Check result folder
+            if (!CheckDirectoryOrFile(outPath, true, true))
+                return;
+
+            // Check zip file
+            if (!CheckDirectoryOrFile(zipPath, false))
+                return;
+        }
+
+        private static bool CheckDirectoryOrFile(string path, bool isDirectory, bool isOut = false)
+        {
+            if (!isDirectory && !isOut)
             {
                 if (File.Exists(path))
                     return true;
@@ -74,6 +111,10 @@ namespace Mara.Tester
                 Console.WriteLine($"The file \"{path}\" doesn't exist!");
                 return false;
 
+            }
+            else if (!isDirectory && isOut)
+            {
+                path = Path.GetDirectoryName(path);
             }
 
             if (Directory.Exists(path))

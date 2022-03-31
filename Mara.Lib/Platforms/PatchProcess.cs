@@ -30,7 +30,7 @@ namespace Mara.Lib.Platforms
         }
 
 
-        protected (int, string) ApplyXdelta(string file, string xdelta, string result, string md5)
+        protected (int, string) ApplyXdelta(string file, string xdelta, string result, string md5, bool deltaFileStream = false)
         {
             if (!File.Exists(file + "_ori"))
                 File.Move(file, file + "_ori");
@@ -50,7 +50,10 @@ namespace Mara.Lib.Platforms
 
             try
             {
-                Common.Xdelta.Apply(File.Open(file, FileMode.Open), File.ReadAllBytes(xdelta), result);
+                if (!deltaFileStream)
+                    Common.Xdelta.Apply(File.Open(file, FileMode.Open), File.ReadAllBytes(xdelta), result);
+                else
+                    Common.Xdelta.ApplyFileStream(file, xdelta, result);
             }
             catch (Exception e)
             {
