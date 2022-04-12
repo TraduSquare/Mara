@@ -45,7 +45,7 @@ namespace Mara.Lib.Platforms.PS3.IO
             Array.Copy(npd, 16, data1, 0, 48);
             Array.Copy(fileBytes, 0, data1, 48, fileBytes.Length);
 
-            byte[] hash1 = Utils.CMAC128(null, data1);
+            byte[] hash1 = Utils.CMAC128(EDAT_Keys.npdrm_omac_key3, data1);
             return true;
         }
     }
