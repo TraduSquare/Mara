@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Mara.Lib.Platforms.PS3.Crypto;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -35,6 +36,17 @@ namespace Mara.Lib.Platforms.PS3.IO
             }
 
             return null;
+        }
+
+        private bool checkNPDHash1(string filename, byte[] npd)
+        {
+            byte[] fileBytes = Encoding.UTF8.GetBytes(filename);
+            byte[] data1 = new byte[48 + fileBytes.Length];
+            Array.Copy(npd, 16, data1, 0, 48);
+            Array.Copy(fileBytes, 0, data1, 48, fileBytes.Length);
+
+            byte[] hash1 = Utils.CMAC128(null, data1);
+            return true;
         }
     }
 
