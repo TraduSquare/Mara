@@ -17,6 +17,14 @@ namespace Mara.Lib.Platforms.PS3.IO
             DataReader reader = new DataReader(file);
 
             NPD npd = validateNPD(Path.GetFileName(InPath), klicense, reader);
+            if (npd == null)
+            {
+                throw new Exception("Invalid NPD");
+            }
+            else
+            {
+                Console.WriteLine("NPD valid!");
+            }
         }
 
         public static NPD validateNPD(string filename, byte[] devKLic, DataReader reader)
@@ -28,17 +36,36 @@ namespace Mara.Lib.Platforms.PS3.IO
 
             if ((flags & 0x1000000L) != 0x0L)
             {
-                // SDAT DEBE CASCAR
+                throw new Exception("SDAT not supported");
             } 
             else
             {
-
+                if (!checkNPDHash1(filename, npd)) {
+                    return null;
+                } 
+                else if (checkNPDHash2(devKLic, npd))
+                {
+                    return null;
+                }
             }
-
-            return null;
+            
+            return NPD.CreateNPD(npd);
         }
 
-        private bool checkNPDHash1(string filename, byte[] npd)
+        private static bool checkNPDHash2(byte[] klicensee, byte[] npd)
+        {
+            byte[] xoredKey = new byte[16];
+            xoredKey = Utils.XOR(klicensee, EDAT_Keys.npdrm_omac_key2);
+            byte[] calculated = Utils.CMAC128(xoredKey, npd);
+            byte[] npdhash = new byte[16];
+            Array.Copy(npd, 96, npdhash, 0, 16);
+            if (npdhash.Equals(calculated))
+                return true;
+            else
+                return false;
+        }
+
+        private static bool checkNPDHash1(string filename, byte[] npd)
         {
             byte[] fileBytes = Encoding.UTF8.GetBytes(filename);
             byte[] data1 = new byte[48 + fileBytes.Length];
