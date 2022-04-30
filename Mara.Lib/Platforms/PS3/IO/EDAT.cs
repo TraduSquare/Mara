@@ -105,33 +105,35 @@ namespace Mara.Lib.Platforms.PS3.IO
                 var hash = new byte[16];
                 var blockKey = calculateBlockKey(i, npd);
                 key = Utils.aesecbEncrypt(rifkey, blockKey);
-                
-                if ((data.flags & 0x10L) != 0x0L) {
+
+                if ((data.flags & 0x10L) != 0x0L)
                     hash = Utils.aesecbEncrypt(rifkey, key);
-                } else {
+                else
                     Array.Copy(key, 0, hash, 0, key.Length);
-                }
             }
-            
-            int cryptoFlag = ((data.flags & 0x2L) == 0x0L) ? 2 : 1;
+
+            var cryptoFlag = (data.flags & 0x2L) == 0x0L ? 2 : 1;
             int hashFlag;
-            
-            if ((data.flags & 0x10L) == 0x0L) {
+
+            if ((data.flags & 0x10L) == 0x0L)
                 hashFlag = 2;
-            } else if ((data.flags & 0x20L) == 0x0L) {
+            else if ((data.flags & 0x20L) == 0x0L)
                 hashFlag = 4;
-            } else {
+            else
                 hashFlag = 1;
-            }
-            if ((data.flags & 0x8L) != 0x0L) {
+            if ((data.flags & 0x8L) != 0x0L)
+            {
                 cryptoFlag |= 0x10000000;
                 hashFlag |= 0x10000000;
             }
-            if ((data.flags & 0x80000000L) != 0x0L) {
+
+            if ((data.flags & 0x80000000L) != 0x0L)
+            {
                 cryptoFlag |= 0x1000000;
                 hashFlag |= 0x1000000;
             }
-            byte[] iv = (npd.Version <= 1L) ? new byte[16] : npd.Digest;
+
+            var iv = npd.Version <= 1L ? new byte[16] : npd.Digest;
             throw new NotImplementedException();
         }
 
