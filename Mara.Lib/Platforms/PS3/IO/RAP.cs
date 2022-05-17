@@ -50,7 +50,7 @@ namespace Mara.Lib.Platforms.PS3.IO
                     {
                         var aux1 = current & 0xFF;
                         var aux2 = Key2[index] & 0xFF;
-                        acum = ((aux1 < aux2) ? 1 : 0);
+                        acum = aux1 < aux2 ? 1 : 0;
                         rifKey[index] = (byte) (current - keyc2);
                     }
                     else if (current == 255)

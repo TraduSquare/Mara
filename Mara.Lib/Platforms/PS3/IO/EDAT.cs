@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Buffers.Binary;
-using System.Collections.Specialized;
 using System.IO;
 using System.Numerics;
 using System.Text;
@@ -201,7 +200,7 @@ namespace Mara.Lib.Platforms.PS3.IO
                     break;
                 }
             }
-            
+
             if ((data.flags & 0x20L) != 0x0L && (data.flags & 0x1L) != 0x0L) return false;
 
             header = reader.ReadBytes(header.Length);
@@ -211,36 +210,39 @@ namespace Mara.Lib.Platforms.PS3.IO
             var hashFlag = (data.flags & 0x8L) == 0x0L ? 2 : 268435458;
             if ((data.flags & 0x80000000L) != 0x0L) hashFlag |= 0x1000000;
             if (npd.Version == 4L) keyIndex = 1;
-            
-            AppLoader a = new AppLoader();
-            
-            byte[] result = a.doAll(hashFlag, 1, header, 0, 0, header.Length, new byte[16], new byte[16], rifkey, expectedHash, 0, keyIndex);
-            if (result == null) {
+
+            var a = new AppLoader();
+
+            var result = a.doAll(hashFlag, 1, header, 0, 0, header.Length, new byte[16], new byte[16], rifkey,
+                expectedHash, 0, keyIndex);
+            if (result == null)
+            {
                 Console.WriteLine("Error verifying header. Is rifKey valid?.");
                 return false;
             }
-            
+
             if ((data.flags & 0x20L) == 0x0L)
             {
                 Console.WriteLine("Checking metadata hash:");
                 a = new AppLoader();
-                a.doInit(hashFlag,1,new byte[16], new byte[16], rifkey, keyIndex);
-                int sectionSize = ((data.flags & 0x1L) != 0x0L) ? 32 : 16;
-                int numBlocks = (int) ((data.fileLen + data.blockSize - 1L) / data.blockSize);
-                int readed = 0;
-                int baseOffset = 256;
-                int lenToRead = 0;
+                a.doInit(hashFlag, 1, new byte[16], new byte[16], rifkey, keyIndex);
+                var sectionSize = (data.flags & 0x1L) != 0x0L ? 32 : 16;
+                var numBlocks = (int) ((data.fileLen + data.blockSize - 1L) / data.blockSize);
+                var readed = 0;
+                var baseOffset = 256;
+                var lenToRead = 0;
 
                 for (long re = sectionSize * numBlocks; re > 0L; re -= lenToRead)
                 {
-                    lenToRead = ((15360L > re) ? ((int) re) : 15360);
+                    lenToRead = 15360L > re ? (int) re : 15360;
                     reader.Stream.Seek(baseOffset + readed, SeekOrigin.Begin);
-                    byte[] content = new byte[lenToRead];
+                    var content = new byte[lenToRead];
                     content = reader.ReadBytes(lenToRead);
                     var meme = a.doUpdate(content, 0, 0, lenToRead);
                     readed += lenToRead;
                 }
             }
+
             return true;
         }
 
@@ -276,7 +278,7 @@ namespace Mara.Lib.Platforms.PS3.IO
             reader.Stream.Seek(0, SeekOrigin.Begin);
 
             var npd = reader.ReadBytes(128);
-            long flags = Utils.bit32hex(reader.ReadBytes(4), 0);
+            var flags = Utils.bit32hex(reader.ReadBytes(4), 0);
 
             if ((flags & 0x1000000L) != 0x0L) throw new Exception("SDAT not supported");
 
@@ -321,9 +323,9 @@ namespace Mara.Lib.Platforms.PS3.IO
         {
             var rc = new EDAT_Data();
 
-            rc.flags = Utils.bit32hex(edatreader.ReadBytes(4),0);
-            rc.blockSize = Utils.bit32hex(edatreader.ReadBytes(4),0);
-            rc.fileLen = Utils.bit64hex(edatreader.ReadBytes(8),0);
+            rc.flags = Utils.bit32hex(edatreader.ReadBytes(4), 0);
+            rc.blockSize = Utils.bit32hex(edatreader.ReadBytes(4), 0);
+            rc.fileLen = Utils.bit64hex(edatreader.ReadBytes(8), 0);
 
             return rc;
         }

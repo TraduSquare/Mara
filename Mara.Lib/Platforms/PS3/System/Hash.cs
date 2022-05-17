@@ -1,7 +1,6 @@
 using System;
 using System.Security.Cryptography;
 using Mara.Lib.Platforms.PS3.Crypto;
-using NotImplementedException = System.NotImplementedException;
 
 namespace Mara.Lib.Platforms.PS3.System
 {
@@ -9,7 +8,7 @@ namespace Mara.Lib.Platforms.PS3.System
     {
         private HMACSHA1 mac;
         private byte[] result;
-        
+
         public override void doInit(byte[] hash)
         {
             mac = new HMACSHA1(hash);
@@ -31,32 +30,32 @@ namespace Mara.Lib.Platforms.PS3.System
             return true;
         }
     }
-    
+
     public class CMAC : IHash
     {
-        private byte[] key;
+        public byte[] generateHash;
         private byte[] K1;
         private byte[] K2;
+        private byte[] key;
         private byte[] nonProcessed;
         private byte[] previous;
-        public byte[] generateHash;
 
         public override void doInit(byte[] key)
         {
             this.key = key;
-            this.K1 = new byte[16];
-            this.K2 = new byte[16];
-            (this.K1, this.K2) = Utils.calculateSubkey(key);
-            this.nonProcessed = null;
-            this.previous = new byte[16];
+            K1 = new byte[16];
+            K2 = new byte[16];
+            (K1, K2) = Utils.calculateSubkey(key);
+            nonProcessed = null;
+            previous = new byte[16];
         }
 
         public override byte[] doUpdate(byte[] data)
         {
             byte[] finaldata;
-            if (this.nonProcessed != null)
+            if (nonProcessed != null)
             {
-                int totalLen = data.Length + this.nonProcessed.Length;
+                var totalLen = data.Length + nonProcessed.Length;
                 finaldata = new byte[totalLen];
                 Array.Copy(nonProcessed, 0, finaldata, 0, totalLen);
                 Array.Copy(data, 0, finaldata, nonProcessed.Length, 0);
@@ -64,16 +63,16 @@ namespace Mara.Lib.Platforms.PS3.System
             else
             {
                 finaldata = new byte[data.Length];
-                Array.Copy(data, 0, finaldata,0,data.Length);
+                Array.Copy(data, 0, finaldata, 0, data.Length);
             }
 
             byte[] aux;
-            for (int i = 0; i < finaldata.Length - 16; i++)
+            for (var i = 0; i < finaldata.Length - 16; i++)
             {
                 aux = new byte[16];
                 Array.Copy(finaldata, i, aux, 0, aux.Length);
-                aux = Utils.XOR(aux, this.previous);
-                this.previous = Utils.aesecbEncrypt(this.key, aux);
+                aux = Utils.XOR(aux, previous);
+                previous = Utils.aesecbEncrypt(key, aux);
             }
 
             return finaldata;
@@ -81,7 +80,7 @@ namespace Mara.Lib.Platforms.PS3.System
 
         public override bool doFinal(byte[] p0, int p1)
         {
-            byte[] aux = new byte[16];
+            var aux = new byte[16];
             Array.Copy(nonProcessed, 0, aux, 0, nonProcessed.Length);
             if (nonProcessed.Length == 16)
             {
@@ -89,7 +88,7 @@ namespace Mara.Lib.Platforms.PS3.System
             }
             else
             {
-                aux[this.nonProcessed.Length] -= 0x80;
+                aux[nonProcessed.Length] -= 0x80;
                 aux = Utils.XOR(aux, K2);
             }
 

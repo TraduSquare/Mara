@@ -36,7 +36,7 @@ namespace Mara.Lib.Platforms.PS3.Crypto
             var cTransform = rDel.CreateDecryptor();
             return cTransform.TransformFinalBlock(data, 0, data.Length);
         }
-        
+
         public static byte[] aescbcEncrypt(byte[] key, byte[] iv, byte[] data)
         {
             var rDel = new RijndaelManaged();
@@ -162,20 +162,18 @@ namespace Mara.Lib.Platforms.PS3.Crypto
 
             return array;
         }
-        
-        public static long bit32hex(byte[] buffer, int initOffset) {
-            long result = 0L;
-            for (int i = initOffset; i < initOffset + 4; ++i) {
-                result = result * 256L + (buffer[i] & 0xFF);
-            }
+
+        public static long bit32hex(byte[] buffer, int initOffset)
+        {
+            var result = 0L;
+            for (var i = initOffset; i < initOffset + 4; ++i) result = result * 256L + (buffer[i] & 0xFF);
             return result;
         }
-        
-        public static long bit64hex(byte[] buffer, int initOffset) {
-            long result = 0L;
-            for (int i = initOffset; i < initOffset + 8; ++i) {
-                result = result * 256L + (buffer[i] & 0xFF);
-            }
+
+        public static long bit64hex(byte[] buffer, int initOffset)
+        {
+            var result = 0L;
+            for (var i = initOffset; i < initOffset + 8; ++i) result = result * 256L + (buffer[i] & 0xFF);
             return result;
         }
     }
