@@ -86,7 +86,7 @@ namespace Mara.Lib.Platforms.PS3.Crypto
             return previous;
         }
 
-        private static (byte[], byte[]) calculateSubkey(byte[] key)
+        public static (byte[], byte[]) calculateSubkey(byte[] key)
         {
             var K1 = new byte[16];
             var K2 = new byte[16];
