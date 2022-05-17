@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers.Binary;
+using System.Collections.Specialized;
 using System.IO;
 using System.Numerics;
 using System.Text;
@@ -219,7 +220,27 @@ namespace Mara.Lib.Platforms.PS3.IO
                 return false;
             }
             
-            // TODO: Cosas que no entiendo
+            if ((data.flags & 0x20L) == 0x0L)
+            {
+                Console.WriteLine("Checking metadata hash:");
+                a = new AppLoader();
+                a.doInit(hashFlag,1,new byte[16], new byte[16], rifkey, keyIndex);
+                int sectionSize = ((data.flags & 0x1L) != 0x0L) ? 32 : 16;
+                int numBlocks = (int) ((data.fileLen + data.blockSize - 1L) / data.blockSize);
+                int readed = 0;
+                int baseOffset = 256;
+                int lenToRead = 0;
+
+                for (long re = sectionSize * numBlocks; re > 0L; re -= lenToRead)
+                {
+                    lenToRead = ((15360L > re) ? ((int) re) : 15360);
+                    reader.Stream.Seek(baseOffset + readed, SeekOrigin.Begin);
+                    byte[] content = new byte[lenToRead];
+                    content = reader.ReadBytes(lenToRead);
+                    var meme = a.doUpdate(content, 0, 0, lenToRead);
+                    readed += lenToRead;
+                }
+            }
             return true;
         }
 
@@ -255,7 +276,7 @@ namespace Mara.Lib.Platforms.PS3.IO
             reader.Stream.Seek(0, SeekOrigin.Begin);
 
             var npd = reader.ReadBytes(128);
-            long flags = reader.ReadInt32();
+            long flags = Utils.bit32hex(reader.ReadBytes(4), 0);
 
             if ((flags & 0x1000000L) != 0x0L) throw new Exception("SDAT not supported");
 
@@ -300,9 +321,9 @@ namespace Mara.Lib.Platforms.PS3.IO
         {
             var rc = new EDAT_Data();
 
-            rc.flags = edatreader.ReadInt32();
-            rc.blockSize = edatreader.ReadInt32();
-            rc.fileLen = edatreader.ReadInt64();
+            rc.flags = Utils.bit32hex(edatreader.ReadBytes(4),0);
+            rc.blockSize = Utils.bit32hex(edatreader.ReadBytes(4),0);
+            rc.fileLen = Utils.bit64hex(edatreader.ReadBytes(8),0);
 
             return rc;
         }

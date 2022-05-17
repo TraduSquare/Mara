@@ -16,10 +16,12 @@ namespace Mara.Lib.Platforms.PS3.System
             cryptoDebug = false;
         }
 
-        public byte[] doAll(int hashFlag, int cryptoFlag, byte[] i, int inOffset, int outOffset, int len,
+        public byte[] doAll(int hashFlag, int cryptoFlag, byte[] data, int inOffset, int outOffset, int len,
             byte[] key, byte[] iv, byte[] hash, byte[] expectedHash, int hashOffset, int keyIndex)
         {
-            return null;
+            this.doInit(hashFlag, cryptoFlag, key, iv, hash, keyIndex);
+            var meme = this.doUpdate(data, inOffset, outOffset, len);
+            return new byte[0];
         }
 
         public void doInit(int hashFlag, int cryptoFlag, byte[] key, byte[] iv, byte[] hashKey, int keyIndex)
@@ -30,6 +32,7 @@ namespace Mara.Lib.Platforms.PS3.System
             (calculatedKey,calculatedIV) = getCryptoKeys(cryptoFlag, key, iv, keyIndex);
             calculatedHash = getHashKeys(hashFlag, hashKey, keyIndex);
             setDecryptor(cryptoFlag);
+            setHash(hashFlag);
             Console.WriteLine($"ERK: {BitConverter.ToString(calculatedKey).Replace("-","")} " +
                               $"\nIV: {BitConverter.ToString(calculatedIV).Replace("-","")}" +
                               $"\nHASH: {BitConverter.ToString(calculatedHash).Replace("-","")}");
@@ -37,10 +40,10 @@ namespace Mara.Lib.Platforms.PS3.System
             this.hash.doInit(calculatedHash);
         }
 
-        public void doUpdate(byte[] i, int inOffset, byte[] o, int outOffset, int len)
+        public byte[] doUpdate(byte[] i, int inOffset, int outOffset, int len)
         {
-            this.dec.doUpdate(i,inOffset, outOffset, len);
             this.hash.doUpdate(i);
+            return this.dec.doUpdate(i,inOffset, outOffset, len);
         }
 
         private (byte[],byte[]) getCryptoKeys(int cryptoFlag, byte[] key, byte[] iv,
@@ -57,6 +60,7 @@ namespace Mara.Lib.Platforms.PS3.System
                     return (EDAT_Keys.EDATKEY[keyIndex], EDAT_Keys.EDATIV[keyIndex]);
                     break;
                 case 0:
+                    Console.WriteLine("MODE: Unencrypted ERK");
                     return (key, iv);
                     break;
                 default:

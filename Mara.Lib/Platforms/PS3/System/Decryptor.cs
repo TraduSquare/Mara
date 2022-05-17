@@ -7,7 +7,7 @@ namespace Mara.Lib.Platforms.PS3.System
     {
         public override void doInit(byte[] Key, byte[] iv)
         {
-            throw new NotImplementedException();
+            
         }
 
         public override byte[] doUpdate(byte[] data, int inputOffset, int p3, int inputCount)

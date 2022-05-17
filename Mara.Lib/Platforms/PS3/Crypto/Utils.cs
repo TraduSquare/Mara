@@ -162,5 +162,21 @@ namespace Mara.Lib.Platforms.PS3.Crypto
 
             return array;
         }
+        
+        public static long bit32hex(byte[] buffer, int initOffset) {
+            long result = 0L;
+            for (int i = initOffset; i < initOffset + 4; ++i) {
+                result = result * 256L + (buffer[i] & 0xFF);
+            }
+            return result;
+        }
+        
+        public static long bit64hex(byte[] buffer, int initOffset) {
+            long result = 0L;
+            for (int i = initOffset; i < initOffset + 8; ++i) {
+                result = result * 256L + (buffer[i] & 0xFF);
+            }
+            return result;
+        }
     }
 }

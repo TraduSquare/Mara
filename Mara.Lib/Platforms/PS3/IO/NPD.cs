@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using Mara.Lib.Platforms.PS3.Crypto;
 using Yarhl.IO;
 
 namespace Mara.Lib.Platforms.PS3.IO
@@ -30,15 +31,15 @@ namespace Mara.Lib.Platforms.PS3.IO
             var n = new NPD();
             var reader = new DataReader(new MemoryStream(npd));
             n.Magic = reader.ReadBytes(4);
-            n.Version = reader.ReadInt32();
-            n.License = reader.ReadInt32();
-            n.Type = reader.ReadInt32();
+            n.Version = Utils.bit32hex(reader.ReadBytes(4), 0);
+            n.License = Utils.bit32hex(reader.ReadBytes(4), 0);
+            n.Type = Utils.bit32hex(reader.ReadBytes(4), 0);
             n.ContentId = reader.ReadBytes(48);
             n.Digest = reader.ReadBytes(16);
             n.TitleHash = reader.ReadBytes(16);
             n.DevHash = reader.ReadBytes(16);
-            n.ActivationTime = reader.ReadInt64();
-            n.ExpirantionTime = reader.ReadInt64();
+            n.ActivationTime = Utils.bit64hex(reader.ReadBytes(8), 0);
+            n.ExpirantionTime = Utils.bit64hex(reader.ReadBytes(8), 0);
 
             if (n.Validate())
                 return n;
