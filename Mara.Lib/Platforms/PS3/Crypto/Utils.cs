@@ -14,7 +14,6 @@ namespace Mara.Lib.Platforms.PS3.Crypto
             rDel.Padding = PaddingMode.None;
             var cTransform = rDel.CreateDecryptor();
             return cTransform.TransformFinalBlock(data, 0, data.Length);
-            ;
         }
 
         public static byte[] aesecbEncrypt(byte[] key, byte[] data)
@@ -25,7 +24,28 @@ namespace Mara.Lib.Platforms.PS3.Crypto
             rDel.Padding = PaddingMode.None;
             var cTransform = rDel.CreateEncryptor();
             return cTransform.TransformFinalBlock(data, 0, data.Length);
-            ;
+        }
+
+        public static byte[] aescbcDecrypt(byte[] key, byte[] iv, byte[] data)
+        {
+            var rDel = new RijndaelManaged();
+            rDel.Key = key;
+            rDel.IV = iv;
+            rDel.Mode = CipherMode.CBC;
+            rDel.Padding = PaddingMode.None;
+            var cTransform = rDel.CreateDecryptor();
+            return cTransform.TransformFinalBlock(data, 0, data.Length);
+        }
+        
+        public static byte[] aescbcEncrypt(byte[] key, byte[] iv, byte[] data)
+        {
+            var rDel = new RijndaelManaged();
+            rDel.Key = key;
+            rDel.IV = iv;
+            rDel.Mode = CipherMode.CBC;
+            rDel.Padding = PaddingMode.None;
+            var cTransform = rDel.CreateEncryptor();
+            return cTransform.TransformFinalBlock(data, 0, data.Length);
         }
 
         public static byte[] CMAC128(byte[] key, byte[] data)

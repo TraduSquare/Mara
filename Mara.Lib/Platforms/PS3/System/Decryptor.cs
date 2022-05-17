@@ -5,15 +5,15 @@ namespace Mara.Lib.Platforms.PS3.System
 {
     public class NoCrypt : IDecryptor
     {
-        public void doInit(byte[] Key, byte[] iv)
+        public override void doInit(byte[] Key, byte[] iv)
         {
             throw new NotImplementedException();
         }
 
-        public byte[] doUpdate(byte[] i, int p1, int p3, int p4)
+        public override byte[] doUpdate(byte[] data, int inputOffset, int p3, int inputCount)
         {
-            var array = new byte[i.Length];
-            Array.Copy(i, p1, array, p3, p4);
+            var array = new byte[data.Length];
+            Array.Copy(data, inputOffset, array, p3, inputCount);
             return array;
         }
     }
@@ -22,7 +22,7 @@ namespace Mara.Lib.Platforms.PS3.System
     {
         private ICryptoTransform c;
 
-        public void doInit(byte[] Key, byte[] iv)
+        public override void doInit(byte[] Key, byte[] iv)
         {
             var c = new AesManaged();
             c.Key = Key;
@@ -32,9 +32,9 @@ namespace Mara.Lib.Platforms.PS3.System
             this.c = c.CreateDecryptor();
         }
 
-        public byte[] doUpdate(byte[] p0, int p1, int p3, int p4)
+        public override byte[] doUpdate(byte[] data, int inputOffset, int p3, int inputCount)
         {
-            return c.TransformFinalBlock(p0, p1, p4);
+            return c.TransformFinalBlock(data, inputOffset, inputCount);
         }
     }
 }

@@ -1,15 +1,23 @@
+using System;
+
 namespace Mara.Lib.Platforms.PS3.System
 {
-    public interface IHash
+    public abstract class IHash
     {
-        public void setHashLen(int p0);
+        public byte[] result;
+        private int hashLen;
+        public abstract void doInit(byte[] hash);
+        public abstract byte[] doUpdate(byte[] data);
+        public abstract bool doFinal(byte[] p0, int p1);
+        public abstract bool doFinalButGetHash(byte[] p0);
 
-        public void doInit(byte[] p0);
-
-        public void doUpdate(byte[] p0, int p1, int p2);
-
-        public bool doFinal(byte[] p0, int p1);
-
-        public bool doFinalButGetHash(byte[] p0);
+        public virtual void setHashLen(int len)
+        {
+            if (len == 16 || len == 20) {
+                this.hashLen = len;
+                return;
+            }
+            throw new Exception("Hash len must be 0x10 or 0x14");
+        }
     }
 }

@@ -1,8 +1,8 @@
 namespace Mara.Lib.Platforms.PS3.System
 {
-    public interface IDecryptor
+    public abstract class IDecryptor
     {
-        public void doInit(byte[] Key, byte[] iv);
-        public byte[] doUpdate(byte[] p0, int p1, int p3, int p4);
+        public abstract void doInit(byte[] Key, byte[] iv);
+        public abstract byte[] doUpdate(byte[] data, int inputOffset, int p3, int inputCount);
     }
 }
