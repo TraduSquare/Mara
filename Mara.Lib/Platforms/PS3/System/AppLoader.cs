@@ -91,6 +91,8 @@ namespace Mara.Lib.Platforms.PS3.System
                     this.hash.setHashLen(20);
                     break;
                 case 2:
+                    this.hash = new CMAC();
+                    this.hash.setHashLen(16);
                     break;
                 case 4:
                     this.hash = new HMAC();

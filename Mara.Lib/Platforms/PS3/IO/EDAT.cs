@@ -4,6 +4,7 @@ using System.IO;
 using System.Numerics;
 using System.Text;
 using Mara.Lib.Platforms.PS3.Crypto;
+using Mara.Lib.Platforms.PS3.System;
 using Yarhl.IO;
 
 namespace Mara.Lib.Platforms.PS3.IO
@@ -173,6 +174,7 @@ namespace Mara.Lib.Platforms.PS3.IO
             var header = new byte[160];
             var outBytes = new byte[160];
             var expectedHash = new byte[16];
+            var keyIndex = 0;
 
             Console.WriteLine($"Checking NPD Version: {npd.Version}");
             Console.WriteLine($"EDATA Flag: 0x{data.flags}");
@@ -198,7 +200,7 @@ namespace Mara.Lib.Platforms.PS3.IO
                     break;
                 }
             }
-
+            
             if ((data.flags & 0x20L) != 0x0L && (data.flags & 0x1L) != 0x0L) return false;
 
             header = reader.ReadBytes(header.Length);
@@ -207,8 +209,16 @@ namespace Mara.Lib.Platforms.PS3.IO
             // Comprobar Hash
             var hashFlag = (data.flags & 0x8L) == 0x0L ? 2 : 268435458;
             if ((data.flags & 0x80000000L) != 0x0L) hashFlag |= 0x1000000;
-            var keyIndex = 0;
             if (npd.Version == 4L) keyIndex = 1;
+            
+            AppLoader a = new AppLoader();
+            
+            byte[] result = a.doAll(hashFlag, 1, header, 0, 0, header.Length, new byte[16], new byte[16], rifkey, expectedHash, 0, keyIndex);
+            if (result == null) {
+                Console.WriteLine("Error verifying header. Is rifKey valid?.");
+                return false;
+            }
+            
             // TODO: Cosas que no entiendo
             return true;
         }

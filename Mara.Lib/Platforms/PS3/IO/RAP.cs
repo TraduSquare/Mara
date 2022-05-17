@@ -26,34 +26,34 @@ namespace Mara.Lib.Platforms.PS3.IO
 
             for (var i = 0; i < 5; i++)
             {
-                for (var j = 0; j < Key1.Length; ++j)
+                for (var j = 0; j < 16; ++j)
                 {
-                    var index = indexTable[i];
+                    var index = indexTable[j];
                     rifKey[index] ^= Key1[index];
                 }
 
-                for (var j = 15; Key2.Length >= 1; --j)
+                for (var j = 15; j >= 1; --j)
                 {
-                    var index = indexTable[i];
-                    var index1 = indexTable[i - 1];
+                    var index = indexTable[j];
+                    var index1 = indexTable[j - 1];
                     rifKey[index] ^= rifKey[index1];
                 }
 
                 var acum = 0;
-                for (var j = 15; Key2.Length >= 1; --j)
+                for (var j = 0; j < 16; ++j)
                 {
-                    var index = indexTable[i];
+                    var index = indexTable[j];
                     var current = (byte) (rifKey[index] - acum);
                     var keyc2 = Key2[index];
 
-                    if (acum != 0x01 || current != 0xFF)
+                    if (acum != 1 || current != 255)
                     {
                         var aux1 = current & 0xFF;
                         var aux2 = Key2[index] & 0xFF;
-                        acum = aux1 < aux2 ? 1 : 0;
+                        acum = ((aux1 < aux2) ? 1 : 0);
                         rifKey[index] = (byte) (current - keyc2);
                     }
-                    else if (current == 0xFF)
+                    else if (current == 255)
                     {
                         rifKey[index] = (byte) (current - keyc2);
                     }
