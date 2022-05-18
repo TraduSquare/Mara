@@ -41,7 +41,8 @@ namespace Mara.Lib.Platforms.PS3.IO
             var keyIndex = 0;
 
             if (npd.Version == 4L) keyIndex = 1;
-
+            DataStream decrypted = DataStreamFactory.FromFile("decrypted.edat", FileOpenMode.Write);
+            DataWriter writer = new DataWriter(decrypted);
             for (var i = 0; i < numBlocks; ++i)
             {
                 reader.Stream.Seek(baseOffset + i * metadataSectionSize, SeekOrigin.Begin);
@@ -98,6 +99,7 @@ namespace Mara.Lib.Platforms.PS3.IO
 
                 var realLen = len;
                 len = (int) ((len + 15) & 0xFFFFFFF0);
+                Console.WriteLine($"Offset: {offset}, len: {len}, reallen: {realLen}, endCompress: {compressionEndBlock}");
                 reader.Stream.Seek(offset, SeekOrigin.Begin);
                 var encryptedData = new byte[len];
                 var decryptedData = new byte[len];
@@ -111,31 +113,41 @@ namespace Mara.Lib.Platforms.PS3.IO
                     hash = Utils.aesecbEncrypt(rifkey, key);
                 else
                     Array.Copy(key, 0, hash, 0, key.Length);
+                
+                var cryptoFlag = (data.flags & 0x2L) == 0x0L ? 2 : 1;
+                int hashFlag;
+
+                if ((data.flags & 0x10L) == 0x0L)
+                    hashFlag = 2;
+                else if ((data.flags & 0x20L) == 0x0L)
+                    hashFlag = 4;
+                else
+                    hashFlag = 1;
+                if ((data.flags & 0x8L) != 0x0L)
+                {
+                    cryptoFlag |= 0x10000000;
+                    hashFlag |= 0x10000000;
+                }
+
+                if ((data.flags & 0x80000000L) != 0x0L)
+                {
+                    cryptoFlag |= 0x1000000;
+                    hashFlag |= 0x1000000;
+                }
+
+                var iv = npd.Version <= 1L ? new byte[16] : npd.Digest;
+                AppLoader app = new AppLoader();
+
+                decryptedData = app.doAll(hashFlag, cryptoFlag, encryptedData, 0, 0,encryptedData.Length, key, iv, hash, expectedHash, 0, keyIndex);
+
+                if (decryptedData == null)
+                {
+                    throw new Exception($"Error decrypting block {i}");
+                }
+                writer.Write(decryptedData);
             }
-
-            var cryptoFlag = (data.flags & 0x2L) == 0x0L ? 2 : 1;
-            int hashFlag;
-
-            if ((data.flags & 0x10L) == 0x0L)
-                hashFlag = 2;
-            else if ((data.flags & 0x20L) == 0x0L)
-                hashFlag = 4;
-            else
-                hashFlag = 1;
-            if ((data.flags & 0x8L) != 0x0L)
-            {
-                cryptoFlag |= 0x10000000;
-                hashFlag |= 0x10000000;
-            }
-
-            if ((data.flags & 0x80000000L) != 0x0L)
-            {
-                cryptoFlag |= 0x1000000;
-                hashFlag |= 0x1000000;
-            }
-
-            var iv = npd.Version <= 1L ? new byte[16] : npd.Digest;
-            throw new NotImplementedException();
+            decrypted.Close();
+            return true;
         }
 
         private static byte[] calculateBlockKey(int blk, NPD npd)

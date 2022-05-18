@@ -21,7 +21,7 @@ namespace Mara.Lib.Platforms.PS3.System
         {
             doInit(hashFlag, cryptoFlag, key, iv, hash, keyIndex);
             var meme = doUpdate(data, inOffset, outOffset, len);
-            return new byte[0];
+            return meme;
         }
 
         public void doInit(int hashFlag, int cryptoFlag, byte[] key, byte[] iv, byte[] hashKey, int keyIndex)

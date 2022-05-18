@@ -12,7 +12,6 @@ namespace Mara.Lib.Platforms.PS3.System
         public override void doInit(byte[] hash)
         {
             mac = new HMACSHA1(hash);
-            throw new NotImplementedException();
         }
 
         public override byte[] doUpdate(byte[] data)
