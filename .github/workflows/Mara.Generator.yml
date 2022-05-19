@@ -1,0 +1,28 @@
+name: Build Mara.Generator
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: 6.0.x
+    - name: Restore dependencies
+      run: dotnet restore Mara.Generator
+    - name: Build
+      run: dotnet build --no-restore Mara.Generator
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v3.0.0
+      with:
+        name: Mara.Generator
+        path: Mara.Generator/bin/debug/net5.0-windows/
