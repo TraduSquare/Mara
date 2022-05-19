@@ -48,7 +48,7 @@ namespace Mara.Lib.Platforms.PS3.Crypto
             return cTransform.TransformFinalBlock(data, 0, data.Length);
         }
 
-        public static byte[] CMAC128(byte[] key, byte[] data)
+        public static byte[] CMAC128(byte[] key, byte[] data, int len = 0, int inoffset = 0)
         {
             var K1 = new byte[16];
             var K2 = new byte[16];
@@ -58,9 +58,11 @@ namespace Mara.Lib.Platforms.PS3.Crypto
             var input = new byte[16];
             var previous = new byte[16];
             int remaining;
-            var currentOffset = 0;
+            var currentOffset = inoffset;
 
-            for (remaining = data.Length; remaining > 16; remaining -= 16)
+            if (len == 0)
+                len = data.Length;
+            for (remaining = len; remaining > 16; remaining -= 16)
             {
                 Array.Copy(data, input, 16);
                 input = XOR(input, previous);

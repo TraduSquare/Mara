@@ -77,11 +77,31 @@ namespace Mara.Lib.Platforms.PS3.IO
             
             iv = Utils.ReverseBytes(iv);
             Array.Copy(iv,0,npd, 64, iv.Length);
-            byte[] hash = createNPDHash1(FileName, npd);
-            throw new NotImplementedException();
+            byte[] hash;
+            (hash, npd) = createNPDHash1(FileName, npd);
+            Array.Copy(hash, 0, npd, 80, 16);
+
+            byte[] devhash;
+
+            (devhash, npd) = createNPDHash2(klicense, npd);
+            Array.Copy(devhash, 0, npd, 96, 16);
+            for (int j = 0; j < 16; ++j) {
+                npd[112 + j] = 0;
+            }
+            NPD NPD = NPD.CreateNPD(npd);
+            return (NPD, npd);
         }
 
-        private static byte[] createNPDHash1(string? fileName, byte[] npd)
+        private static (byte[], byte[]) createNPDHash2(byte[] klicense, byte[] npd)
+        {
+            byte[] xoredKey = new byte[16];
+            xoredKey = Utils.XOR(klicense, EDAT_Keys.npdrm_omac_key2);
+            byte[] calculated = Utils.CMAC128(xoredKey, npd, 96);
+            Array.Copy(calculated, 0, npd, 96, 16);
+            return (calculated, npd);
+        }
+
+        private static (byte[],byte[]) createNPDHash1(string? fileName, byte[] npd)
         {
             byte[] fileBytes = Encoding.UTF8.GetBytes(fileName);
             byte[] data1 = new byte[48 + fileBytes.Length];
@@ -92,7 +112,7 @@ namespace Mara.Lib.Platforms.PS3.IO
             byte[] hash1 = Utils.CMAC128(EDAT_Keys.npdrm_omac_key3, data1);
             Array.Copy(hash1,0,npd,80,16);
 
-            return hash1;
+            return (hash1, npd);
         }
 
         private static bool decryptData(DataReader reader, NPD npd, EDAT_Data data, byte[] rifkey, string OutPath = "decrypted.edat")
