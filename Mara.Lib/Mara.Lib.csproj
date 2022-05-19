@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="LibHac" Version="0.14.3" />
     <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="SceneGate.Lemon" Version="0.1.0-preview.69" />
@@ -17,9 +18,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="LibHac">
-      <HintPath>Dll\LibHac.dll</HintPath>
-    </Reference>
     <Reference Include="Pleosoft.XdeltaSharp">
       <HintPath>Dll\Pleosoft.XdeltaSharp.dll</HintPath>
     </Reference>
