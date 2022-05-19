@@ -28,12 +28,74 @@ namespace Mara.Lib.Platforms.PS3.IO
 
             if (!checkHeader(rifkey, data, npd, reader)) throw new Exception("Error verifying header.");
 
-            if (decryptData(reader, npd, data, rifkey))
+            if (decryptData(reader, npd, data, rifkey, OutPath))
             {
+                Console.WriteLine($"Done!");
             }
         }
 
-        private static bool decryptData(DataReader reader, NPD npd, EDAT_Data data, byte[] rifkey)
+        public static void encryptFile(string InPath, string OutPath, byte[] klicense, byte[] keyFromRif, byte[] ContentID, byte[] flags, byte[] type, byte[] version)
+        {
+            DataStream encrypted = DataStreamFactory.FromFile(OutPath, FileOpenMode.Write);
+            DataStream decrypted = DataStreamFactory.FromFile(InPath, FileOpenMode.Read);
+            DataWriter writer = new DataWriter(encrypted);
+            DataReader reader = new DataReader(decrypted);
+
+            NPD npd;
+            byte[] npd_bytes;
+
+            (npd, npd_bytes) = writeValidNPD(Path.GetFileName(InPath), klicense, reader, ContentID, type, version);
+
+            throw new NotImplementedException();
+        }
+
+        private static (NPD npd, byte[] npd_bytes) writeValidNPD(string? FileName, byte[] klicense, DataReader reader, byte[] contentId, byte[] type, byte[] version)
+        {
+            byte[] npd = new byte[128];
+            npd[0] = 78;
+            npd[1] = 80;
+            npd[2] = 68;
+            npd[4] = (npd[3] = 0);
+            npd[6] = (npd[5] = 0);
+            npd[7] = version[0];
+            npd[8] = 0;
+            npd[10] = (npd[9] = 0);
+            npd[11] = 3;
+            npd[12] = 0;
+            npd[14] = (npd[13] = 0);
+            npd[15] = type[0];
+            for (int i = 0; i < 48; ++i) {
+                npd[16 + i] = contentId[i];
+            }
+
+            byte[] fake_iv = { 0x6D, 0x65, 0x67, 0x61, 0x66, 0x6C, 0x61, 0x6E, 
+                                0x6C, 0x61, 0x63, 0x68, 0x75, 0x70, 0x61, 0x00 };
+            byte[] fake_digest = { 0x6D, 0x65, 0x67, 0x61, 0x66, 0x6C, 0x61, 0x6E, 
+                0x6C, 0x61, 0x63, 0x68, 0x75, 0x70, 0x61, 0x00 };
+            
+            byte[] iv = { 100, 117, 116, 115, 101, 110, 117, 114, 66, 102, 79, 121, 114, 111, 108, 71 };
+            
+            iv = Utils.ReverseBytes(iv);
+            Array.Copy(iv,0,npd, 64, iv.Length);
+            byte[] hash = createNPDHash1(FileName, npd);
+            throw new NotImplementedException();
+        }
+
+        private static byte[] createNPDHash1(string? fileName, byte[] npd)
+        {
+            byte[] fileBytes = Encoding.UTF8.GetBytes(fileName);
+            byte[] data1 = new byte[48 + fileBytes.Length];
+            
+            Array.Copy(npd, 16, data1, 0, 48);
+            Array.Copy(fileBytes, 0, data1, 48, fileBytes.Length);
+            
+            byte[] hash1 = Utils.CMAC128(EDAT_Keys.npdrm_omac_key3, data1);
+            Array.Copy(hash1,0,npd,80,16);
+
+            return hash1;
+        }
+
+        private static bool decryptData(DataReader reader, NPD npd, EDAT_Data data, byte[] rifkey, string OutPath = "decrypted.edat")
         {
             var numBlocks = (int) ((data.fileLen + data.blockSize - 1L) / data.blockSize);
             var metadataSectionSize = (data.flags & 0x1L) != 0x0L || (data.flags & 0x20L) != 0x0L ? 32 : 16;
@@ -41,7 +103,7 @@ namespace Mara.Lib.Platforms.PS3.IO
             var keyIndex = 0;
 
             if (npd.Version == 4L) keyIndex = 1;
-            DataStream decrypted = DataStreamFactory.FromFile("decrypted.edat", FileOpenMode.Write);
+            DataStream decrypted = DataStreamFactory.FromFile(OutPath, FileOpenMode.Write);
             DataWriter writer = new DataWriter(decrypted);
             for (var i = 0; i < numBlocks; ++i)
             {

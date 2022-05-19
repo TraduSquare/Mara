@@ -176,5 +176,14 @@ namespace Mara.Lib.Platforms.PS3.Crypto
             for (var i = initOffset; i < initOffset + 8; ++i) result = result * 256L + (buffer[i] & 0xFF);
             return result;
         }
+        
+        public static byte[] ReverseBytes(byte[] raw) {
+            int len = raw.Length;
+            byte[] final = new byte[len];
+            for (int i = 0; i < len; ++i) {
+                final[len - i - 1] = raw[i];
+            }
+            return final;
+        }
     }
 }
