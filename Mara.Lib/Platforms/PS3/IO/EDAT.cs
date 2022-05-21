@@ -38,11 +38,10 @@ namespace Mara.Lib.Platforms.PS3.IO
             var decrypted = DataStreamFactory.FromFile(InPath, FileOpenMode.Read);
             var writer = new DataWriter(encrypted);
             var reader = new DataReader(decrypted);
-
             NPD npd;
             byte[] npd_bytes;
 
-            (npd, npd_bytes) = writeValidNPD(Path.GetFileName(InPath), klicense, reader, ContentID, type, version);
+            (npd, npd_bytes) = writeValidNPD(Path.GetFileName(OutPath), klicense, reader, ContentID, type, version);
 
             writer.Write(npd_bytes);
             byte[] buffer = {0, 0, 0, 0};
@@ -58,9 +57,9 @@ namespace Mara.Lib.Platforms.PS3.IO
             for (var i = 0; i < 8; ++i) rLenBuf[i] = 0;
             for (var i = 0; i < lenBuf.Length; ++i) rLenBuf[i] = lenBuf[i];
 
-            writer.Write(rLenBuf);
+            writer.Write(Utils.ReverseBytes(rLenBuf));
             buffer[0] = 0;
-            while (writer.Stream.Length < 256L) writer.WriteUntilLength(buffer[0], 1);
+            while (writer.Stream.Length < 256L) writer.Write(buffer[0]);
 
             var data = new EDAT_Data();
             data.flags = flags[0];
@@ -122,7 +121,7 @@ namespace Mara.Lib.Platforms.PS3.IO
 
             var keyIndex = 0;
             if (npd.Version == 4L) keyIndex = 1;
-
+            var meme = reader.ReadBytes(4);
             for (var i = 0; i < numBlocks; ++i)
             {
                 var offset = i * data.blockSize;
@@ -130,8 +129,7 @@ namespace Mara.Lib.Platforms.PS3.IO
                 var len = (int) data.blockSize;
 
                 if (i == numBlocks - 1)
-                    // TODO: Ver que pollas hace
-                    throw new NotImplementedException();
+                    len = (int) (data.fileLen % data.blockSize);
 
                 var realLen = len;
                 len = (int) ((len + 15) & 0xFFFFFFF0);
@@ -139,10 +137,7 @@ namespace Mara.Lib.Platforms.PS3.IO
                 var encryptedData = new byte[len];
                 var decryptedData = new byte[len];
 
-                for (var j = realLen; j < 0; j--)
-                {
-                    decryptedData[j] = reader.ReadByte();
-                }
+                decryptedData = reader.ReadBytes(len);
                 for (int ai = realLen; ai < len; ++ai) {
                     decryptedData[ai] = 0;
                 }
@@ -222,10 +217,11 @@ namespace Mara.Lib.Platforms.PS3.IO
                 0x6D, 0x65, 0x67, 0x61, 0x66, 0x6C, 0x61, 0x6E,
                 0x6C, 0x61, 0x63, 0x68, 0x75, 0x70, 0x61, 0x00
             };
-
+            
             byte[] iv = {100, 117, 116, 115, 101, 110, 117, 114, 66, 102, 79, 121, 114, 111, 108, 71};
 
             iv = Utils.ReverseBytes(iv);
+            
             Array.Copy(iv, 0, npd, 64, iv.Length);
             byte[] hash;
             (hash, npd) = createNPDHash1(FileName, npd);
@@ -251,13 +247,14 @@ namespace Mara.Lib.Platforms.PS3.IO
 
         private static (byte[], byte[]) createNPDHash1(string? fileName, byte[] npd)
         {
-            var fileBytes = Encoding.UTF8.GetBytes(fileName);
+            var fileBytes = Utils.charsToByte(fileName.ToCharArray());
             var data1 = new byte[48 + fileBytes.Length];
 
             Array.Copy(npd, 16, data1, 0, 48);
             Array.Copy(fileBytes, 0, data1, 48, fileBytes.Length);
 
             var hash1 = Utils.CMAC128(EDAT_Keys.npdrm_omac_key3, data1);
+            
             Array.Copy(hash1, 0, npd, 80, 16);
 
             return (hash1, npd);

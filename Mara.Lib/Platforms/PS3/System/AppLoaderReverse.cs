@@ -7,7 +7,7 @@ namespace Mara.Lib.Platforms.PS3.System
     {
         private IDecryptor dec;
         private IHash hash;
-        
+
         public void doInit(int hashFlag, int cryptoFlag, byte[] key, byte[] iv, byte[] hashKey, int keyIndex)
         {
             var calculatedKey = new byte[key.Length];
@@ -23,13 +23,13 @@ namespace Mara.Lib.Platforms.PS3.System
             dec.doInit(calculatedKey, calculatedIV);
             hash.doInit(calculatedHash);
         }
-        
+
         public byte[] doUpdate(byte[] i, int inOffset, int outOffset, int len)
         {
             hash.doUpdate(i);
             return dec.doUpdate(i, inOffset, outOffset, len);
         }
-        
+
         public byte[] doAll(int hashFlag, int cryptoFlag, byte[] data, int inOffset, int outOffset, int len,
             byte[] key, byte[] iv, byte[] hash, byte[] expectedHash, int hashOffset, int keyIndex)
         {
@@ -37,7 +37,7 @@ namespace Mara.Lib.Platforms.PS3.System
             var meme = doUpdate(data, inOffset, outOffset, len);
             return meme;
         }
-        
+
         private void setDecryptor(int cryptoFlag)
         {
             var aux = cryptoFlag & 0xFF;
@@ -53,7 +53,7 @@ namespace Mara.Lib.Platforms.PS3.System
                     throw new NotSupportedException();
             }
         }
-        
+
         private void setHash(int hashFlag)
         {
             var aux = hashFlag & 0xFF;
@@ -75,7 +75,7 @@ namespace Mara.Lib.Platforms.PS3.System
                     throw new NotSupportedException();
             }
         }
-        
+
         private (byte[], byte[]) getCryptoKeys(int cryptoFlag, byte[] key, byte[] iv,
             int keyIndex)
         {
@@ -97,7 +97,7 @@ namespace Mara.Lib.Platforms.PS3.System
                     throw new NotSupportedException();
             }
         }
-        
+
         private byte[] getHashKeys(int hashFlag, byte[] hash, int keyIndex)
         {
             var mode = (int) (hashFlag & 0xF0000000);

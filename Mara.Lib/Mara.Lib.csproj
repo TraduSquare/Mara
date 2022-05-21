@@ -1,16 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
+    <LangVersion>10</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="BouncyCastle.NetCore" Version="1.9.0" />
     <PackageReference Include="LibHac" Version="0.14.3" />
     <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="SceneGate.Lemon" Version="0.1.0-preview.69" />
     <PackageReference Include="SharpCompress" Version="0.28.1" />
-    <PackageReference Include="Yarhl" Version="3.1.1-preview.23" />
+    <PackageReference Include="Yarhl" Version="3.1.1-preview.55" />
   </ItemGroup>
 
   <ItemGroup>
