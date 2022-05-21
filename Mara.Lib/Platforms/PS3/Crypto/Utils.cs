@@ -139,8 +139,10 @@ namespace Mara.Lib.Platforms.PS3.Crypto
             }
 
             if ((K1[0] & 0x80) != 0x0)
+            {
                 aux = aux << 1;
-            //aux = new BigInteger(XOR(aux.ToByteArray(), 130L), false, true);
+                aux = aux ^ 135L;
+            }
             else
                 aux = aux << 1;
 
@@ -161,7 +163,7 @@ namespace Mara.Lib.Platforms.PS3.Crypto
 
         public static byte[] XOR(byte[] inputA, byte[] inputB)
         {
-            var output = new byte[inputB.Length];
+            var output = new byte[inputA.Length];
 
             for (var i = 0; i < inputB.Length; ++i) output[i] = (byte) (inputA[i] ^ inputB[i]);
 
