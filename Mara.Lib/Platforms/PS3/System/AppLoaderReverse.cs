@@ -3,27 +3,11 @@ using Mara.Lib.Platforms.PS3.Crypto;
 
 namespace Mara.Lib.Platforms.PS3.System
 {
-    public class AppLoader
+    public class AppLoaderReverse
     {
-        private bool cryptoDebug;
         private IDecryptor dec;
         private IHash hash;
-        private bool hashDebug;
-
-        public AppLoader()
-        {
-            hashDebug = false;
-            cryptoDebug = false;
-        }
-
-        public byte[] doAll(int hashFlag, int cryptoFlag, byte[] data, int inOffset, int outOffset, int len,
-            byte[] key, byte[] iv, byte[] hash, byte[] expectedHash, int hashOffset, int keyIndex)
-        {
-            doInit(hashFlag, cryptoFlag, key, iv, hash, keyIndex);
-            var meme = doUpdate(data, inOffset, outOffset, len);
-            return meme;
-        }
-
+        
         public void doInit(int hashFlag, int cryptoFlag, byte[] key, byte[] iv, byte[] hashKey, int keyIndex)
         {
             var calculatedKey = new byte[key.Length];
@@ -39,14 +23,59 @@ namespace Mara.Lib.Platforms.PS3.System
             dec.doInit(calculatedKey, calculatedIV);
             hash.doInit(calculatedHash);
         }
-
+        
         public byte[] doUpdate(byte[] i, int inOffset, int outOffset, int len)
         {
-            var m = dec.doUpdate(i, inOffset, outOffset, len);
             hash.doUpdate(i);
-            return m;
+            return dec.doUpdate(i, inOffset, outOffset, len);
         }
-
+        
+        public byte[] doAll(int hashFlag, int cryptoFlag, byte[] data, int inOffset, int outOffset, int len,
+            byte[] key, byte[] iv, byte[] hash, byte[] expectedHash, int hashOffset, int keyIndex)
+        {
+            doInit(hashFlag, cryptoFlag, key, iv, hash, keyIndex);
+            var meme = doUpdate(data, inOffset, outOffset, len);
+            return meme;
+        }
+        
+        private void setDecryptor(int cryptoFlag)
+        {
+            var aux = cryptoFlag & 0xFF;
+            switch (aux)
+            {
+                case 1:
+                    dec = new NoCrypt();
+                    break;
+                case 2:
+                    dec = new AESCBC128Decrypt();
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+        }
+        
+        private void setHash(int hashFlag)
+        {
+            var aux = hashFlag & 0xFF;
+            switch (aux)
+            {
+                case 1:
+                    hash = new HMAC();
+                    hash.setHashLen(20);
+                    break;
+                case 2:
+                    hash = new CMAC();
+                    hash.setHashLen(16);
+                    break;
+                case 4:
+                    hash = new HMAC();
+                    hash.setHashLen(16);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+        }
+        
         private (byte[], byte[]) getCryptoKeys(int cryptoFlag, byte[] key, byte[] iv,
             int keyIndex)
         {
@@ -68,7 +97,7 @@ namespace Mara.Lib.Platforms.PS3.System
                     throw new NotSupportedException();
             }
         }
-
+        
         private byte[] getHashKeys(int hashFlag, byte[] hash, int keyIndex)
         {
             var mode = (int) (hashFlag & 0xF0000000);
@@ -82,46 +111,6 @@ namespace Mara.Lib.Platforms.PS3.System
                     return EDAT_Keys.EDATHASH[keyIndex];
                 case 0:
                     return hash;
-                default:
-                    throw new NotSupportedException();
-            }
-        }
-
-        private void setHash(int hashFlag)
-        {
-            var aux = hashFlag & 0xFF;
-            switch (aux)
-            {
-                case 1:
-                    hash = new HMAC();
-                    hash.setHashLen(20);
-                    break;
-                case 2:
-                    hash = new CMAC();
-                    hash.setHashLen(16);
-                    break;
-                case 4:
-                    hash = new HMAC();
-                    hash.setHashLen(16);
-                    break;
-                default:
-                    throw new NotSupportedException();
-            }
-
-            if ((hashFlag & 0xF000000) != 0x0) hashDebug = true;
-        }
-
-        private void setDecryptor(int cryptoFlag)
-        {
-            var aux = cryptoFlag & 0xFF;
-            switch (aux)
-            {
-                case 1:
-                    dec = new NoCrypt();
-                    break;
-                case 2:
-                    dec = new AESCBC128Decrypt();
-                    break;
                 default:
                     throw new NotSupportedException();
             }

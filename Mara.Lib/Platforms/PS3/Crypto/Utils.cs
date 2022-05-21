@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Numerics;
 using System.Security.Cryptography;
 
@@ -178,14 +179,21 @@ namespace Mara.Lib.Platforms.PS3.Crypto
             for (var i = initOffset; i < initOffset + 8; ++i) result = result * 256L + (buffer[i] & 0xFF);
             return result;
         }
-        
-        public static byte[] ReverseBytes(byte[] raw) {
-            int len = raw.Length;
-            byte[] final = new byte[len];
-            for (int i = 0; i < len; ++i) {
-                final[len - i - 1] = raw[i];
-            }
+
+        public static byte[] ReverseBytes(byte[] raw)
+        {
+            var len = raw.Length;
+            var final = new byte[len];
+            for (var i = 0; i < len; ++i) final[len - i - 1] = raw[i];
             return final;
+        }
+
+        public static byte[] StringToByteArray(string hex)
+        {
+            return Enumerable.Range(0, hex.Length)
+                .Where(x => x % 2 == 0)
+                .Select(x => Convert.ToByte(hex.Substring(x, 2), 16))
+                .ToArray();
         }
     }
 }

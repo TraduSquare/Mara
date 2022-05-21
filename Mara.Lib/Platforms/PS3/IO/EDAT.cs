@@ -28,55 +28,205 @@ namespace Mara.Lib.Platforms.PS3.IO
 
             if (!checkHeader(rifkey, data, npd, reader)) throw new Exception("Error verifying header.");
 
-            if (decryptData(reader, npd, data, rifkey, OutPath))
-            {
-                Console.WriteLine($"Done!");
-            }
+            if (decryptData(reader, npd, data, rifkey, OutPath)) Console.WriteLine("Done!");
         }
 
-        public static void encryptFile(string InPath, string OutPath, byte[] klicense, byte[] keyFromRif, byte[] ContentID, byte[] flags, byte[] type, byte[] version)
+        public static void encryptFile(string InPath, string OutPath, byte[] klicense, byte[] keyFromRif,
+            byte[] ContentID, byte[] flags, byte[] type, byte[] version)
         {
-            DataStream encrypted = DataStreamFactory.FromFile(OutPath, FileOpenMode.Write);
-            DataStream decrypted = DataStreamFactory.FromFile(InPath, FileOpenMode.Read);
-            DataWriter writer = new DataWriter(encrypted);
-            DataReader reader = new DataReader(decrypted);
+            var encrypted = DataStreamFactory.FromFile(OutPath, FileOpenMode.Write);
+            var decrypted = DataStreamFactory.FromFile(InPath, FileOpenMode.Read);
+            var writer = new DataWriter(encrypted);
+            var reader = new DataReader(decrypted);
 
             NPD npd;
             byte[] npd_bytes;
 
             (npd, npd_bytes) = writeValidNPD(Path.GetFileName(InPath), klicense, reader, ContentID, type, version);
 
+            writer.Write(npd_bytes);
+            byte[] buffer = {0, 0, 0, 0};
+            Array.Copy(flags, 0, buffer, 3, flags.Length);
+            writer.Write(buffer);
+            buffer[2] = 64;
+            buffer[3] = 0;
+            writer.Write(buffer);
+            var len = reader.Stream.Length;
+            var lenBuf = BitConverter.GetBytes(len);
+            var rLenBuf = new byte[8];
+
+            for (var i = 0; i < 8; ++i) rLenBuf[i] = 0;
+            for (var i = 0; i < lenBuf.Length; ++i) rLenBuf[i] = lenBuf[i];
+
+            writer.Write(rLenBuf);
+            buffer[0] = 0;
+            while (writer.Stream.Length < 256L) writer.WriteUntilLength(buffer[0], 1);
+
+            var data = new EDAT_Data();
+            data.flags = flags[0];
+            data.blockSize = 16384L;
+            data.fileLen = len;
+            var rifkey = getKey(npd, data, klicense, keyFromRif);
+            var hashFlag = (data.flags & 0x8L) == 0x0L ? 2 : 268435458;
+            if ((data.flags & 0x80000000L) != 0x0L) hashFlag |= 0x1000000;
+
+            encryptData(reader, writer, npd, data, rifkey);
+            writer.Stream.Seek(144L, SeekOrigin.Begin);
+            AppLoader aa = new AppLoader();
+            
+            int keyIndex = 0;
+            if (npd.Version == 4L) {
+                keyIndex = 1;
+            }
+            aa.doInit(hashFlag, 1, new byte[16], new byte[16], rifkey, keyIndex);
+            int sectionSize = ((data.flags & 0x1L) != 0x0L) ? 32 : 16;
+            int numBlocks = (int) ((data.fileLen + data.blockSize - 1L) / data.blockSize);
+            int readed = 0;
+            int baseOffset = 256;
+            int lenToRead = 0;
+
+            for (long remaining = sectionSize * numBlocks; remaining > 0L; remaining -= lenToRead)
+            {
+                lenToRead = ((15360L > remaining) ? ((int) remaining) : 15360);
+                writer.Stream.Seek(baseOffset + readed, SeekOrigin.Begin);
+                byte[] content = new byte[lenToRead];
+                byte[] ooo = new byte[lenToRead];
+                // TODO: 
+                //content = .ReadBytes(content.Length);
+                
+                readed += lenToRead;
+            }
+            
             throw new NotImplementedException();
         }
 
-        private static (NPD npd, byte[] npd_bytes) writeValidNPD(string? FileName, byte[] klicense, DataReader reader, byte[] contentId, byte[] type, byte[] version)
+        private static void encryptData(DataReader reader, DataWriter writer, NPD npd, EDAT_Data data, byte[] rifkey)
         {
-            byte[] npd = new byte[128];
+            var numBlocks = (int) ((data.fileLen + data.blockSize - 1L) / data.blockSize);
+            var expectedHashForFile = new byte[numBlocks * 16];
+            var encryptedDataForFile = new byte[(int) (reader.Stream.Length + 15L) & 0xFFFFFFF0];
+            var EDATAVersion = new byte[16];
+
+            switch (npd.Version)
+            {
+                case 2L:
+                    EDATAVersion = Utils.StringToByteArray("454441544120322E372E302E57000000");
+                    break;
+                case 3L:
+                    EDATAVersion = Utils.StringToByteArray("454441544120332E332E302E57000000");
+                    break;
+                case 4L:
+                    EDATAVersion = Utils.StringToByteArray("454441544120342E302E302E57000000");
+                    break;
+            }
+
+            var keyIndex = 0;
+            if (npd.Version == 4L) keyIndex = 1;
+
+            for (var i = 0; i < numBlocks; ++i)
+            {
+                var offset = i * data.blockSize;
+                reader.Stream.Seek(offset, SeekOrigin.Begin);
+                var len = (int) data.blockSize;
+
+                if (i == numBlocks - 1)
+                    // TODO: Ver que pollas hace
+                    throw new NotImplementedException();
+
+                var realLen = len;
+                len = (int) ((len + 15) & 0xFFFFFFF0);
+                Console.WriteLine($"Offset: {offset}, len: {len}, reallen: {realLen}");
+                var encryptedData = new byte[len];
+                var decryptedData = new byte[len];
+
+                for (var j = realLen; j < 0; j--)
+                {
+                    decryptedData[j] = reader.ReadByte();
+                }
+                for (int ai = realLen; ai < len; ++ai) {
+                    decryptedData[ai] = 0;
+                }
+                
+                byte[] key = new byte[16]; 
+                byte[] hash = new byte[16];
+                byte[] blockKey = calculateBlockKey(i, npd);
+
+                key = Utils.aesecbEncrypt(rifkey,blockKey);
+                hash = key;
+                if ((data.flags & 0x10L) != 0x0L)
+                {
+                    hash = Utils.aesecbEncrypt(rifkey, key);
+                }
+                int cryptoFlag = ((data.flags & 0x2L) == 0x0L) ? 2 : 1;
+                int hashFlag;
+                if ((data.flags & 0x10L) == 0x0L) {
+                    hashFlag = 2;
+                } else if ((data.flags & 0x20L) == 0x0L) {
+                    hashFlag = 4;
+                } else {
+                    hashFlag = 1;
+                }
+                if ((data.flags & 0x8L) != 0x0L) {
+                    cryptoFlag |= 0x10000000;
+                    hashFlag |= 0x10000000;
+                }
+                if ((data.flags & 0x80000000L) != 0x0L) {
+                    cryptoFlag |= 0x1000000;
+                    hashFlag |= 0x1000000;
+                }
+                
+                Console.WriteLine($"cryptoFlag: {cryptoFlag}");
+                Console.WriteLine($"hashFlag: {hashFlag}");
+                AppLoaderReverse a = new AppLoaderReverse();
+                byte[] iv = (npd.Version <= 1L) ? new byte[16] : npd.Digest;
+                byte[] generatedHash = new byte[20];
+                byte[] metadata = new byte[32];
+                encryptedData = a.doAll(hashFlag, cryptoFlag, decryptedData, 0, 0, decryptedData.Length, key, iv, hash,
+                    generatedHash, 0, keyIndex);
+                
+                Array.Copy(encryptedData,0,encryptedDataForFile,offset,len);
+                Array.Copy(generatedHash, 0, encryptedDataForFile, i * 16, 16);
+            }
+
+            writer.Stream.Seek(256L, SeekOrigin.Begin);
+            writer.Write(expectedHashForFile);
+            writer.Write(encryptedDataForFile);
+            writer.Write(EDATAVersion);
+        }
+
+        private static (NPD npd, byte[] npd_bytes) writeValidNPD(string? FileName, byte[] klicense, DataReader reader,
+            byte[] contentId, byte[] type, byte[] version)
+        {
+            var npd = new byte[128];
             npd[0] = 78;
             npd[1] = 80;
             npd[2] = 68;
-            npd[4] = (npd[3] = 0);
-            npd[6] = (npd[5] = 0);
+            npd[4] = npd[3] = 0;
+            npd[6] = npd[5] = 0;
             npd[7] = version[0];
             npd[8] = 0;
-            npd[10] = (npd[9] = 0);
+            npd[10] = npd[9] = 0;
             npd[11] = 3;
             npd[12] = 0;
-            npd[14] = (npd[13] = 0);
+            npd[14] = npd[13] = 0;
             npd[15] = type[0];
-            for (int i = 0; i < 48; ++i) {
-                npd[16 + i] = contentId[i];
-            }
+            for (var i = 0; i < 48; ++i) npd[16 + i] = contentId[i];
 
-            byte[] fake_iv = { 0x6D, 0x65, 0x67, 0x61, 0x66, 0x6C, 0x61, 0x6E, 
-                                0x6C, 0x61, 0x63, 0x68, 0x75, 0x70, 0x61, 0x00 };
-            byte[] fake_digest = { 0x6D, 0x65, 0x67, 0x61, 0x66, 0x6C, 0x61, 0x6E, 
-                0x6C, 0x61, 0x63, 0x68, 0x75, 0x70, 0x61, 0x00 };
-            
-            byte[] iv = { 100, 117, 116, 115, 101, 110, 117, 114, 66, 102, 79, 121, 114, 111, 108, 71 };
-            
+            byte[] fake_iv =
+            {
+                0x6D, 0x65, 0x67, 0x61, 0x66, 0x6C, 0x61, 0x6E,
+                0x6C, 0x61, 0x63, 0x68, 0x75, 0x70, 0x61, 0x00
+            };
+            byte[] fake_digest =
+            {
+                0x6D, 0x65, 0x67, 0x61, 0x66, 0x6C, 0x61, 0x6E,
+                0x6C, 0x61, 0x63, 0x68, 0x75, 0x70, 0x61, 0x00
+            };
+
+            byte[] iv = {100, 117, 116, 115, 101, 110, 117, 114, 66, 102, 79, 121, 114, 111, 108, 71};
+
             iv = Utils.ReverseBytes(iv);
-            Array.Copy(iv,0,npd, 64, iv.Length);
+            Array.Copy(iv, 0, npd, 64, iv.Length);
             byte[] hash;
             (hash, npd) = createNPDHash1(FileName, npd);
             Array.Copy(hash, 0, npd, 80, 16);
@@ -85,37 +235,36 @@ namespace Mara.Lib.Platforms.PS3.IO
 
             (devhash, npd) = createNPDHash2(klicense, npd);
             Array.Copy(devhash, 0, npd, 96, 16);
-            for (int j = 0; j < 16; ++j) {
-                npd[112 + j] = 0;
-            }
-            NPD NPD = NPD.CreateNPD(npd);
-            return (NPD, npd);
+            for (var j = 0; j < 16; ++j) npd[112 + j] = 0;
+            var _NPD = NPD.CreateNPD(npd);
+            return (_NPD, npd);
         }
 
         private static (byte[], byte[]) createNPDHash2(byte[] klicense, byte[] npd)
         {
-            byte[] xoredKey = new byte[16];
+            var xoredKey = new byte[16];
             xoredKey = Utils.XOR(klicense, EDAT_Keys.npdrm_omac_key2);
-            byte[] calculated = Utils.CMAC128(xoredKey, npd, 96);
+            var calculated = Utils.CMAC128(xoredKey, npd, 96);
             Array.Copy(calculated, 0, npd, 96, 16);
             return (calculated, npd);
         }
 
-        private static (byte[],byte[]) createNPDHash1(string? fileName, byte[] npd)
+        private static (byte[], byte[]) createNPDHash1(string? fileName, byte[] npd)
         {
-            byte[] fileBytes = Encoding.UTF8.GetBytes(fileName);
-            byte[] data1 = new byte[48 + fileBytes.Length];
-            
+            var fileBytes = Encoding.UTF8.GetBytes(fileName);
+            var data1 = new byte[48 + fileBytes.Length];
+
             Array.Copy(npd, 16, data1, 0, 48);
             Array.Copy(fileBytes, 0, data1, 48, fileBytes.Length);
-            
-            byte[] hash1 = Utils.CMAC128(EDAT_Keys.npdrm_omac_key3, data1);
-            Array.Copy(hash1,0,npd,80,16);
+
+            var hash1 = Utils.CMAC128(EDAT_Keys.npdrm_omac_key3, data1);
+            Array.Copy(hash1, 0, npd, 80, 16);
 
             return (hash1, npd);
         }
 
-        private static bool decryptData(DataReader reader, NPD npd, EDAT_Data data, byte[] rifkey, string OutPath = "decrypted.edat")
+        private static bool decryptData(DataReader reader, NPD npd, EDAT_Data data, byte[] rifkey,
+            string OutPath = "decrypted.edat")
         {
             var numBlocks = (int) ((data.fileLen + data.blockSize - 1L) / data.blockSize);
             var metadataSectionSize = (data.flags & 0x1L) != 0x0L || (data.flags & 0x20L) != 0x0L ? 32 : 16;
@@ -123,8 +272,8 @@ namespace Mara.Lib.Platforms.PS3.IO
             var keyIndex = 0;
 
             if (npd.Version == 4L) keyIndex = 1;
-            DataStream decrypted = DataStreamFactory.FromFile(OutPath, FileOpenMode.Write);
-            DataWriter writer = new DataWriter(decrypted);
+            var decrypted = DataStreamFactory.FromFile(OutPath, FileOpenMode.Write);
+            var writer = new DataWriter(decrypted);
             for (var i = 0; i < numBlocks; ++i)
             {
                 reader.Stream.Seek(baseOffset + i * metadataSectionSize, SeekOrigin.Begin);
@@ -181,7 +330,8 @@ namespace Mara.Lib.Platforms.PS3.IO
 
                 var realLen = len;
                 len = (int) ((len + 15) & 0xFFFFFFF0);
-                Console.WriteLine($"Offset: {offset}, len: {len}, reallen: {realLen}, endCompress: {compressionEndBlock}");
+                Console.WriteLine(
+                    $"Offset: {offset}, len: {len}, reallen: {realLen}, endCompress: {compressionEndBlock}");
                 reader.Stream.Seek(offset, SeekOrigin.Begin);
                 var encryptedData = new byte[len];
                 var decryptedData = new byte[len];
@@ -195,7 +345,7 @@ namespace Mara.Lib.Platforms.PS3.IO
                     hash = Utils.aesecbEncrypt(rifkey, key);
                 else
                     Array.Copy(key, 0, hash, 0, key.Length);
-                
+
                 var cryptoFlag = (data.flags & 0x2L) == 0x0L ? 2 : 1;
                 int hashFlag;
 
@@ -218,16 +368,15 @@ namespace Mara.Lib.Platforms.PS3.IO
                 }
 
                 var iv = npd.Version <= 1L ? new byte[16] : npd.Digest;
-                AppLoader app = new AppLoader();
+                var app = new AppLoader();
 
-                decryptedData = app.doAll(hashFlag, cryptoFlag, encryptedData, 0, 0,encryptedData.Length, key, iv, hash, expectedHash, 0, keyIndex);
+                decryptedData = app.doAll(hashFlag, cryptoFlag, encryptedData, 0, 0, encryptedData.Length, key, iv,
+                    hash, expectedHash, 0, keyIndex);
 
-                if (decryptedData == null)
-                {
-                    throw new Exception($"Error decrypting block {i}");
-                }
+                if (decryptedData == null) throw new Exception($"Error decrypting block {i}");
                 writer.Write(decryptedData);
             }
+
             decrypted.Close();
             return true;
         }
