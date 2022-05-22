@@ -1,78 +1,68 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using LibHac;
 using LibHac.Common;
 using LibHac.Fs;
 using LibHac.Fs.Fsa;
 using LibHac.FsSystem;
+using LibHac.Tools.Fs;
 
-namespace Mara.Lib.Platforms.Switch
+namespace Mara.Lib.Platforms.Switch;
+
+public class GameCard
 {
-    public class GameCard
+    private readonly Xci Gamecard;
+
+    public GameCard(HOS hos, IStorage gamecardimage)
     {
-        private Xci Gamecard;
+        Gamecard = new Xci(hos.keys, gamecardimage);
+    }
 
-        public GameCard(HOS hos, IStorage gamecardimage)
+    public GameCard(HOS hos, string gamecardpath)
+    {
+        if (hos.CheckSignature)
         {
-            this.Gamecard = new Xci(hos.keys, gamecardimage);
-        }
-
-        public GameCard(HOS hos, string gamecardpath)
-        {
-            if (hos.CheckSignature == true)
+            if (CheckCert(gamecardpath))
             {
-                if(CheckCert(gamecardpath) == true)
-                {
-                    IStorage tmp = new LocalStorage(gamecardpath, FileAccess.Read);
-                    this.Gamecard = new Xci(hos.keys, tmp);
-                }
-                else
-                {
-                    throw new Exception("Invalid Cert Signature.");
-                }
+                IStorage tmp = new LocalStorage(gamecardpath, FileAccess.Read);
+                Gamecard = new Xci(hos.keys, tmp);
             }
             else
             {
-                IStorage tmp = new LocalStorage(gamecardpath, FileAccess.Read);
-                this.Gamecard = new Xci(hos.keys, tmp);
+                throw new Exception("Invalid Cert Signature.");
             }
         }
-
-        public string MountGameCard(HOS hos)
+        else
         {
-            FileSystemClient fs = hos.horizon.Fs;
-            string mountname = "GameCard";
-            if(hos.CheckSignature == true)
-            {
-                if (Gamecard.Header.SignatureValidity == Validity.Invalid)
-                {
-                    throw new Exception("Invalid GameCard Signature.");
-                }
-            }
-            using var HFS0 = new UniqueRef<IFileSystem>(Gamecard.OpenPartition(XciPartitionType.Secure));
-            fs.Register(mountname.ToU8Span(), ref HFS0.Ref());
-
-            return mountname + ":/";
+            IStorage tmp = new LocalStorage(gamecardpath, FileAccess.Read);
+            Gamecard = new Xci(hos.keys, tmp);
         }
+    }
 
-        private static bool CheckCert(string path)
+    public string MountGameCard(HOS hos)
+    {
+        var fs = hos.horizon.Fs;
+        var mountname = "GameCard";
+        if (hos.CheckSignature)
+            if (Gamecard.Header.SignatureValidity == Validity.Invalid)
+                throw new Exception("Invalid GameCard Signature.");
+        using var HFS0 = new UniqueRef<IFileSystem>(Gamecard.OpenPartition(XciPartitionType.Secure));
+        fs.Register(mountname.ToU8Span(), ref HFS0.Ref());
+
+        return mountname + ":/";
+    }
+
+    private static bool CheckCert(string path)
+    {
+        using (var s = File.Open(path, FileMode.Open))
         {
-            using (FileStream s = File.Open(path, FileMode.Open))
-            {
-                BinaryReader Readerdec = new BinaryReader(s);
-                byte[] tmp = new byte[512];
-                Readerdec.BaseStream.Position = 0x7000;
-                tmp = Readerdec.ReadBytes(Signatures.GameCardInvalidCert.Length);
-                if (tmp.SequenceEqual(Signatures.GameCardInvalidCert) == true)
-                {
-                    return false;
-                }
-                else
-                {
-                    return true;
-                }
-            }
+            var Readerdec = new BinaryReader(s);
+            var tmp = new byte[512];
+            Readerdec.BaseStream.Position = 0x7000;
+            tmp = Readerdec.ReadBytes(Signatures.GameCardInvalidCert.Length);
+            if (tmp.SequenceEqual(Signatures.GameCardInvalidCert))
+                return false;
+            return true;
         }
     }
 }

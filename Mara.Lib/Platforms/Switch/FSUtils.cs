@@ -1,83 +1,83 @@
 ﻿using System;
 using System.Buffers;
-using System.IO;
 using LibHac;
 using LibHac.Common;
 using LibHac.Fs;
 using LibHac.Fs.Fsa;
 using LibHac.FsSystem;
+using LibHac.Tools.Fs;
+using Path = System.IO.Path;
 
-namespace Mara.Lib.Platforms.Switch
+namespace Mara.Lib.Platforms.Switch;
+
+internal class FSUtils
 {
-    class FSUtils
+    public static Result MountFolder(FileSystemClient fs, string path, string mountname)
     {
-        public static Result MountFolder(FileSystemClient fs, string path, string mountname)
-        {
-            using var LocalFS = new UniqueRef<IFileSystem>(new LocalFileSystem(path));
-            return fs.Register(mountname.ToU8Span(), ref LocalFS.Ref());
-        }
+        using var LocalFS = new UniqueRef<IFileSystem>(new LocalFileSystem(path));
+        return fs.Register(mountname.ToU8Span(), ref LocalFS.Ref());
+    }
 
-        public static Result CopyFile(FileSystemClient fs, string srcPath, string dstPath)
+    public static Result CopyFile(FileSystemClient fs, string srcPath, string dstPath)
+    {
+        U8Span sourcePath = srcPath.ToU8String();
+        U8Span destPath = dstPath.ToU8String();
+        var rc = fs.OpenFile(out var sourceHandle, sourcePath, OpenMode.Read);
+        if (rc.IsFailure()) return rc;
+        fs.EnsureDirectoryExists(Path.GetDirectoryName(dstPath));
+        try
         {
-            U8Span sourcePath = srcPath.ToU8String();
-            U8Span destPath = dstPath.ToU8String();
-            Result rc = fs.OpenFile(out FileHandle sourceHandle, sourcePath, OpenMode.Read);
+            rc = fs.GetFileSize(out var oriFileSize, sourceHandle);
             if (rc.IsFailure()) return rc;
-            fs.EnsureDirectoryExists(System.IO.Path.GetDirectoryName(dstPath));
+            rc = fs.CreateOrOverwriteFile(dstPath, oriFileSize);
+            if (rc.IsFailure()) return rc;
+            rc = fs.OpenFile(out var destHandle, destPath, OpenMode.All);
+            if (rc.IsFailure()) return rc;
+
             try
             {
-                rc = fs.GetFileSize(out long oriFileSize, sourceHandle);
+                const int maxBufferSize = 1024 * 1024;
+
+                rc = fs.GetFileSize(out var fileSize, sourceHandle);
                 if (rc.IsFailure()) return rc;
-                rc = fs.CreateOrOverwriteFile(dstPath, oriFileSize);
-                if (rc.IsFailure()) return rc;
-                rc = fs.OpenFile(out FileHandle destHandle, destPath, OpenMode.All);
-                if (rc.IsFailure()) return rc;
-                
+
+                var bufferSize = (int) Math.Min(maxBufferSize, fileSize);
+
+                var buffer = ArrayPool<byte>.Shared.Rent(bufferSize);
                 try
                 {
-                    const int maxBufferSize = 1024 * 1024;
-
-                    rc = fs.GetFileSize(out long fileSize, sourceHandle);
-                    if (rc.IsFailure()) return rc;
-
-                    int bufferSize = (int)Math.Min(maxBufferSize, fileSize);
-
-                    byte[] buffer = ArrayPool<byte>.Shared.Rent(bufferSize);
-                    try
+                    for (long offset = 0; offset < fileSize; offset += bufferSize)
                     {
-                        for (long offset = 0; offset < fileSize; offset += bufferSize)
-                        {
-                            int toRead = (int)Math.Min(fileSize - offset, bufferSize);
-                            Span<byte> buf = buffer.AsSpan(0, toRead);
+                        var toRead = (int) Math.Min(fileSize - offset, bufferSize);
+                        var buf = buffer.AsSpan(0, toRead);
 
-                            rc = fs.ReadFile(out long _, sourceHandle, offset, buf);
-                            if (rc.IsFailure()) return rc;
+                        rc = fs.ReadFile(out var _, sourceHandle, offset, buf);
+                        if (rc.IsFailure()) return rc;
 
-                            rc = fs.WriteFile(destHandle, offset, buf, WriteOption.None);
-                            if (rc.IsFailure()) return rc;
-                        }
+                        rc = fs.WriteFile(destHandle, offset, buf, WriteOption.None);
+                        if (rc.IsFailure()) return rc;
                     }
-                    finally
-                    {
-                        ArrayPool<byte>.Shared.Return(buffer);
-                    }
-
-                    rc = fs.FlushFile(destHandle);
-                    if (rc.IsFailure()) return rc;
                 }
                 finally
                 {
-                    if (destHandle.IsValid)
-                        fs.CloseFile(destHandle);
+                    ArrayPool<byte>.Shared.Return(buffer);
                 }
+
+                rc = fs.FlushFile(destHandle);
+                if (rc.IsFailure()) return rc;
             }
             finally
             {
-                if (sourceHandle.IsValid)
-                    fs.CloseFile(sourceHandle);
+                if (destHandle.IsValid)
+                    fs.CloseFile(destHandle);
             }
-
-            return Result.Success;
         }
+        finally
+        {
+            if (sourceHandle.IsValid)
+                fs.CloseFile(sourceHandle);
+        }
+
+        return Result.Success;
     }
 }

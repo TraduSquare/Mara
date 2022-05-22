@@ -1,36 +1,36 @@
-﻿using LibHac;
+﻿using System.IO;
+using LibHac;
 using LibHac.Fs;
 using LibHac.FsSystem;
-using LibHac.FsSystem.RomFs;
-using System;
-using System.IO;
+using LibHac.Tools.FsSystem;
+using LibHac.Tools.FsSystem.RomFs;
 
-namespace Mara.Lib.Platforms.Switch
+namespace Mara.Lib.Platforms.Switch;
+
+public class Romfs
 {
-    public class Romfs
+    private readonly IStorage romFs;
+    private readonly long romFssize;
+
+    public Romfs(string folder)
     {
-        private IStorage romFs;
-        private long romFssize;
+        var builder = new RomFsBuilder(new LocalFileSystem(folder));
+        romFs = builder.Build();
+        romFs.GetSize(out romFssize).ThrowIfFailure();
+    }
 
-        public Romfs(string folder)
+    public Stream ToStream()
+    {
+        return romFs.AsStream();
+    }
+
+    public Result DumpToFile(string path, bool deletefolder = false)
+    {
+        using (var file = new FileStream(path, FileMode.Create, FileAccess.ReadWrite))
         {
-            var builder = new RomFsBuilder(new LocalFileSystem(folder));
-            this.romFs = builder.Build();
-            this.romFs.GetSize(out this.romFssize).ThrowIfFailure();
+            romFs.CopyToStream(file, romFssize);
         }
 
-        public Stream ToStream()
-        {
-            return romFs.AsStream();
-        }
-
-        public Result DumpToFile(string path, bool deletefolder = false)
-        {
-            using (FileStream file = new FileStream(path, FileMode.Create, FileAccess.ReadWrite))
-            {
-                romFs.CopyToStream(file, romFssize);
-            }
-            return Result.Success;
-        }
+        return Result.Success;
     }
 }

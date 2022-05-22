@@ -6,13 +6,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BouncyCastle.NetCore" Version="1.9.0" />
-    <PackageReference Include="LibHac" Version="0.14.3" />
-    <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
+    <PackageReference Include="LibHac" Version="0.16.1" />
+    <PackageReference Include="Microsoft.Win32.Registry" Version="6.0.0-preview.5.21301.5" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="SceneGate.Lemon" Version="0.1.0-preview.69" />
-    <PackageReference Include="SharpCompress" Version="0.28.1" />
-    <PackageReference Include="Yarhl" Version="3.1.1-preview.55" />
+    <PackageReference Include="SceneGate.Lemon" Version="0.1.0-preview.86" />
+    <PackageReference Include="SharpCompress" Version="0.31.0" />
+    <PackageReference Include="Yarhl" Version="4.0.0-preview.157" />
   </ItemGroup>
 
   <ItemGroup>
@@ -20,9 +19,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="LibHac">
-      <HintPath>Dll\LibHac.dll</HintPath>
-    </Reference>
     <Reference Include="Pleosoft.XdeltaSharp">
       <HintPath>Dll\Pleosoft.XdeltaSharp.dll</HintPath>
     </Reference>
