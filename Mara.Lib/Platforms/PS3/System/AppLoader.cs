@@ -126,4 +126,9 @@ public class AppLoader
                 throw new NotSupportedException();
         }
     }
+
+    public byte[] doFinalButGetHash()
+    {
+        return this.hash.doFinalButGetHash();
+    }
 }

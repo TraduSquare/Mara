@@ -8,8 +8,8 @@ public abstract class IHash
     public byte[] result;
     public abstract void doInit(byte[] hash);
     public abstract byte[] doUpdate(byte[] data);
-    public abstract bool doFinal(byte[] p0, int p1);
-    public abstract bool doFinalButGetHash(byte[] p0);
+    public abstract byte[] doFinal();
+    public abstract byte[] doFinalButGetHash();
 
     public virtual void setHashLen(int len)
     {

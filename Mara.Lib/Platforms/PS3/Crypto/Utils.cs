@@ -29,7 +29,7 @@ public static class Utils
 
     public static byte[] aescbcDecrypt(byte[] key, byte[] iv, byte[] data)
     {
-        var rDel = new RijndaelManaged();
+        var rDel = Aes.Create();
         rDel.Key = key;
         rDel.IV = iv;
         rDel.Mode = CipherMode.CBC;
@@ -100,11 +100,73 @@ public static class Utils
         L = aesecbEncrypt(key, zero);
 
         var aux = new BigInteger(L, false, true);
-
+        if (aux < 0)
+            aux = new BigInteger(L, true, true);
+        
         if ((L[0] & 0x80) != 0x0)
         {
             aux = aux << 1;
             aux = new BigInteger(XOR(aux.ToByteArray(), 130L));
+        }
+        else
+        {
+            aux = aux << 1;
+        }
+
+        var aux2 = ReverseBytes(aux.ToByteArray());
+        if (aux2.Length >= 16)
+        {
+            Array.Copy(aux2, aux2.Length - 16, K1, 0, 16);
+        }
+        else
+        {
+            // revisar
+            Array.Copy(zero, 0, K1, 0, zero.Length);
+            Array.Copy(aux2, 0, K1, 16 - aux2.Length, aux2.Length);
+        }
+
+        if ((K1[0] & 0x80) != 0x0)
+        {
+            aux = aux << 1;
+            aux = aux ^ 135L;
+        }
+        else
+        {
+            aux = aux << 1;
+        }
+
+        aux2 = ReverseBytes(aux.ToByteArray());
+        if (aux2.Length >= 16)
+        {
+            Array.Copy(aux2, aux2.Length - 16, K2, 0, 16);
+        }
+        else
+        {
+            // revisar
+            Array.Copy(zero, K2, zero.Length);
+            Array.Copy(aux2, 0, K2, 16 - aux2.Length, aux2.Length);
+        }
+
+        return (K1, K2);
+    }
+    
+    public static (byte[], byte[]) calculateSubkeyCMAC(byte[] key)
+    {
+        var K1 = new byte[16];
+        var K2 = new byte[16];
+        var zero = new byte[16];
+        var L = new byte[16];
+
+        L = aesecbEncrypt(key, zero);
+
+        var aux = new BigInteger(L, false, true);
+        if (aux < 0)
+            aux = new BigInteger(L, true, true);
+        
+        if ((L[0] & 0x80) != 0x0)
+        {
+            aux = aux << 1;
+            aux = aux ^ 135L;
         }
         else
         {

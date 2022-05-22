@@ -34,7 +34,7 @@ public static class EDAT
     public static void encryptFile(string InPath, string OutPath, byte[] klicense, byte[] keyFromRif,
         byte[] ContentID, byte[] flags, byte[] type, byte[] version)
     {
-        var encrypted = DataStreamFactory.FromFile(OutPath, FileOpenMode.Write);
+        var encrypted = DataStreamFactory.FromFile(OutPath, FileOpenMode.ReadWrite);
         var decrypted = DataStreamFactory.FromFile(InPath, FileOpenMode.Read);
         var writer = new DataWriter(encrypted);
         var reader = new DataReader(decrypted);
@@ -60,7 +60,7 @@ public static class EDAT
         writer.Write(Utils.ReverseBytes(rLenBuf));
         buffer[0] = 0;
         while (writer.Stream.Length < 256L) writer.Write(buffer[0]);
-
+        writer.Write("a");
         var data = new EDAT_Data();
         data.flags = flags[0];
         data.blockSize = 16384L;
@@ -81,19 +81,24 @@ public static class EDAT
         var readed = 0;
         var baseOffset = 256;
         var lenToRead = 0;
-
+        
+        var r = new DataReader(encrypted);
         for (long remaining = sectionSize * numBlocks; remaining > 0L; remaining -= lenToRead)
         {
             lenToRead = 15360L > remaining ? (int) remaining : 15360;
-            writer.Stream.Seek(baseOffset + readed);
+            r.Stream.Seek(baseOffset + readed);
             var content = new byte[lenToRead];
             var ooo = new byte[lenToRead];
-            // TODO: 
-            //content = .ReadBytes(content.Length);
-
+            content = r.ReadBytes(content.Length);
+            ooo = aa.doUpdate(content, 0,0, lenToRead);
             readed += lenToRead;
         }
-
+        
+        byte[] headerHash = new byte[16];
+        headerHash = aa.doFinalButGetHash();
+        writer.Stream.Seek(144L, SeekOrigin.Begin);
+        writer.Write(headerHash);
+        writer.Write(0x00);
         throw new NotImplementedException();
     }
 
@@ -119,11 +124,11 @@ public static class EDAT
 
         var keyIndex = 0;
         if (npd.Version == 4L) keyIndex = 1;
-        var meme = reader.ReadBytes(4);
+
         for (var i = 0; i < numBlocks; ++i)
         {
             var offset = i * data.blockSize;
-            reader.Stream.Seek(offset);
+            reader.Stream.Seek(offset, SeekOrigin.Begin);
             var len = (int) data.blockSize;
 
             if (i == numBlocks - 1)
@@ -171,14 +176,14 @@ public static class EDAT
             var iv = npd.Version <= 1L ? new byte[16] : npd.Digest;
             var generatedHash = new byte[20];
             var metadata = new byte[32];
-            encryptedData = a.doAll(hashFlag, cryptoFlag, decryptedData, 0, 0, decryptedData.Length, key, iv, hash,
+            (encryptedData, generatedHash) = a.doAll(hashFlag, cryptoFlag, decryptedData, 0, 0, decryptedData.Length, key, iv, hash,
                 generatedHash, 0, keyIndex);
 
             Array.Copy(encryptedData, 0, encryptedDataForFile, offset, len);
-            Array.Copy(generatedHash, 0, encryptedDataForFile, i * 16, 16);
+            Array.Copy(generatedHash, 0, expectedHashForFile, i * 16, 16);
         }
 
-        writer.Stream.Seek(256L);
+        writer.Stream.Seek(256L, SeekOrigin.Begin);
         writer.Write(expectedHashForFile);
         writer.Write(encryptedDataForFile);
         writer.Write(EDATAVersion);

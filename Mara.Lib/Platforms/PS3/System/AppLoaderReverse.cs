@@ -24,18 +24,26 @@ public class AppLoaderReverse
         hash.doInit(calculatedHash);
     }
 
-    public byte[] doUpdate(byte[] i, int inOffset, int outOffset, int len)
+    public (byte[],byte[]) doUpdate(byte[] i, int inOffset, int outOffset, int len)
     {
-        hash.doUpdate(i);
-        return dec.doUpdate(i, inOffset, outOffset, len);
+        var encrypted = dec.doUpdate(i, inOffset, outOffset, len);
+        var hashg = hash.doUpdate(encrypted);
+        return (encrypted,hashg);
     }
 
-    public byte[] doAll(int hashFlag, int cryptoFlag, byte[] data, int inOffset, int outOffset, int len,
+    public (byte[],byte[]) doAll(int hashFlag, int cryptoFlag, byte[] data, int inOffset, int outOffset, int len,
         byte[] key, byte[] iv, byte[] hash, byte[] expectedHash, int hashOffset, int keyIndex)
     {
+        byte[] _hash, encrypted;
         doInit(hashFlag, cryptoFlag, key, iv, hash, keyIndex);
-        var meme = doUpdate(data, inOffset, outOffset, len);
-        return meme;
+        (encrypted,_hash) = doUpdate(data, inOffset, outOffset, len);
+        _hash = doFinal();
+        return (encrypted,_hash);
+    }
+
+    private byte[] doFinal()
+    {
+        return this.hash.doFinalButGetHash();
     }
 
     private void setDecryptor(int cryptoFlag)
@@ -47,7 +55,7 @@ public class AppLoaderReverse
                 dec = new NoCrypt();
                 break;
             case 2:
-                dec = new AESCBC128Decrypt();
+                dec = new AESCBC128Encryptor();
                 break;
             default:
                 throw new NotSupportedException();
