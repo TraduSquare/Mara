@@ -98,8 +98,21 @@ public static class EDAT
         headerHash = aa.doFinalButGetHash();
         writer.Stream.Seek(144L, SeekOrigin.Begin);
         writer.Write(headerHash);
-        writer.Write(0x00);
-        throw new NotImplementedException();
+        r.Stream.Seek(0, SeekOrigin.Begin);
+        writer.Stream.Seek(0, SeekOrigin.Begin);
+        
+        byte[] header = new byte[160];
+        byte[] headerODummy = new byte[160];
+        header = r.ReadBytes(header.Length);
+        AppLoaderReverse a = new AppLoaderReverse();
+        byte[] generatedHash = new byte[16];
+        (_, generatedHash) = a.doAll(hashFlag, 1, header, 0, 0, header.Length, new byte[16], new byte[16], 
+            rifkey, generatedHash, 0, keyIndex);
+        writer.Stream.Seek(160L, SeekOrigin.Begin);
+        writer.Write(generatedHash);
+        while (writer.Stream.Length < 256L) writer.Write(buffer[0]);
+        encrypted.Close();
+        decrypted.Close();
     }
 
     private static void encryptData(DataReader reader, DataWriter writer, NPD npd, EDAT_Data data, byte[] rifkey)
@@ -212,17 +225,12 @@ public static class EDAT
             0x6D, 0x65, 0x67, 0x61, 0x66, 0x6C, 0x61, 0x6E,
             0x6C, 0x61, 0x63, 0x68, 0x75, 0x70, 0x61, 0x00
         };
-        byte[] fake_digest =
-        {
-            0x6D, 0x65, 0x67, 0x61, 0x66, 0x6C, 0x61, 0x6E,
-            0x6C, 0x61, 0x63, 0x68, 0x75, 0x70, 0x61, 0x00
-        };
+        
+        /*byte[] iv = {100, 117, 116, 115, 101, 110, 117, 114, 66, 102, 79, 121, 114, 111, 108, 71};
 
-        byte[] iv = {100, 117, 116, 115, 101, 110, 117, 114, 66, 102, 79, 121, 114, 111, 108, 71};
+        iv = Utils.ReverseBytes(iv);*/
 
-        iv = Utils.ReverseBytes(iv);
-
-        Array.Copy(iv, 0, npd, 64, iv.Length);
+        Array.Copy(fake_iv, 0, npd, 64, fake_iv.Length);
         byte[] hash;
         (hash, npd) = createNPDHash1(FileName, npd);
         Array.Copy(hash, 0, npd, 80, 16);
