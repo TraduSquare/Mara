@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using PleOps.XdeltaSharp.Decoder;
 
-namespace Unity.Mara.Lib.Common
+namespace Mara.Lib.Common
 {
     public class Xdelta
     {

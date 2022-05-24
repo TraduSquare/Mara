@@ -2,7 +2,7 @@
 using System.IO;
 using System.Security.Cryptography;
 
-namespace Unity.Mara.Lib.Common
+namespace Mara.Lib.Common
 {
     public class Md5
     {

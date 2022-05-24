@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using UnityEngine.Scripting;
 
-namespace Unity.Mara.Lib.Configs
+namespace Mara.Lib.Configs
 {
     public class PatchInfo
     {

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
-using Unity.Mara.Lib.Common;
+using Mara.Lib.Common;
 using Newtonsoft.Json;
 
-namespace Unity.Mara.Lib.Platforms
+namespace Mara.Lib.Platforms
 {
     public class PatchProcess
     {

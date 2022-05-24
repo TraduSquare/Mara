@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
 
-namespace Unity.Mara.Lib.Common
+namespace Mara.Lib.Common
 {
     public class Internet
     {

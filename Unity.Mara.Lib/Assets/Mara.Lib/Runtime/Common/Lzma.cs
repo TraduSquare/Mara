@@ -11,7 +11,7 @@ using SharpCompress.Archives.Zip;
 using SharpCompress.Common;
 using SharpCompress.Compressors.LZMA;
 
-namespace Unity.Mara.Lib.Common
+namespace Mara.Lib.Common
 {
     public class Lzma
     {

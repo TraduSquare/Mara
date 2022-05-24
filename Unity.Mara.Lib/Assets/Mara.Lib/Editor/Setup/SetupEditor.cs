@@ -6,7 +6,7 @@ using LibHac.Fs;
 using System.IO;
 using K4os.Compression.LZ4.Streams;
 
-namespace Unity.Mara.Lib
+namespace Mara.Lib
 {
     public class SetupEditor
     {

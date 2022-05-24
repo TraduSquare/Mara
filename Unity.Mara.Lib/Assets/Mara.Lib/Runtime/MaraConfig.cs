@@ -1,9 +1,9 @@
 ﻿using System.IO;
-using Unity.Mara.Lib.Configs;
+using Mara.Lib.Configs;
 using Newtonsoft.Json;
 using UnityEngine.Scripting;
 
-namespace Unity.Mara.Lib
+namespace Mara.Lib
 {
     public class MaraConfig
     {

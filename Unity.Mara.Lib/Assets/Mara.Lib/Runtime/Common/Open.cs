@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
 
-namespace Unity.Mara.Lib.Common
+namespace Mara.Lib.Common
 {
     public class Open
     {
