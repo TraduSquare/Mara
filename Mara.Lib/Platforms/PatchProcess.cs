@@ -60,6 +60,23 @@ namespace Mara.Lib.Platforms
             return (0, string.Empty);
         }
 
+        protected (int, string) CopyFiles(string inPath, string result)
+        {
+            try
+            {
+                if (!Directory.Exists(Path.GetDirectoryName(result)))
+                    Directory.CreateDirectory(Path.GetDirectoryName(result));
+            }
+            catch (Exception ex)
+            {
+                return (-1, "Error al intentar crear una carpeta.");
+            }
+
+            File.Copy(inPath, result);
+            
+            return (0, string.Empty);
+        }
+
         private void GenerateTempFolder()
         {
             tempFolder = Path.GetTempPath() + Path.DirectorySeparatorChar + Path.GetRandomFileName();

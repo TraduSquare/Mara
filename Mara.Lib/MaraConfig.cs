@@ -18,6 +18,7 @@ namespace Mara.Lib
     {
         Nintendo3ds,
         Generic,
+        Playstation3,
         Playstation4,
         NintendoSwitch,
         PlaystationVita
