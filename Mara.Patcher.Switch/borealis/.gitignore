@@ -1,0 +1,13 @@
+.*/
+build/
+build.nx/
+config/
+*~
+*.bak
+*.nro
+*.nacp
+*.elf
+.vscode
+builddir
+*.dksh
+.DS_Store
