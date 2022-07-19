@@ -31,6 +31,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\Program\Main.cpp" />
+    <ClCompile Include="source\Program\MainActivity.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\Program\Main.hpp" />
+    <ClInclude Include="source\Program\MainActivity.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

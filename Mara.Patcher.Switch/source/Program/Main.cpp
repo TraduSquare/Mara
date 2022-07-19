@@ -9,6 +9,7 @@ typedef unsigned long __PTRDIFF_TYPE__;
 #define __builtin_va_start(a,b)
 #define __extension__
 #endif
+#include "MainActivity.hpp"
 
 #if defined(_MSC_VER)
 #include <BaseTsd.h>
@@ -21,6 +22,8 @@ typedef SSIZE_T ssize_t;
 
 #include <switch.h>
 #include <borealis.hpp>
+
+#include "Program/Main.hpp"
 
 using namespace brls::literals;
 
@@ -41,6 +44,8 @@ int main(int argc, char* argv[])
 
     // Establece que se pueda salir de la app
     brls::Application::setGlobalQuit(true);
+    
+    brls::Application::pushActivity(new MainActivity());
 
     while (brls::Application::mainLoop());
 
