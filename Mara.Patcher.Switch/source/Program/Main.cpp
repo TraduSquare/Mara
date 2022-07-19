@@ -20,32 +20,29 @@ typedef SSIZE_T ssize_t;
 #include <string.h>
 
 #include <switch.h>
+#include <borealis.hpp>
+
+using namespace brls::literals;
 
 // Main program entrypoint
 int main(int argc, char* argv[])
 {
-    consoleInit(NULL);
+    appletInitializeGamePlayRecording();
 
-    padConfigureInput(1, HidNpadStyleSet_NpadStandard);
+    brls::Logger::setLogLevel(brls::LogLevel::DEBUG);
 
-    PadState pad;
-    padInitializeDefault(&pad);
-
-    printf("Hello World!\n");
-
-    // Main loop
-    while (appletMainLoop())
+    if (!brls::Application::init())
     {
-        padUpdate(&pad);
-
-        u64 kDown = padGetButtonsDown(&pad);
-
-        if (kDown & HidNpadButton_Plus)
-            break; 
-
-        consoleUpdate(NULL);
+        brls::Logger::error("Unable to init Mara");
+        return EXIT_FAILURE;
     }
 
-    consoleExit(NULL);
-    return 0;
+    brls::Application::createWindow("Program/title"_i18n);
+
+    // Establece que se pueda salir de la app
+    brls::Application::setGlobalQuit(true);
+
+    while (brls::Application::mainLoop());
+
+    return EXIT_SUCCESS;
 }
