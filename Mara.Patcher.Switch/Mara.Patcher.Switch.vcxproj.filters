@@ -19,14 +19,23 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Makefile" />
+    <None Include="resources\i18n\en-US\main.json">
+      <Filter>Archivos de recursos</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\Program\Main.cpp">
       <Filter>Archivos de origen\Program</Filter>
     </ClCompile>
+    <ClCompile Include="source\ui\MainActivity.cpp">
+      <Filter>Archivos de origen</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Program\Main.hpp">
+      <Filter>Archivos de encabezado</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ui\MainActivity.hpp">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
   </ItemGroup>

@@ -9,7 +9,6 @@ typedef unsigned long __PTRDIFF_TYPE__;
 #define __builtin_va_start(a,b)
 #define __extension__
 #endif
-#include "MainActivity.hpp"
 
 #if defined(_MSC_VER)
 #include <BaseTsd.h>
@@ -24,29 +23,28 @@ typedef SSIZE_T ssize_t;
 #include <borealis.hpp>
 
 #include "Program/Main.hpp"
-
-using namespace brls::literals;
+#include "ui/MainActivity.hpp"
 
 // Main program entrypoint
 int main(int argc, char* argv[])
 {
     appletInitializeGamePlayRecording();
 
+    i18n::loadTranslations();
+    
     brls::Logger::setLogLevel(brls::LogLevel::DEBUG);
-
-    if (!brls::Application::init())
+    
+    if (!brls::Application::init("main/title"_i18n))
     {
         brls::Logger::error("Unable to init Mara");
         return EXIT_FAILURE;
     }
 
-    brls::Application::createWindow("Program/title"_i18n);
-
     // Establece que se pueda salir de la app
-    brls::Application::setGlobalQuit(true);
+    //brls::Application::setGlobalQuit(true);
+    auto win = new Mara::ui::MainActivity();
+    brls::Application::pushView(win->GetView());
     
-    brls::Application::pushActivity(new MainActivity());
-
     while (brls::Application::mainLoop());
 
     return EXIT_SUCCESS;
