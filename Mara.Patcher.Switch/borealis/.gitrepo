@@ -1,0 +1,12 @@
+; DO NOT EDIT (unless you know what you are doing)
+;
+; This subdirectory is a git "subrepo", and this file is maintained by the
+; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
+;
+[subrepo]
+	remote = https://github.com/D3fau4/borealis.git
+	branch = master
+	commit = b36542c3b610f9657d67df487936334c89d1fabd
+	parent = c9d94d05666bd220b4cfddbc3b8debfc4f9f7f55
+	method = merge
+	cmdver = 0.4.3
