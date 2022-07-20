@@ -109,6 +109,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="resources\i18n\en-US\brls.json" />
+    <Content Include="resources\i18n\es\brls.json" />
+    <Content Include="resources\i18n\es\main.json" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

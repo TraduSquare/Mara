@@ -102,6 +102,8 @@ class Application
 
     static void onGamepadButtonPressed(char button, bool repeating);
 
+    static void setGlobalQuit(bool enabled);
+
     /**
       * "Crashes" the app (displays a fullscreen CrashFrame)
       */
@@ -194,6 +196,8 @@ class Application
 
     inline static GenericEvent globalFocusChangeEvent;
     inline static VoidEvent globalHintsUpdateEvent;
+
+    inline static bool globalQuit = false;
 
     static void navigate(FocusDirection direction);
 

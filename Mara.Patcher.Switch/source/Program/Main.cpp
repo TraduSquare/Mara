@@ -41,11 +41,14 @@ int main(int argc, char* argv[])
     }
 
     // Establece que se pueda salir de la app
-    //brls::Application::setGlobalQuit(true);
+    brls::Application::setGlobalQuit(true);
     auto win = new Mara::ui::MainActivity();
     brls::Application::pushView(win->GetView());
     
-    while (brls::Application::mainLoop());
+    while (brls::Application::mainLoop())
+    {
+        // Algo a ejecutar por cada refresco
+    };
 
     return EXIT_SUCCESS;
 }

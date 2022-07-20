@@ -933,7 +933,9 @@ void Application::pushView(View* view, ViewAnimation animation)
     bool fadeOut = last && !last->isTranslucent() && !view->isTranslucent(); // play the fade out animation?
     bool wait    = animation == ViewAnimation::FADE; // wait for the old view animation to be done before showing the new one?
 
-    view->registerAction("brls/hints/exit"_i18n, Key::PLUS, [] { Application::quit(); return true; });
+    if (Application::globalQuit)
+        view->registerAction("brls/hints/exit"_i18n, Key::PLUS, [] { Application::quit(); return true; });
+
     view->registerAction(
         "FPS", Key::MINUS, [] { Application::toggleFramerateDisplay(); return true; }, true);
 
@@ -1023,6 +1025,11 @@ void Application::clear()
     }
 
     Application::viewStack.clear();
+}
+
+void Application::setGlobalQuit(bool enabled)
+{
+    Application::globalQuit = enabled;
 }
 
 Style* Application::getStyle()
