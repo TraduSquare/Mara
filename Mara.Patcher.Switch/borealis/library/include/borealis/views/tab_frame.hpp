@@ -29,7 +29,7 @@ typedef std::function<View*(void)> TabViewCreator;
 
 // An applet frame containing a sidebar on the left with multiple tabs which content is showing on the right.
 // Only one tab is kept in memory at all times : when switching, the current tab is freed before the the new one is instantiated.
-class TabFrame : public Box
+class TabFrame : public AppletFrame
 {
   public:
     TabFrame();
