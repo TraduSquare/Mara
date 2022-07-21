@@ -1,7 +1,9 @@
 ﻿#pragma once
 
 #include <borealis.hpp>
+#include <switch.h>
 #include "Program/Main.hpp"
+#include "ui/elements/ProgramidListItem.hpp"
 
 namespace Mara::ui
 {

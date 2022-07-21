@@ -40,6 +40,8 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
+    nsInitialize();
+
     // Establece que se pueda salir de la app
     brls::Application::setGlobalQuit(true);
     auto win = new Mara::ui::MainActivity();
