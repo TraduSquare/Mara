@@ -11,7 +11,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2-beta1" />
     <PackageReference Include="SceneGate.Lemon" Version="0.1.0-preview.86" />
     <PackageReference Include="SharpCompress" Version="0.32.1" />
-    <PackageReference Include="Yarhl" Version="4.0.0-preview.157" />
+    <PackageReference Include="Yarhl" Version="4.0.0-preview.159" />
   </ItemGroup>
 
   <ItemGroup>
