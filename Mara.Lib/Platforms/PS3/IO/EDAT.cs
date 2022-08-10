@@ -44,7 +44,7 @@ public static class EDAT
         (npd, npd_bytes) = writeValidNPD(Path.GetFileName(OutPath), klicense, reader, ContentID, type, version);
 
         writer.Write(npd_bytes);
-        byte[] buffer = {0, 0, 0, 0};
+        byte[] buffer = { 0, 0, 0, 0 };
         Array.Copy(flags, 0, buffer, 3, flags.Length);
         writer.Write(buffer);
         buffer[2] = 64;
@@ -77,38 +77,38 @@ public static class EDAT
         if (npd.Version == 4L) keyIndex = 1;
         aa.doInit(hashFlag, 1, new byte[16], new byte[16], rifkey, keyIndex);
         var sectionSize = (data.flags & 0x1L) != 0x0L ? 32 : 16;
-        var numBlocks = (int) ((data.fileLen + data.blockSize - 1L) / data.blockSize);
+        var numBlocks = (int)((data.fileLen + data.blockSize - 1L) / data.blockSize);
         var readed = 0;
         var baseOffset = 256;
         var lenToRead = 0;
-        
+
         var r = new DataReader(encrypted);
         for (long remaining = sectionSize * numBlocks; remaining > 0L; remaining -= lenToRead)
         {
-            lenToRead = 15360L > remaining ? (int) remaining : 15360;
+            lenToRead = 15360L > remaining ? (int)remaining : 15360;
             r.Stream.Seek(baseOffset + readed);
             var content = new byte[lenToRead];
             var ooo = new byte[lenToRead];
             content = r.ReadBytes(content.Length);
-            ooo = aa.doUpdate(content, 0,0, lenToRead);
+            ooo = aa.doUpdate(content, 0, 0, lenToRead);
             readed += lenToRead;
         }
-        
-        byte[] headerHash = new byte[16];
+
+        var headerHash = new byte[16];
         headerHash = aa.doFinalButGetHash();
-        writer.Stream.Seek(144L, SeekOrigin.Begin);
+        writer.Stream.Seek(144L);
         writer.Write(headerHash);
-        r.Stream.Seek(0, SeekOrigin.Begin);
-        writer.Stream.Seek(0, SeekOrigin.Begin);
-        
-        byte[] header = new byte[160];
-        byte[] headerODummy = new byte[160];
+        r.Stream.Seek(0);
+        writer.Stream.Seek(0);
+
+        var header = new byte[160];
+        var headerODummy = new byte[160];
         header = r.ReadBytes(header.Length);
-        AppLoaderReverse a = new AppLoaderReverse();
-        byte[] generatedHash = new byte[16];
-        (_, generatedHash) = a.doAll(hashFlag, 1, header, 0, 0, header.Length, new byte[16], new byte[16], 
+        var a = new AppLoaderReverse();
+        var generatedHash = new byte[16];
+        (_, generatedHash) = a.doAll(hashFlag, 1, header, 0, 0, header.Length, new byte[16], new byte[16],
             rifkey, generatedHash, 0, keyIndex);
-        writer.Stream.Seek(160L, SeekOrigin.Begin);
+        writer.Stream.Seek(160L);
         writer.Write(generatedHash);
         while (writer.Stream.Length < 256L) writer.Write(buffer[0]);
         encrypted.Close();
@@ -117,9 +117,9 @@ public static class EDAT
 
     private static void encryptData(DataReader reader, DataWriter writer, NPD npd, EDAT_Data data, byte[] rifkey)
     {
-        var numBlocks = (int) ((data.fileLen + data.blockSize - 1L) / data.blockSize);
+        var numBlocks = (int)((data.fileLen + data.blockSize - 1L) / data.blockSize);
         var expectedHashForFile = new byte[numBlocks * 16];
-        var encryptedDataForFile = new byte[(int) (reader.Stream.Length + 15L) & 0xFFFFFFF0];
+        var encryptedDataForFile = new byte[(int)(reader.Stream.Length + 15L) & 0xFFFFFFF0];
         var EDATAVersion = new byte[16];
 
         switch (npd.Version)
@@ -141,14 +141,14 @@ public static class EDAT
         for (var i = 0; i < numBlocks; ++i)
         {
             var offset = i * data.blockSize;
-            reader.Stream.Seek(offset, SeekOrigin.Begin);
-            var len = (int) data.blockSize;
+            reader.Stream.Seek(offset);
+            var len = (int)data.blockSize;
 
             if (i == numBlocks - 1)
-                len = (int) (data.fileLen % data.blockSize);
+                len = (int)(data.fileLen % data.blockSize);
 
             var realLen = len;
-            len = (int) ((len + 15) & 0xFFFFFFF0);
+            len = (int)((len + 15) & 0xFFFFFFF0);
             Console.WriteLine($"Offset: {offset}, len: {len}, reallen: {realLen}");
             var encryptedData = new byte[len];
             var decryptedData = new byte[len];
@@ -189,14 +189,15 @@ public static class EDAT
             var iv = npd.Version <= 1L ? new byte[16] : npd.Digest;
             var generatedHash = new byte[20];
             var metadata = new byte[32];
-            (encryptedData, generatedHash) = a.doAll(hashFlag, cryptoFlag, decryptedData, 0, 0, decryptedData.Length, key, iv, hash,
+            (encryptedData, generatedHash) = a.doAll(hashFlag, cryptoFlag, decryptedData, 0, 0, decryptedData.Length,
+                key, iv, hash,
                 generatedHash, 0, keyIndex);
 
             Array.Copy(encryptedData, 0, encryptedDataForFile, offset, len);
             Array.Copy(generatedHash, 0, expectedHashForFile, i * 16, 16);
         }
 
-        writer.Stream.Seek(256L, SeekOrigin.Begin);
+        writer.Stream.Seek(256L);
         writer.Write(expectedHashForFile);
         writer.Write(encryptedDataForFile);
         writer.Write(EDATAVersion);
@@ -225,7 +226,7 @@ public static class EDAT
             0x6D, 0x65, 0x67, 0x61, 0x66, 0x6C, 0x61, 0x6E,
             0x6C, 0x61, 0x63, 0x68, 0x75, 0x70, 0x61, 0x00
         };
-        
+
         /*byte[] iv = {100, 117, 116, 115, 101, 110, 117, 114, 66, 102, 79, 121, 114, 111, 108, 71};
 
         iv = Utils.ReverseBytes(iv);*/
@@ -271,7 +272,7 @@ public static class EDAT
     private static bool decryptData(DataReader reader, NPD npd, EDAT_Data data, byte[] rifkey,
         string OutPath = "decrypted.edat")
     {
-        var numBlocks = (int) ((data.fileLen + data.blockSize - 1L) / data.blockSize);
+        var numBlocks = (int)((data.fileLen + data.blockSize - 1L) / data.blockSize);
         var metadataSectionSize = (data.flags & 0x1L) != 0x0L || (data.flags & 0x20L) != 0x0L ? 32 : 16;
         var baseOffset = 256;
         var keyIndex = 0;
@@ -303,18 +304,18 @@ public static class EDAT
 
                 for (var j = 0; j < 16; j++)
                 {
-                    expectedHash[j] = (byte) (metadata[j] ^ metadata[j + 16]);
+                    expectedHash[j] = (byte)(metadata[j] ^ metadata[j + 16]);
                     Array.Copy(metadata, 16, expectedHash, 16, 4);
                 }
 
                 offset = baseOffset + i * (metadataSectionSize + data.blockSize) + metadataSectionSize;
-                len = (int) data.blockSize;
+                len = (int)data.blockSize;
                 if (i == numBlocks - 1)
                 {
                     var a = new BigInteger(data.fileLen);
                     var b = new BigInteger(data.blockSize);
                     var remainder = a % b;
-                    var aux = (int) remainder;
+                    var aux = (int)remainder;
                     len = aux > 0 ? aux : len;
                 }
             }
@@ -322,19 +323,19 @@ public static class EDAT
             {
                 expectedHash = reader.ReadBytes(expectedHash.Length);
                 offset = baseOffset + i * data.blockSize + numBlocks * metadataSectionSize;
-                len = (int) data.blockSize;
+                len = (int)data.blockSize;
                 if (i == numBlocks - 1)
                 {
                     var a = new BigInteger(data.fileLen);
                     var b = new BigInteger(data.blockSize);
                     var remainder = a % b;
-                    var aux2 = (int) remainder;
+                    var aux2 = (int)remainder;
                     len = aux2 > 0 ? aux2 : len;
                 }
             }
 
             var realLen = len;
-            len = (int) ((len + 15) & 0xFFFFFFF0);
+            len = (int)((len + 15) & 0xFFFFFFF0);
             Console.WriteLine(
                 $"Offset: {offset}, len: {len}, reallen: {realLen}, endCompress: {compressionEndBlock}");
             reader.Stream.Seek(offset);
@@ -391,10 +392,10 @@ public static class EDAT
         var baseKey = npd.Version <= 1L ? new byte[16] : npd.DevHash;
         var result = new byte[16];
         Array.Copy(baseKey, 0, result, 0, 12);
-        result[12] = (byte) ((blk >> 24) & 0xFF);
-        result[13] = (byte) ((blk >> 16) & 0xFF);
-        result[14] = (byte) ((blk >> 8) & 0xFF);
-        result[15] = (byte) (blk & 0xFF);
+        result[12] = (byte)((blk >> 24) & 0xFF);
+        result[13] = (byte)((blk >> 16) & 0xFF);
+        result[14] = (byte)((blk >> 8) & 0xFF);
+        result[15] = (byte)(blk & 0xFF);
         return result;
     }
 
@@ -403,15 +404,15 @@ public static class EDAT
         // PAIN
         byte[] result =
         {
-            (byte) (metadata[12] ^ metadata[8] ^ metadata[16]), (byte) (metadata[13] ^ metadata[9] ^ metadata[17]),
-            (byte) (metadata[14] ^ metadata[10] ^ metadata[18]),
-            (byte) (metadata[15] ^ metadata[11] ^ metadata[19]), (byte) (metadata[4] ^ metadata[8] ^ metadata[20]),
-            (byte) (metadata[5] ^ metadata[9] ^ metadata[21]), (byte) (metadata[6] ^ metadata[10] ^ metadata[22]),
-            (byte) (metadata[7] ^ metadata[11] ^ metadata[23]), (byte) (metadata[12] ^ metadata[0] ^ metadata[24]),
-            (byte) (metadata[13] ^ metadata[1] ^ metadata[25]), (byte) (metadata[14] ^ metadata[2] ^ metadata[26]),
-            (byte) (metadata[15] ^ metadata[3] ^ metadata[27]), (byte) (metadata[4] ^ metadata[0] ^ metadata[28]),
-            (byte) (metadata[5] ^ metadata[1] ^ metadata[29]), (byte) (metadata[6] ^ metadata[2] ^ metadata[30]),
-            (byte) (metadata[7] ^ metadata[3] ^ metadata[31])
+            (byte)(metadata[12] ^ metadata[8] ^ metadata[16]), (byte)(metadata[13] ^ metadata[9] ^ metadata[17]),
+            (byte)(metadata[14] ^ metadata[10] ^ metadata[18]),
+            (byte)(metadata[15] ^ metadata[11] ^ metadata[19]), (byte)(metadata[4] ^ metadata[8] ^ metadata[20]),
+            (byte)(metadata[5] ^ metadata[9] ^ metadata[21]), (byte)(metadata[6] ^ metadata[10] ^ metadata[22]),
+            (byte)(metadata[7] ^ metadata[11] ^ metadata[23]), (byte)(metadata[12] ^ metadata[0] ^ metadata[24]),
+            (byte)(metadata[13] ^ metadata[1] ^ metadata[25]), (byte)(metadata[14] ^ metadata[2] ^ metadata[26]),
+            (byte)(metadata[15] ^ metadata[3] ^ metadata[27]), (byte)(metadata[4] ^ metadata[0] ^ metadata[28]),
+            (byte)(metadata[5] ^ metadata[1] ^ metadata[29]), (byte)(metadata[6] ^ metadata[2] ^ metadata[30]),
+            (byte)(metadata[7] ^ metadata[3] ^ metadata[31])
         };
         return result;
     }
@@ -423,9 +424,9 @@ public static class EDAT
         var outBytes = new byte[160];
         var expectedHash = new byte[16];
         var keyIndex = 0;
-        
+
         if (npd.Version == 4L) keyIndex = 1;
-        
+
         Console.WriteLine($"Checking NPD Version: {npd.Version}");
         Console.WriteLine($"EDATA Flag: 0x{data.flags}");
 
@@ -477,14 +478,14 @@ public static class EDAT
             a = new AppLoader();
             a.doInit(hashFlag, 1, new byte[16], new byte[16], rifkey, keyIndex);
             var sectionSize = (data.flags & 0x1L) != 0x0L ? 32 : 16;
-            var numBlocks = (int) ((data.fileLen + data.blockSize - 1L) / data.blockSize);
+            var numBlocks = (int)((data.fileLen + data.blockSize - 1L) / data.blockSize);
             var readed = 0;
             var baseOffset = 256;
             var lenToRead = 0;
 
             for (long re = sectionSize * numBlocks; re > 0L; re -= lenToRead)
             {
-                lenToRead = 15360L > re ? (int) re : 15360;
+                lenToRead = 15360L > re ? (int)re : 15360;
                 reader.Stream.Seek(baseOffset + readed);
                 var content = new byte[lenToRead];
                 content = reader.ReadBytes(lenToRead);

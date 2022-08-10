@@ -137,7 +137,7 @@ public class Main : PatchProcess
             var romfs = new Romfs(Path.Combine(romfs_romdir, "romfs"));
             if (romfs.DumpToFile(Path.Combine(layeredOut, "romfs.bin")) != Result.Success)
                 throw new Exception("Failed to build the romfs.bin");
-            var filesize = (int) new FileInfo(Path.Combine(layeredOut, "romfs.bin")).Length;
+            var filesize = (int)new FileInfo(Path.Combine(layeredOut, "romfs.bin")).Length;
             if (filesize / 1024d / 1024d > 2048)
             {
                 SplitFile.Split(Path.Combine(layeredOut, "romfs.bin"), filesize, Path.Combine(layeredOut, "romfs.bin"));
