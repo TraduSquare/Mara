@@ -41,9 +41,9 @@ public class NPD
         n.ActivationTime = Utils.bit64hex(reader.ReadBytes(8), 0);
         n.ExpirantionTime = Utils.bit64hex(reader.ReadBytes(8), 0);
 
-        if (n.Validate())
-            return n;
-        return null;
+        if (!n.Validate())
+            return null;
+        return n;
     }
 
     private bool Validate()
