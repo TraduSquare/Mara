@@ -6,7 +6,7 @@ namespace Mara.Lib.Platforms.PS3.IO;
 
 public class NPD
 {
-    public byte[] Magic { get; set; } = {0x4E, 0x50, 0x44, 0x00};
+    public byte[] Magic { get; set; } = { 0x4E, 0x50, 0x44, 0x00 };
 
     public long Version { get; set; }
 

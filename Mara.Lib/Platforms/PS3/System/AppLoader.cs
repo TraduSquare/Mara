@@ -50,7 +50,7 @@ public class AppLoader
     private (byte[], byte[]) getCryptoKeys(int cryptoFlag, byte[] key, byte[] iv,
         int keyIndex)
     {
-        var mode = (int) (cryptoFlag & 0xF0000000);
+        var mode = (int)(cryptoFlag & 0xF0000000);
         switch (mode)
         {
             case 268435456:
@@ -71,7 +71,7 @@ public class AppLoader
 
     private byte[] getHashKeys(int hashFlag, byte[] hash, int keyIndex)
     {
-        var mode = (int) (hashFlag & 0xF0000000);
+        var mode = (int)(hashFlag & 0xF0000000);
         switch (mode)
         {
             case 268435456:
@@ -129,6 +129,6 @@ public class AppLoader
 
     public byte[] doFinalButGetHash()
     {
-        return this.hash.doFinalButGetHash();
+        return hash.doFinalButGetHash();
     }
 }
