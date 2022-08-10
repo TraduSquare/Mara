@@ -423,7 +423,9 @@ public static class EDAT
         var outBytes = new byte[160];
         var expectedHash = new byte[16];
         var keyIndex = 0;
-
+        
+        if (npd.Version == 4L) keyIndex = 1;
+        
         Console.WriteLine($"Checking NPD Version: {npd.Version}");
         Console.WriteLine($"EDATA Flag: 0x{data.flags}");
 
