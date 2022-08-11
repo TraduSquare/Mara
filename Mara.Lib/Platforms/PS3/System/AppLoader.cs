@@ -129,10 +129,8 @@ public class AppLoader
 
     public bool doFinal(byte[] expectedHash)
     {
-        var res = this.hash.doFinal();
-        if (this.hashDebug || res.SequenceEqual(expectedHash)) {
-            return true;
-        }
+        var res = hash.doFinal();
+        if (hashDebug || res.SequenceEqual(expectedHash)) return true;
         return false;
     }
 

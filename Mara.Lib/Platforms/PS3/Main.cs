@@ -10,21 +10,21 @@ public class Main : PatchProcess
     private readonly List<string> m_decdlc = new();
     private readonly string[] m_encdlc;
     private readonly string m_GamePath;
-    private readonly byte[] m_key = new byte[0x10];
+    private readonly Dictionary<string, byte[]> m_keys = new();
 
-    public Main(string oriFolder, string outFolder, string filePath, string titleid, string RAPfile, byte[] DEVKEY)
+    public Main(string oriFolder, string outFolder, string filePath, string titleid, string[] RAPsfile, byte[] DEVKEY)
         : base(oriFolder, outFolder, filePath)
     {
         m_GamePath = Path.Combine("game", titleid);
         m_encdlc = Directory.GetFiles(Path.Combine(m_GamePath, "DLC"), "*.EDAT", SearchOption.AllDirectories);
-        if (RAPfile != "")
-            m_key = RAP.GetKey(RAPfile);
+        foreach (var RAPfile in RAPsfile)
+            if (RAPfile != "")
+                m_keys.Add(RAPfile.Replace(".rap", ""), RAP.GetKey(RAPfile));
 
-        foreach (var f in m_encdlc)
-        {
+        foreach (var f in m_encdlc) 
             m_decdlc.Add(Path.Combine(tempFolder, "DAT").Replace("EDAT", "DAT"));
-            EDAT.decryptFile(f, Path.Combine(tempFolder, "DAT").Replace("EDAT", "DAT"), DEVKEY, m_key);
-        }
+        
+        
     }
 
     public override (int, string) ApplyTranslation()
@@ -35,7 +35,7 @@ public class Main : PatchProcess
         var MANUAL = Path.Combine(outFolder, "MANUAL");
         var game = Path.Combine(outFolder, "USRDIR");
 
-        InitDirs(new string[] { MANUAL, game } );
+        InitDirs(new[] { MANUAL, game });
 
         for (var i = 0; i < count; i++)
         {
@@ -71,9 +71,7 @@ public class Main : PatchProcess
     private void InitDirs(string[] Folders)
     {
         foreach (var dir in Folders)
-        {
             if (!Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
-        }
     }
 }
