@@ -35,7 +35,7 @@ public class Main : PatchProcess
         var MANUAL = Path.Combine(outFolder, "MANUAL");
         var game = Path.Combine(outFolder, "USRDIR");
 
-        InitDirs(MANUAL, game);
+        InitDirs(new string[] { MANUAL, game } );
 
         for (var i = 0; i < count; i++)
         {
@@ -68,11 +68,12 @@ public class Main : PatchProcess
         throw new NotImplementedException();
     }
 
-    private void InitDirs(string p1, string p2)
+    private void InitDirs(string[] Folders)
     {
-        if (!Directory.Exists(p1))
-            Directory.CreateDirectory(p1);
-        if (!Directory.Exists(p2))
-            Directory.CreateDirectory(p2);
+        foreach (var dir in Folders)
+        {
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+        }
     }
 }

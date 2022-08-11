@@ -21,7 +21,7 @@ public class HMAC : IHash
 
     public override byte[] doFinal()
     {
-        throw new NotImplementedException();
+        return result;
     }
 
     public override byte[] doFinalButGetHash()
