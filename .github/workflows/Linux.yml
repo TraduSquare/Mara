@@ -1,4 +1,4 @@
-name: Build Mara.Lib
+name: Build Mara - Linux
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  MaraLib-build:
 
     runs-on: ubuntu-latest
 
