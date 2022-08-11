@@ -1,4 +1,4 @@
-name: Build Mara.Generator
+name: Build Mara - Windows
 
 on:
   push:
