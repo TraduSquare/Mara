@@ -13,6 +13,7 @@ namespace Mara.Lib
         public string OutFolder { get; set; }
         public string TempFolder { get; set; }
         public string FilePath { get; set; }
+        public MaraPlatform Platform { get; set; }
 
         [Preserve]
         [JsonConstructor]
@@ -27,5 +28,15 @@ namespace Mara.Lib
         }
         
         public MaraConfig() { }
+        
+        public enum MaraPlatform
+        {
+            Nintendo3ds,
+            Generic,
+            Playstation3,
+            Playstation4,
+            NintendoSwitch,
+            PlaystationVita
+        }
     }
 }
