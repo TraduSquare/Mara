@@ -24,7 +24,6 @@ public class Main : PatchProcess
         foreach (var f in m_encdlc) 
             m_decdlc.Add(Path.Combine(tempFolder, "DAT").Replace("EDAT", "DAT"));
         
-        
     }
 
     public override (int, string) ApplyTranslation()
@@ -65,7 +64,7 @@ public class Main : PatchProcess
             File.Copy(oriFile, outFile);
         }
 
-        throw new NotImplementedException();
+        return (0, "");
     }
 
     private void InitDirs(string[] Folders)
