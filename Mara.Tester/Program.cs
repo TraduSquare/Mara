@@ -8,8 +8,8 @@ namespace Mara.Tester
         static void Main(string[] args)
         {
             Console.WriteLine("MARA TESTER - A simple GUI to test platform patches. DO NOT USE FOR FINAL RELEASES!");
-            if (args.Length != 4)
-                PrintInfo();
+            /*if (args.Length != 4)
+                PrintInfo();*/
 
             // Check ori folder
             if (!CheckDirectoryOrFile(args[1], true))
@@ -34,10 +34,41 @@ namespace Mara.Tester
                 case "Switch":
                     ImportSwitch(args[1], args[2], args[3], args[4], args[5]);
                     break;
+                case "PS3":
+                    var raps = Directory.GetFiles(args[5], "*.rap", SearchOption.AllDirectories);
+                    var devkey = StringToByteArrayFastest(args[6]);
+                    ImportPs3(args[1], args[2], args[3], args[4], raps, devkey);
+                    break;
                 default:
                     PrintInfo();
                     break;
             }
+        }
+        
+        private static byte[] StringToByteArrayFastest(string hex) {
+            if (hex.Length % 2 == 1)
+                throw new Exception("The binary key cannot have an odd number of digits");
+
+            byte[] arr = new byte[hex.Length >> 1];
+
+            for (int i = 0; i < hex.Length >> 1; ++i)
+            {
+                arr[i] = (byte)((GetHexVal(hex[i << 1]) << 4) + (GetHexVal(hex[(i << 1) + 1])));
+            }
+
+            return arr;
+        }
+        
+        private static int GetHexVal(char hex) {
+            int val = (int)hex;
+            return val - (val < 58 ? 48 : (val < 97 ? 55 : 87));
+        }
+        
+        private static void ImportPs3(string oriFolder, string outFolder, string filePath, string titleid, string[] RAPsfile, byte[] DEVKEY)
+        {
+            Console.Write("PS3 MODE!");
+            var mainPs3 = new Lib.Platforms.PS3.Main(oriFolder, outFolder, filePath, titleid, RAPsfile, DEVKEY);
+            PrintResult(mainPs3.ApplyTranslation());
         }
 
 

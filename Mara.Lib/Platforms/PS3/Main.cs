@@ -15,15 +15,27 @@ public class Main : PatchProcess
     public Main(string oriFolder, string outFolder, string filePath, string titleid, string[] RAPsfile, byte[] DEVKEY)
         : base(oriFolder, outFolder, filePath)
     {
-        m_GamePath = Path.Combine("game", titleid);
-        m_encdlc = Directory.GetFiles(Path.Combine(m_GamePath, "DLC"), "*.EDAT", SearchOption.AllDirectories);
+        m_GamePath = Path.Combine(oriFolder, "game", titleid);
+        m_encdlc = Directory.GetFiles(Path.Combine(m_GamePath, "USRDIR", "DLC"), "*.EDAT", SearchOption.AllDirectories);
         foreach (var RAPfile in RAPsfile)
             if (RAPfile != "")
                 m_keys.Add(RAPfile.Replace(".rap", ""), RAP.GetKey(RAPfile));
 
-        foreach (var f in m_encdlc) 
-            m_decdlc.Add(Path.Combine(tempFolder, "DAT").Replace("EDAT", "DAT"));
-        
+        if (!Directory.Exists(Path.Combine(tempFolder, "DAT")))
+            Directory.CreateDirectory(Path.Combine(tempFolder, "DAT"));
+
+        foreach (var f in m_encdlc)
+        foreach (var key in m_keys)
+            try
+            {
+                EDAT.decryptFile(f, Path.Combine(tempFolder, "DAT", Path.GetFileName(f)).Replace("EDAT", "DAT"), DEVKEY,
+                    key.Value);
+                break;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
     }
 
     public override (int, string) ApplyTranslation()
@@ -33,15 +45,16 @@ public class Main : PatchProcess
 
         var MANUAL = Path.Combine(outFolder, "MANUAL");
         var game = Path.Combine(outFolder, "USRDIR");
+        var dlc = Path.Combine(game, "DLC");
 
-        InitDirs(new[] { MANUAL, game });
+        InitDirs(new[] { MANUAL, game, dlc });
 
         for (var i = 0; i < count; i++)
         {
-            var oriFile = $"{oriFolder}{Path.DirectorySeparatorChar}{files.ListOriFiles[i]}";
+            var oriFile = $"{m_GamePath}{Path.DirectorySeparatorChar}{files.ListOriFiles[i]}";
             var xdelta = $"{tempFolder}{Path.DirectorySeparatorChar}{files.ListXdeltaFiles[i]}";
 
-            var outFile = $"{game}{Path.DirectorySeparatorChar}{files.ListOriFiles[i]}";
+            var outFile = $"{outFolder}{Path.DirectorySeparatorChar}{files.ListOriFiles[i]}";
             var folderFile = Path.GetDirectoryName(outFile);
             if (!Directory.Exists(folderFile))
                 Directory.CreateDirectory(folderFile);
@@ -56,7 +69,7 @@ public class Main : PatchProcess
         for (var i = 0; i < files.ListCopyFiles.Length; i++)
         {
             var oriFile = $"{tempFolder}{Path.DirectorySeparatorChar}{files.ListCopyFiles[i]}";
-            var outFile = $"{game}{Path.DirectorySeparatorChar}{files.ListCopyFiles[i]}";
+            var outFile = $"{outFolder}{Path.DirectorySeparatorChar}{files.ListCopyFiles[i]}";
             var folderFile = Path.GetDirectoryName(outFile);
             if (!Directory.Exists(folderFile))
                 Directory.CreateDirectory(folderFile);
