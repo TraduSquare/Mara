@@ -7,17 +7,19 @@ namespace Mara.Lib.Configs
     {
         public string[] ListOriFiles { get; set; }
         public string[] ListXdeltaFiles { get; set; }
+        public string[] ListCopyFiles { get; set; }
         public string[] ListMd5Files { get; set; }
         public string[] ListExcludeFiles { get; set; }
 
         [Preserve]
         [JsonConstructor]
-        public PatchFilesInfo(string[] listOriFiles, string[] listXdeltaFiles, string[] listMd5Files, string[] listExcludeFiles)
+        public PatchFilesInfo(string[] listOriFiles, string[] listXdeltaFiles, string[] listMd5Files, string[] listExcludeFiles, string[] listCopyFiles)
         {
             ListOriFiles = listOriFiles;
             ListXdeltaFiles = listXdeltaFiles;
             ListMd5Files = listMd5Files;
             ListExcludeFiles = listExcludeFiles;
+            ListCopyFiles = listCopyFiles;
         }
         
         public PatchFilesInfo() { }

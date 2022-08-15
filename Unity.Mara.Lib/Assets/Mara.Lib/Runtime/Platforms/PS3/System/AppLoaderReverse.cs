@@ -87,7 +87,7 @@ namespace Mara.Lib.Platforms.PS3.System
         private (byte[], byte[]) getCryptoKeys(int cryptoFlag, byte[] key, byte[] iv,
             int keyIndex)
         {
-            var mode = (int) (cryptoFlag & 0xF0000000);
+            var mode = (int)(cryptoFlag & 0xF0000000);
             switch (mode)
             {
                 case 268435456:
@@ -108,7 +108,7 @@ namespace Mara.Lib.Platforms.PS3.System
 
         private byte[] getHashKeys(int hashFlag, byte[] hash, int keyIndex)
         {
-            var mode = (int) (hashFlag & 0xF0000000);
+            var mode = (int)(hashFlag & 0xF0000000);
             switch (mode)
             {
                 case 268435456:

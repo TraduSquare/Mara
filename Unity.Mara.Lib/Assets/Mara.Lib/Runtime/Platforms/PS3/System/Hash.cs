@@ -21,7 +21,7 @@ namespace Mara.Lib.Platforms.PS3.System
 
         public override byte[] doFinal()
         {
-            throw new NotImplementedException();
+            return result;
         }
 
         public override byte[] doFinalButGetHash()

@@ -6,7 +6,7 @@ namespace Mara.Lib.Platforms.PS3.IO
 {
     public class NPD
     {
-        public byte[] Magic { get; set; } = {0x4E, 0x50, 0x44, 0x00};
+        public byte[] Magic { get; set; } = { 0x4E, 0x50, 0x44, 0x00 };
 
         public long Version { get; set; }
 
@@ -41,9 +41,9 @@ namespace Mara.Lib.Platforms.PS3.IO
             n.ActivationTime = Utils.bit64hex(reader.ReadBytes(8), 0);
             n.ExpirantionTime = Utils.bit64hex(reader.ReadBytes(8), 0);
 
-            if (n.Validate())
-                return n;
-            return null;
+            if (!n.Validate())
+                return null;
+            return n;
         }
 
         private bool Validate()

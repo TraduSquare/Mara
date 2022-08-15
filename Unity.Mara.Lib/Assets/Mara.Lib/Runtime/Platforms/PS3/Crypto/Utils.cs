@@ -85,7 +85,7 @@ namespace Mara.Lib.Platforms.PS3.Crypto
                 input = XOR(input, K2);
             }
 
-            var a = (byte[]) (object) new sbyte[16];
+            var a = (byte[])(object)new sbyte[16];
             previous = aesecbEncrypt(key, input);
             return previous;
         }
@@ -214,7 +214,7 @@ namespace Mara.Lib.Platforms.PS3.Crypto
         {
             var output = new byte[inputA.Length];
 
-            for (var i = 0; i < inputB.Length; ++i) output[i] = (byte) (inputA[i] ^ inputB[i]);
+            for (var i = 0; i < inputB.Length; ++i) output[i] = (byte)(inputA[i] ^ inputB[i]);
 
             return output;
         }
@@ -223,7 +223,7 @@ namespace Mara.Lib.Platforms.PS3.Crypto
         {
             var array = new byte[input.Length];
 
-            for (var i = 0; i < input.Length; ++i) array[i] = (byte) (input[i] ^ number);
+            for (var i = 0; i < input.Length; ++i) array[i] = (byte)(input[i] ^ number);
 
             return array;
         }
@@ -261,7 +261,7 @@ namespace Mara.Lib.Platforms.PS3.Crypto
         public static byte[] charsToByte(char[] b)
         {
             var c = new byte[b.Length];
-            for (var i = 0; i < b.Length; ++i) c[i] = (byte) b[i];
+            for (var i = 0; i < b.Length; ++i) c[i] = (byte)b[i];
             return c;
         }
     }
