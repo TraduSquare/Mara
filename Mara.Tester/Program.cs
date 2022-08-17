@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using Mara.Lib.Common.IO;
 
 namespace Mara.Tester
 {
@@ -9,7 +11,7 @@ namespace Mara.Tester
         {
             Console.WriteLine("MARA TESTER - A simple GUI to test platform patches. DO NOT USE FOR FINAL RELEASES!");
             /*if (args.Length != 4)
-                PrintInfo();*/
+                PrintInfo();
 
             // Check ori folder
             if (!CheckDirectoryOrFile(args[1], true))
@@ -21,7 +23,7 @@ namespace Mara.Tester
 
             // Check zip file
             if (!CheckDirectoryOrFile(args[3], false))
-                return;
+                return;*/
 
             switch (args[0].ToUpper())
             {
@@ -38,6 +40,16 @@ namespace Mara.Tester
                     var raps = Directory.GetFiles(args[5], "*.rap", SearchOption.AllDirectories);
                     var devkey = StringToByteArrayFastest(args[6]);
                     ImportPs3(args[1], args[2], args[3], args[4], raps, devkey);
+                    break;
+                case "UWU":
+                    var romfs = Directory.GetFiles(args[1], "*.owo", SearchOption.AllDirectories);
+                    List<OWO> m_owos = new List<OWO>();
+                    foreach (var romf in romfs)
+                    {
+                        OWO o = new OWO(romf);
+                        m_owos.Add(o);
+                    }
+                    Mara.Lib.Common.IO.Utils.WriteUWU("output.uwu", m_owos.ToArray(), true);
                     break;
                 default:
                     PrintInfo();

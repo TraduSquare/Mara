@@ -21,6 +21,7 @@ namespace Mara.Lib
         Playstation3,
         Playstation4,
         NintendoSwitch,
-        PlaystationVita
+        PlaystationVita,
+        None
     }
 }

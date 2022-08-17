@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.2.16" />
     <PackageReference Include="LibHac" Version="0.16.1" />
     <PackageReference Include="Microsoft.Win32.Registry" Version="6.0.0-preview.5.21301.5" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2-beta1" />
