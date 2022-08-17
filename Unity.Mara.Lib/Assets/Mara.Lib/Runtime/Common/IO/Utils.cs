@@ -37,11 +37,11 @@ namespace Mara.Lib.Common.IO
                 {
                     var target = new byte[LZ4Codec.MaximumOutputSize(owo.m_size)];
                     _writer.Write(owo.m_size);
-                    _writer.Write(
-                        LZ4Codec.Encode(owo.m_data, 0, owo.m_size, target, 0, target.Length, LZ4Level.L12_MAX));
-                    File.WriteAllBytes("ad", owo.m_data);
-                    File.WriteAllBytes("dsa", target);
-                    _writer.Write(target);
+                    var size = LZ4Codec.Encode(owo.m_data, 0, owo.m_size, target, 0, target.Length, LZ4Level.L12_MAX);
+                    _writer.Write(size);
+                    var data_con = new byte[size];
+                    Array.Copy(target, data_con, size);
+                    _writer.Write(data_con);
                 }
                 else
                 {
