@@ -51,6 +51,18 @@ namespace Mara.Tester
                     }
                     Mara.Lib.Common.IO.Utils.WriteUWU("output.uwu", m_owos.ToArray(), true);
                     break;
+                case "OWOE":
+                    var uwu = Utils.ReadUWU(args[1]);
+                    int meme = 0;
+                    foreach (var VARIABLE in uwu.m_entry)
+                    {
+                        File.WriteAllBytes($"file_{meme}.OWO", VARIABLE.m_data);
+                        meme++;
+                    }
+                    break;
+                case "OWO":
+                    Utils.WriteOWO(args[1]);
+                    break;
                 default:
                     PrintInfo();
                     break;
