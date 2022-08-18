@@ -4,6 +4,7 @@ using LibHac;
 using LibHac.Common;
 using LibHac.Fs.Fsa;
 using Mara.Lib.Common;
+using Mara.Lib.Common.IO;
 
 namespace Mara.Lib.Platforms.Switch;
 
@@ -140,7 +141,7 @@ public class Main : PatchProcess
             var filesize = (int)new FileInfo(Path.Combine(layeredOut, "romfs.bin")).Length;
             if (filesize / 1024d / 1024d > 2048)
             {
-                SplitFile.Split(Path.Combine(layeredOut, "romfs.bin"), filesize, Path.Combine(layeredOut, "romfs.bin"));
+                Utils.SplitFile(Path.Combine(layeredOut, "romfs.bin"), filesize, Path.Combine(layeredOut, "romfs.bin"));
                 File.Delete(Path.Combine(layeredOut, "romfs-bin"));
             }
         }

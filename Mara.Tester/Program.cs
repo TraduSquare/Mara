@@ -61,7 +61,7 @@ namespace Mara.Tester
                     }
                     break;
                 case "OWO":
-                    Utils.WriteOWO(args[1]);
+                    Utils.WriteRomfs(args[1]);
                     break;
                 default:
                     PrintInfo();
