@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Mara.Lib.Common.IO;
 
 namespace Mara.Lib.Platforms.Vita
 {
@@ -11,6 +12,10 @@ namespace Mara.Lib.Platforms.Vita
     {
         private string titleIdSelected;
         public Main(string oriFolder, string outFolder, string filePath) : base(oriFolder, outFolder, filePath)
+        {
+        }
+        
+        public Main(string oriFolder, string outFolder, OWO filePath) : base(oriFolder, outFolder, filePath)
         {
         }
 

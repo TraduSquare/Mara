@@ -142,6 +142,13 @@ public class Utils
         return o;
     }
 
+    public static void ExtractOWO(OWO m_file, string path)
+    {
+        var localFs = new StreamStorage(new MemoryStream(m_file.m_data), false);
+        var romfs = new RomFsFileSystem(localFs);
+        romfs.Extract(path);
+    }
+
     public static OWO SearchOWO(string path, MaraPlatform platform)
     {
         var m_file = new UWU();

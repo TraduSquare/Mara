@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using Mara.Lib.Common;
+using Mara.Lib.Common.IO;
 using Mara.Lib.Configs;
 using Newtonsoft.Json;
 
@@ -13,12 +14,22 @@ namespace Mara.Lib.Platforms
         protected string oriFolder;
         protected string outFolder;
         protected string filePath;
+        protected OWO filePack;
 
         public PatchProcess(string oriFolder, string outFolder, string filePath)
         {
             this.oriFolder = oriFolder;
             this.outFolder = outFolder;
             this.filePath = filePath;
+            GenerateTempFolder();
+            ExtractPatch();
+        }
+        
+        public PatchProcess(string oriFolder, string outFolder, OWO file)
+        {
+            this.oriFolder = oriFolder;
+            this.outFolder = outFolder;
+            filePack = file;
             GenerateTempFolder();
             ExtractPatch();
         }
@@ -85,7 +96,10 @@ namespace Mara.Lib.Platforms
 
         private void ExtractPatch()
         {
-            Lzma.Unpack(filePath, tempFolder);
+            if (filePath.Equals(string.Empty) && filePack != null)
+                Utils.ExtractOWO(filePack, tempFolder);
+            else
+                Lzma.Unpack(filePath, tempFolder);
             maraConfig = JsonConvert.DeserializeObject<MaraConfig>(File.ReadAllText($"{tempFolder}{Path.DirectorySeparatorChar}data.json").Replace('\\', Path.DirectorySeparatorChar));
         }
 

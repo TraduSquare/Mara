@@ -53,6 +53,42 @@ public class Main : PatchProcess
         if (rc.IsFailure())
             throw new Exception("Unable to mount the NCAS.");
     }
+    
+    public Main(string oriFolder, string outFolder, OWO filePath, string Keys, string TitleID,
+        string UpdateFile = null, bool extractExefs = false, bool checkSignature = true, bool buildromfs = true) : base(
+        oriFolder, outFolder, filePath)
+    {
+        titleid = TitleID;
+        horizon = new HOS(Keys, checkSignature);
+        NeedExefs = extractExefs;
+        BuildRomfs = buildromfs;
+        if (oriFolder.Contains(".nsp"))
+        {
+            NSP = new PartitionFS(oriFolder);
+            if (UpdateFile != null)
+                NCAS = new NCA(horizon, NSP.MountPFS0(horizon, "base"),
+                    new PartitionFS(UpdateFile).MountPFS0(horizon, "Update"));
+            else
+                NCAS = new NCA(horizon, NSP.MountPFS0(horizon, "base"));
+        }
+        else if (oriFolder.Contains(".xci"))
+        {
+            XCI = new GameCard(horizon, oriFolder);
+            if (UpdateFile != null)
+                NCAS = new NCA(horizon, XCI.MountGameCard(horizon),
+                    new PartitionFS(UpdateFile).MountPFS0(horizon, "Update"));
+            else
+                NCAS = new NCA(horizon, XCI.MountGameCard(horizon));
+        }
+        else
+        {
+            throw new Exception("Unrecognized file.");
+        }
+
+        var rc = NCAS.MountProgram(horizon, titleid);
+        if (rc.IsFailure())
+            throw new Exception("Unable to mount the NCAS.");
+    }
 
     public override (int, string) ApplyTranslation()
     {

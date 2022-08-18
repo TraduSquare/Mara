@@ -1,11 +1,16 @@
 ﻿using System.IO;
 using System.Linq;
+using Mara.Lib.Common.IO;
 
 namespace Mara.Lib.Platforms.Generic
 {
     public class Main : PatchProcess
     { 
         public Main(string oriFolder, string outFolder, string filePath) : base(oriFolder, outFolder, filePath)
+        {
+        }
+        
+        public Main(string oriFolder, string outFolder, OWO filePath) : base(oriFolder, outFolder, filePath)
         {
         }
 
