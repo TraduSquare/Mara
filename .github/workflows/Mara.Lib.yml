@@ -21,5 +21,3 @@ jobs:
       run: dotnet restore Mara.Lib
     - name: Build
       run: dotnet build --no-restore Mara.Lib
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
