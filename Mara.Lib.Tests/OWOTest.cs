@@ -7,7 +7,8 @@ public class Tests
     {
     }
 
-    [Test, Order(0)]
+    [Test]
+    [Order(0)]
     public void WriteUwu()
     {
         var m_owos = new List<OWO>();
@@ -18,14 +19,15 @@ public class Tests
         }
 
         Utils.WriteUWU(Path.Combine(Path.GetTempPath(), "output.UWU"), m_owos.ToArray());
-        
+
         if (File.Exists(Path.Combine(Path.GetTempPath(), "output.UWU")))
             Assert.Pass();
         else
             Assert.Fail();
     }
 
-    [Test, Order(1)]
+    [Test]
+    [Order(1)]
     public void ReadUwu()
     {
         var uwu = Utils.ReadUWU(Path.Combine(Path.GetTempPath(), "output.UWU"));
@@ -51,17 +53,18 @@ public class Tests
     public void SearchPlatform()
     {
         var platforms = Utils.SearchOWO(Path.Combine(Path.GetTempPath(), "output.UWU"), MaraPlatform.NintendoSwitch);
-        
+
         if (platforms.m_platform == MaraPlatform.NintendoSwitch)
             Assert.Pass();
         else
             Assert.Fail();
     }
-    
-    [Test, Order(2)]
+
+    [Test]
+    [Order(2)]
     public void LoadOWO()
     {
         var platforms = Utils.SearchOWO(Path.Combine(Path.GetTempPath(), "output.UWU"), MaraPlatform.Generic);
-        var mara = new Mara.Lib.Platforms.Generic.Main("", "", platforms);
+        var mara = new Main("", "", platforms);
     }
 }
