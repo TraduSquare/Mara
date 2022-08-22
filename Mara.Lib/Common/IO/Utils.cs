@@ -14,7 +14,8 @@ public class Utils
     public static void WriteUWU(string path, OWO[] entrys, bool compress = true)
     {
         var m_file = new UWU();
-        var _stream = new DataStream(File.Create(path));
+        var f = File.Create(path);
+        var _stream = new DataStream(f);
         var _writer = new DataWriter(_stream);
 
         if (compress)
@@ -52,13 +53,14 @@ public class Utils
         }
 
         _writer.Write(UWU.m_footer);
-        _writer.Write(0);
+        f.Close();
     }
 
     public static UWU ReadUWU(string path)
     {
         var m_file = new UWU();
-        var _stream = new DataStream(File.Open(path, FileMode.Open));
+        var f = File.Open(path, FileMode.Open);
+        var _stream = new DataStream(f);
         var _reader = new DataReader(_stream);
 
         var magic = _reader.ReadInt32();
@@ -98,7 +100,7 @@ public class Utils
             throw new Exception("Firma del archivo incorrecta");
 
         m_file.m_entry = m_OWOS.ToArray();
-
+        f.Close();
         return m_file;
     }
 
@@ -141,6 +143,32 @@ public class Utils
 
         return o;
     }
+    
+    public static OWO ReadOWO(byte[] file)
+    {
+        var _stream = new DataStream(new MemoryStream(file));
+        var _reader = new DataReader(_stream);
+        var o = new OWO();
+        var owo_magic = _reader.ReadInt32();
+        if (owo_magic != OWO.m_magic)
+            throw new Exception("Sistema de archivo (OWO) no reconocido.");
+        o.m_platform = (MaraPlatform)_reader.ReadInt32();
+        o.m_size = _reader.ReadInt32();
+        o.m_compressedsize = _reader.ReadInt32();
+        o.m_data = _reader.ReadBytes(o.m_compressedsize);
+
+        // Descomprimir si es necesario
+        if (o.m_size > o.m_compressedsize)
+        {
+            var target = new byte[o.m_size]; // or source.Length * 255 to be safe
+            LZ4Codec.Decode(
+                o.m_data, 0, o.m_compressedsize,
+                target, 0, target.Length);
+            o.m_data = target;
+        }
+
+        return o;
+    }
 
     public static void ExtractOWO(OWO m_file, string path)
     {
@@ -152,7 +180,8 @@ public class Utils
     public static OWO SearchOWO(string path, MaraPlatform platform)
     {
         var m_file = new UWU();
-        var _stream = new DataStream(File.Open(path, FileMode.Open));
+        var f = File.Open(path, FileMode.Open);
+        var _stream = new DataStream(f);
         var _reader = new DataReader(_stream);
 
         var magic = _reader.ReadInt32();
@@ -172,12 +201,14 @@ public class Utils
             o.m_platform = (MaraPlatform)_reader.ReadInt32();
             o.m_size = _reader.ReadInt32();
             o.m_compressedsize = _reader.ReadInt32();
-            o.m_data = _reader.ReadBytes(o.m_compressedsize);
+            
             if (o.m_platform != platform)
             {
                 _reader.Stream.Position += o.m_compressedsize;
                 continue;
             }
+            
+            o.m_data = _reader.ReadBytes(o.m_compressedsize);
 
             // Descomprimir si es necesario
             if (m_file.m_compressed == 1)
@@ -188,10 +219,10 @@ public class Utils
                     target, 0, target.Length);
                 o.m_data = target;
             }
-
+            f.Close();
             return o;
         }
-
+        f.Close();
         return null;
     }
 
@@ -199,7 +230,8 @@ public class Utils
     {
         var m_file = new UWU();
         var m_platforms = new List<MaraPlatform>();
-        var _stream = new DataStream(File.Open(path, FileMode.Open));
+        var f = File.Open(path, FileMode.Open);
+        var _stream = new DataStream(f);
         var _reader = new DataReader(_stream);
 
         var magic = _reader.ReadInt32();
@@ -219,11 +251,12 @@ public class Utils
             o.m_platform = (MaraPlatform)_reader.ReadInt32();
             o.m_size = _reader.ReadInt32();
             o.m_compressedsize = _reader.ReadInt32();
-            o.m_data = _reader.ReadBytes(o.m_compressedsize);
             _reader.Stream.Position += o.m_compressedsize;
             m_platforms.Add(o.m_platform);
         }
-
+        
+        f.Close();
+        
         return m_platforms.ToArray();
     }
 

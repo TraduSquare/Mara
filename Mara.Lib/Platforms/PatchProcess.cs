@@ -96,7 +96,7 @@ namespace Mara.Lib.Platforms
 
         private void ExtractPatch()
         {
-            if (filePath.Equals(string.Empty) && filePack != null)
+            if (filePath == null && filePack != null)
                 Utils.ExtractOWO(filePack, tempFolder);
             else
                 Lzma.Unpack(filePath, tempFolder);

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31112.23
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32811.315
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mara.Lib", "Mara.Lib\Mara.Lib.csproj", "{830A446C-1587-4747-931E-4E16AECB044D}"
 EndProject
@@ -15,9 +15,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GUIs", "GUIs", "{F9C05C8D-7
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CLIs", "CLIs", "{46AC9F2C-548A-4BEE-A321-B3B141814293}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mara.Tester", "Mara.Tester\Mara.Tester.csproj", "{E831C259-D40F-4865-8214-312197300A33}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mara.Tester", "Mara.Tester\Mara.Tester.csproj", "{E831C259-D40F-4865-8214-312197300A33}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mara.PS3.Decryptor", "Mara.PS3.Decryptor\Mara.PS3.Decryptor.csproj", "{E059DB4A-29B2-4DCD-B0FE-B0AB3421E862}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mara.PS3.Decryptor", "Mara.PS3.Decryptor\Mara.PS3.Decryptor.csproj", "{E059DB4A-29B2-4DCD-B0FE-B0AB3421E862}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{35DE0647-2815-4801-900F-A936CC175FF5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mara.Lib.Tests", "Mara.Lib.Tests\Mara.Lib.Tests.csproj", "{51CD55AB-76B1-4C4C-9AF1-6CD939549E58}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +49,10 @@ Global
 		{E059DB4A-29B2-4DCD-B0FE-B0AB3421E862}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E059DB4A-29B2-4DCD-B0FE-B0AB3421E862}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E059DB4A-29B2-4DCD-B0FE-B0AB3421E862}.Release|Any CPU.Build.0 = Release|Any CPU
+		{51CD55AB-76B1-4C4C-9AF1-6CD939549E58}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51CD55AB-76B1-4C4C-9AF1-6CD939549E58}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51CD55AB-76B1-4C4C-9AF1-6CD939549E58}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51CD55AB-76B1-4C4C-9AF1-6CD939549E58}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -55,6 +63,7 @@ Global
 		{0C02DEDB-492A-4BE4-B1FA-BAF2CB7005A3} = {F9C05C8D-7F6C-4AFC-A0C4-04FA06BB3E16}
 		{E831C259-D40F-4865-8214-312197300A33} = {46AC9F2C-548A-4BEE-A321-B3B141814293}
 		{E059DB4A-29B2-4DCD-B0FE-B0AB3421E862} = {46AC9F2C-548A-4BEE-A321-B3B141814293}
+		{51CD55AB-76B1-4C4C-9AF1-6CD939549E58} = {35DE0647-2815-4801-900F-A936CC175FF5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {939563DE-89D2-4814-986D-5E7EB402231D}

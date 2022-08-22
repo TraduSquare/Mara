@@ -42,4 +42,12 @@ public class OWO
         m_data = data;
         m_platform = platform;
     }
+    
+    public OWO(byte[] data, MaraPlatform platform = MaraPlatform.Generic)
+    {
+        m_size = data.Length;
+        m_compressedsize = data.Length;
+        m_data = data;
+        m_platform = platform;
+    }
 }
