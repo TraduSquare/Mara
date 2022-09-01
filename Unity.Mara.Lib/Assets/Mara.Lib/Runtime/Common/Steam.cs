@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Yarhl.IO;
 using Microsoft.Win32;
 
-#if UNITY_EDITOR && UNITY_STANDALONE
+#if UNITY_EDITOR || UNITY_STANDALONE
 
 namespace Mara.Lib.Common
 {
