@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>VDFParser.dotnet</id>
+    <version>1.1.0</version>
+    <title>VDFParser</title>
+    <authors>VDFParser.dotnet</authors>
+    <readme>README.md</readme>
+    <projectUrl>https://github.com/BrianLima/VDFParser</projectUrl>
+    <description>Provides facilities to parse and write VDF files into managed objects</description>
+    <repository type="git" url="https://github.com/D3fau4/VDFParser" />
+    <dependencies>
+      <group targetFramework=".NETStandard2.1" />
+    </dependencies>
+  </metadata>
+</package>

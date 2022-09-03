@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<coreProperties xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://schemas.openxmlformats.org/package/2006/metadata/core-properties">
+  <dc:creator>Microsoft</dc:creator>
+  <dc:description>Provides non-cryptographic hash algorithms, such as CRC-32.
+
+Commonly Used Types:
+System.IO.Hashing.Crc32
+System.IO.Hashing.XxHash32</dc:description>
+  <dc:identifier>System.IO.Hashing</dc:identifier>
+  <version>7.0.0-preview.7.22375.6</version>
+  <keywords></keywords>
+  <lastModifiedBy>NuGet.Build.Tasks.Pack, Version=6.3.0.73, Culture=neutral, PublicKeyToken=31bf3856ad364e35;</lastModifiedBy>
+</coreProperties>
