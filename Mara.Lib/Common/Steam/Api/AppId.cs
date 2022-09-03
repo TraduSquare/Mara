@@ -6,7 +6,7 @@ namespace Mara.Lib.Common.Steam.Api;
 
 public class AppId
 {
-    private long m_appid;
+    private readonly long m_appid;
 
     public AppId(string AppName, string ExePath)
     {

@@ -11,23 +11,19 @@ public class Users
 
     public static uint[] getUsersIds()
     {
-        List<uint> m_users = new List<uint>();
+        var m_users = new List<uint>();
         foreach (var f in Directory.GetDirectories(Path.Combine(SteamUtils.GetSteamPath(), "userdata")))
-        {
             m_users.Add(uint.Parse(Path.GetFileName(f)));
-        }
-        
+
         return m_users.ToArray();
     }
-    
+
     public static uint[] getUsers()
     {
-        List<uint> m_users = new List<uint>();
+        var m_users = new List<uint>();
         foreach (var f in Directory.GetDirectories(Path.Combine(SteamUtils.GetSteamPath(), "userdata")))
-        {
             m_users.Add(uint.Parse(Path.GetDirectoryName(f)));
-        }
-        
+
         return m_users.ToArray();
     }
 }
