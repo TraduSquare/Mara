@@ -84,4 +84,31 @@ public class SteamUtils
     {
         return SteamGameLibraries.SteamLibraries;
     }
+    
+    /// <summary>
+    /// Request to steam install a game
+    /// </summary>
+    /// <param name="appID">The game appID</param>
+    public static void InstallGame(long appID)
+    {
+        Internet.OpenUrl($"steam://install/{appID}");
+    }
+    
+    /// <summary>
+    /// Request to steam uninstall a game
+    /// </summary>
+    /// <param name="appID">The game appID</param>
+    public static void UninstallGame(long appID)
+    {
+        Internet.OpenUrl($"steam://uninstall/{appID}");
+    }
+    
+    /// <summary>
+    /// Request to steam validate the game files. this makes uninstall mods.
+    /// </summary>
+    /// <param name="appID">The game appID</param>
+    public static void ValidateGameFiles(long appID)
+    {
+        Internet.OpenUrl($"steam://validate/{appID}");
+    }
 }

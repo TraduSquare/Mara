@@ -34,7 +34,7 @@ public static class Shortcut
             m_entry.OpenVR = 0x0;
             m_entry.ShortcutPath = "";
             m_entry.StartDir = $"\"{Path.GetDirectoryName(ExePath)}\"";
-            m_entry.appid = (int)m_appid.getAppId();
+            m_entry.appid = (int)m_appid.getShortAppId();
             m_entry.Icon = icon;
             m_entry.Tags = new[] { "" };
 
