@@ -91,7 +91,7 @@ namespace Mara.Tester
         private static void ImportPs3(string oriFolder, string outFolder, string filePath, string titleid, string[] RAPsfile, byte[] DEVKEY)
         {
             Console.Write("PS3 MODE!");
-            var mainPs3 = new Lib.Platforms.PS3.Main(oriFolder, outFolder, filePath, titleid, RAPsfile, DEVKEY);
+            var mainPs3 = new Lib.Platforms.PS3.Main(oriFolder, outFolder, filePath, titleid, RAPsfile, DEVKEY, new []{ "" });
             PrintResult(mainPs3.ApplyTranslation());
         }
 
