@@ -1,8 +1,8 @@
 {
     "name": "com.unity.mara.lib",
-    "version": "1.5.0-BETA",
+    "version": "1.6.0-BETA",
     "displayName": "Mara Lib",
-    "description": "This is an example package",
+    "description": "A tool/Lib to generate patches and patch games on multiple platforms.",
     "unity": "2021.3",
     "unityRelease": "1f1",
     "documentationUrl": "https://tradusquare.es/",

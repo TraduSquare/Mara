@@ -31,6 +31,28 @@ namespace Mara.Lib.Platforms.PS3.IO
             if (decryptData(reader, npd, data, rifkey, OutPath)) Console.WriteLine("Done!");
         }
 
+        public static NPD decryptFileWithResult(string InPath, string OutPath, byte[] klicense, byte[] keyFromRif)
+        {
+            var file = DataStreamFactory.FromFile(InPath, FileOpenMode.Read);
+            var reader = new DataReader(file);
+
+            var npd = validateNPD(Path.GetFileName(InPath), klicense, reader);
+            if (npd == null) throw new Exception("Invalid NPD");
+
+            Console.WriteLine("NPD valid!");
+            var data = getEDATData(reader);
+            var rifkey = getKey(npd, data, klicense, keyFromRif);
+
+            if (rifkey == null) throw new Exception("ERROR: Key for decryption is missing");
+            Console.WriteLine($"DECRYPTION KEY: {BitConverter.ToString(rifkey)}");
+
+            if (!checkHeader(rifkey, data, npd, reader)) throw new Exception("Error verifying header.");
+
+            if (decryptData(reader, npd, data, rifkey, OutPath)) Console.WriteLine("Done!");
+
+            return npd;
+        }
+
         public static void encryptFile(string InPath, string OutPath, byte[] klicense, byte[] keyFromRif,
             byte[] ContentID, byte[] flags, byte[] type, byte[] version)
         {
