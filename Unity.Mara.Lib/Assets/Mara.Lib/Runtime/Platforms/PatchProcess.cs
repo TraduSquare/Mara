@@ -112,5 +112,11 @@ namespace Mara.Lib.Platforms
         {
             return maraConfig.Info;
         }
+
+        public void UpdateFolders(string newOriFolder, string newOutFolder)
+        {
+            this.oriFolder = newOriFolder;
+            this.outFolder = newOutFolder;
+        }
     }
 }
