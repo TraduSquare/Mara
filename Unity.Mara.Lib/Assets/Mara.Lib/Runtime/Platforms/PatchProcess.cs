@@ -9,12 +9,12 @@ namespace Mara.Lib.Platforms
 {
     public class PatchProcess
     {
-        protected MaraConfig maraConfig;
-        protected string tempFolder;
+        public MaraConfig maraConfig  { get; set; }
+        public string tempFolder  { get; set; }
         protected string oriFolder;
         protected string outFolder;
         protected string filePath;
-        protected OWO filePack;
+        public OWO filePack { get; set; }
 
         public PatchProcess(string oriFolder, string outFolder, string filePath)
         {
