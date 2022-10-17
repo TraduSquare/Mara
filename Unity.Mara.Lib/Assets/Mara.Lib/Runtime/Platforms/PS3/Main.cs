@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using Mara.Lib.Platforms.PS3.Crypto;
+using Mara.Lib.Common.IO;
 using Mara.Lib.Platforms.PS3.IO;
+using Utils = Mara.Lib.Platforms.PS3.Crypto.Utils;
 
 namespace Mara.Lib.Platforms.PS3
 {
@@ -17,7 +18,7 @@ namespace Mara.Lib.Platforms.PS3
         private readonly string m_GamePath;
         private readonly Dictionary<string, byte[]> m_keys = new();
 
-        /*public Main(string oriFolder, string outFolder, OWO filePath, string titleid, string[] RAPsfile, byte[] DEVKEY)
+        public Main(string oriFolder, string outFolder, OWO filePath, string titleid, string[] RAPsfile, byte[] DEVKEY)
             : base(oriFolder, outFolder, filePath)
         {
             m_GamePath = Path.Combine(oriFolder, "game", titleid);
@@ -41,7 +42,7 @@ namespace Mara.Lib.Platforms.PS3
                 {
                     Console.WriteLine(e);
                 }
-        }*/
+        }
 
         public Main(string oriFolder, string outFolder, string filePath, string titleid, string[] RAPsfile,
             byte[] DEVKEY, string[] CIDs)

@@ -1,23 +1,35 @@
 ﻿using System;
 using System.IO;
 using Mara.Lib.Common;
+using Mara.Lib.Common.IO;
+using Mara.Lib.Configs;
 using Newtonsoft.Json;
 
 namespace Mara.Lib.Platforms
 {
     public class PatchProcess
     {
-        public MaraConfig maraConfig { get; set; }
-        public string tempFolder { get; set; }
+        protected MaraConfig maraConfig;
+        protected string tempFolder;
         protected string oriFolder;
         protected string outFolder;
         protected string filePath;
+        protected OWO filePack;
 
         public PatchProcess(string oriFolder, string outFolder, string filePath)
         {
             this.oriFolder = oriFolder;
             this.outFolder = outFolder;
             this.filePath = filePath;
+            GenerateTempFolder();
+            ExtractPatch();
+        }
+        
+        public PatchProcess(string oriFolder, string outFolder, OWO file)
+        {
+            this.oriFolder = oriFolder;
+            this.outFolder = outFolder;
+            filePack = file;
             GenerateTempFolder();
             ExtractPatch();
         }
@@ -59,6 +71,23 @@ namespace Mara.Lib.Platforms
             return (0, string.Empty);
         }
 
+        protected (int, string) CopyFiles(string inPath, string result)
+        {
+            try
+            {
+                if (!Directory.Exists(Path.GetDirectoryName(result)))
+                    Directory.CreateDirectory(Path.GetDirectoryName(result));
+            }
+            catch (Exception ex)
+            {
+                return (-1, "Error al intentar crear una carpeta.");
+            }
+
+            File.Copy(inPath, result);
+            
+            return (0, string.Empty);
+        }
+
         private void GenerateTempFolder()
         {
             tempFolder = Path.GetTempPath() + Path.DirectorySeparatorChar + Path.GetRandomFileName();
@@ -67,8 +96,11 @@ namespace Mara.Lib.Platforms
 
         private void ExtractPatch()
         {
-            Lzma.Unpack(filePath, tempFolder);
-            maraConfig = JsonConvert.DeserializeObject<MaraConfig>(File.ReadAllText($"{tempFolder}{Path.DirectorySeparatorChar}data.json"));
+            if (filePath == null && filePack != null)
+                Utils.ExtractOWO(filePack, tempFolder);
+            else
+                Lzma.Unpack(filePath, tempFolder);
+            maraConfig = JsonConvert.DeserializeObject<MaraConfig>(File.ReadAllText($"{tempFolder}{Path.DirectorySeparatorChar}data.json").Replace('\\', Path.DirectorySeparatorChar));
         }
 
         private void DeleteTempFolder()
@@ -76,11 +108,9 @@ namespace Mara.Lib.Platforms
             Directory.Delete(tempFolder, true);
         }
 
-        public void UpdateFolders(string newOriFolder, string newOutFolder)
+        public PatchInfo GetInfo()
         {
-            this.oriFolder = newOriFolder;
-            this.outFolder = newOutFolder;
+            return maraConfig.Info;
         }
-
     }
 }
