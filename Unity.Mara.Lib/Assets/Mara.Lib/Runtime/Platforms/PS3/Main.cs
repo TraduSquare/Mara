@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -22,19 +22,65 @@ namespace Mara.Lib.Platforms.PS3
             : base(oriFolder, outFolder, filePath)
         {
             m_GamePath = Path.Combine(oriFolder, "game", titleid);
-            m_encdlc = Directory.GetFiles(Path.Combine(m_GamePath, "USRDIR", "DLC"), "*.EDAT", SearchOption.AllDirectories);
-            klicense = DEVKEY;
-            reloaddlcs(RAPsfile);
+            m_encdlc = Directory.GetFiles(Path.Combine(m_GamePath, "USRDIR", "DLC"), "*.EDAT",
+                SearchOption.AllDirectories);
+            foreach (var RAPfile in RAPsfile)
+                if (RAPfile != "")
+                    m_keys.Add(RAPfile.Replace(".rap", ""), RAP.GetKey(RAPfile));
+
+            if (!Directory.Exists(Path.Combine(tempFolder, "DAT")))
+                Directory.CreateDirectory(Path.Combine(tempFolder, "DAT"));
+
+            foreach (var f in m_encdlc)
+            foreach (var key in m_keys)
+                try
+                {
+                    EDAT.decryptFile(f, Path.Combine(tempFolder, "DAT", Path.GetFileName(f)).Replace("EDAT", "DAT"),
+                        DEVKEY,
+                        key.Value);
+                    break;
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
         }
 
         public Main(string oriFolder, string outFolder, string filePath, string titleid, string[] RAPsfile,
-            byte[] DEVKEY)
+            byte[] DEVKEY, string[] CIDs)
             : base(oriFolder, outFolder, filePath)
         {
             m_GamePath = Path.Combine(oriFolder, "game", titleid);
-            m_encdlc = Directory.GetFiles(Path.Combine(m_GamePath, "USRDIR", "DLC"), "*.EDAT", SearchOption.AllDirectories);
+            m_encdlc = Directory.GetFiles(Path.Combine(m_GamePath, "USRDIR", "DLC"), "*.EDAT",
+                SearchOption.AllDirectories);
             klicense = DEVKEY;
-            reloaddlcs(RAPsfile);
+
+            foreach (var RAPfile in RAPsfile)
+                if (RAPfile != "")
+                    m_keys.Add(RAPfile.Replace(".rap", ""), RAP.GetKey(RAPfile));
+
+            foreach (var cid in CIDs)
+                m_CID.Add(Utils.StringToByteArray(BitConverter.ToString(Encoding.UTF8.GetBytes(cid))
+                    .Replace("-", "")));
+
+            /*if (!Directory.Exists(Path.Combine(tempFolder, "DAT")))
+                Directory.CreateDirectory(Path.Combine(tempFolder, "DAT"));*/
+
+            foreach (var f in m_encdlc)
+            foreach (var key in m_keys)
+                try
+                {
+                    var result = EDAT.decryptFileWithResult(f,
+                        Path.Combine(Path.Combine(m_GamePath, "USRDIR", "DLC"), Path.GetFileName(f))
+                            .Replace(".EDAT", ".DAT"), DEVKEY,
+                        key.Value);
+                    m_dlcs.Add(Path.GetFileName(f.Replace(".EDAT", ".DAT")), (result, key.Value));
+                    break;
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
         }
 
         public override (int, string) ApplyTranslation()
@@ -121,29 +167,6 @@ namespace Mara.Lib.Platforms.PS3
             foreach (var dir in Folders)
                 if (!Directory.Exists(dir))
                     Directory.CreateDirectory(dir);
-        }
-
-        public void reloaddlcs(string[] RAPsfile)
-        {
-            foreach (var RAPfile in RAPsfile)
-                if (RAPfile != "")
-                    m_keys.Add(RAPfile.Replace(".rap", ""), RAP.GetKey(RAPfile));
-    
-            if (!Directory.Exists(Path.Combine(tempFolder, "DAT")))
-                Directory.CreateDirectory(Path.Combine(tempFolder, "DAT"));
-    
-            foreach (var f in m_encdlc)
-            foreach (var key in m_keys)
-                try
-                {
-                    EDAT.decryptFile(f, Path.Combine(tempFolder, "DAT", Path.GetFileName(f)).Replace("EDAT", "DAT"), this.klicense,
-                        key.Value);
-                    break;
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                }
         }
     }
 }
