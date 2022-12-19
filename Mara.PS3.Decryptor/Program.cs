@@ -19,13 +19,48 @@ if (args.Length > 0)
         switch (args[1])
         {
             case "DECRYPT":
-                rif = Utils.StringToByteArray(args[3]);
+                string[] raps = Array.Empty<string>(); 
                 dev = Utils.StringToByteArray(args[4]);
-
+                if (!args[3].Equals(string.Empty))
+                {
+                    try
+                    {
+                        raps = Directory.GetFiles(args[3], "*.rap", SearchOption.AllDirectories);
+                    }
+                    catch (Exception e)
+                    {
+                        rif = rif = Utils.StringToByteArray(args[3]);
+                    }
+                }
+                
                 Console.WriteLine($"DevKLic: {BitConverter.ToString(dev).Replace("-", "")}");
-                Console.WriteLine($"Rif key: {BitConverter.ToString(rif).Replace("-", "")}");
 
-                EDAT.decryptFile(args[2], args[5], dev, rif);
+                if (rif.SequenceEqual(new byte[0x10]))
+                {
+                    foreach (var pathf in raps)
+                    {
+                        rif = RAP.GetKey(pathf);
+                        try
+                        {
+                            Console.WriteLine($"Rif key: {BitConverter.ToString(rif).Replace("-", "")}");
+                            var m = EDAT.decryptFileWithResult(args[2], args[5], dev, rif);
+                            if (m != null)
+                                break;
+                            
+                        }
+                        catch (Exception e)
+                        {
+                            
+                        }
+                    }
+                }
+                else
+                {
+                    EDAT.decryptFile(args[2], args[5], dev, rif);
+                }
+                
+                
+
                 break;
             case "ENCRYPT":
                 var input = args[2];
