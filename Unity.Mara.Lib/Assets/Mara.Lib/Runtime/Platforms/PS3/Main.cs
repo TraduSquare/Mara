@@ -10,31 +10,47 @@ namespace Mara.Lib.Platforms.PS3
 {
     public class Main : PatchProcess
     {
-        private readonly byte[] klicense;
-        private readonly List<byte[]> m_CID = new();
-        private readonly List<string> m_decdlc = new();
-        private readonly Dictionary<string, (NPD, byte[])> m_dlcs = new();
-        private readonly string[] m_encdlc;
-        private readonly string m_GamePath;
-        private readonly Dictionary<string, byte[]> m_keys = new();
+        private byte[] klicense;
+        private List<byte[]> m_CID = new();
+        private List<string> m_decdlc = new();
+        private Dictionary<string, (NPD, byte[])> m_dlcs = new();
+        private string[] m_encdlc;
+        private string m_GamePath;
+        private Dictionary<string, byte[]> m_keys = new();
+        
+        private string Titleid { get; set; }
 
         public Main(string oriFolder, string outFolder, OWO filePath, string titleid, string[] RAPsfile, byte[] DEVKEY)
             : base(oriFolder, outFolder, filePath)
         {
+            this.Titleid = titleid;
             m_GamePath = Path.Combine(oriFolder, "game", titleid);
-            m_encdlc = Directory.GetFiles(Path.Combine(m_GamePath, "USRDIR", "DLC"), "*.EDAT", SearchOption.AllDirectories);
+            try
+            {
+                m_encdlc = Directory.GetFiles(Path.Combine(m_GamePath, "USRDIR", "DLC"), "*.EDAT", SearchOption.AllDirectories);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
             klicense = DEVKEY;
-            reloaddlcs(RAPsfile);
         }
 
         public Main(string oriFolder, string outFolder, string filePath, string titleid, string[] RAPsfile,
             byte[] DEVKEY)
             : base(oriFolder, outFolder, filePath)
         {
+            this.Titleid = titleid;
             m_GamePath = Path.Combine(oriFolder, "game", titleid);
-            m_encdlc = Directory.GetFiles(Path.Combine(m_GamePath, "USRDIR", "DLC"), "*.EDAT", SearchOption.AllDirectories);
+            try
+            {
+                m_encdlc = Directory.GetFiles(Path.Combine(m_GamePath, "USRDIR", "DLC"), "*.EDAT", SearchOption.AllDirectories);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
             klicense = DEVKEY;
-            reloaddlcs(RAPsfile);
         }
 
         public override (int, string) ApplyTranslation()
@@ -53,22 +69,27 @@ namespace Mara.Lib.Platforms.PS3
                 var oriFile = $"{m_GamePath}{Path.DirectorySeparatorChar}{files.ListOriFiles[i]}";
                 var xdelta = $"{tempFolder}{Path.DirectorySeparatorChar}{files.ListXdeltaFiles[i]}";
 
-                var outFile = $"{outFolder}{Path.DirectorySeparatorChar}{files.ListOriFiles[i]}";
+                var outFile = $"{m_GamePath}{Path.DirectorySeparatorChar}{files.ListOriFiles[i]}";
                 var folderFile = Path.GetDirectoryName(outFile);
                 if (!Directory.Exists(folderFile))
                     Directory.CreateDirectory(folderFile);
 
-                var resultApplyXdelta = ApplyXdelta(oriFile, xdelta, outFile, files.ListMd5Files[i]);
-
-                if (!checkDLC(oriFile))
-                    if (resultApplyXdelta.Item1 != 0)
-                        return resultApplyXdelta;
-
+                (int, string) resultApplyXdelta;
+                
                 if (checkDLC(oriFile))
                 {
+                    oriFile = $"{tempFolder}{Path.DirectorySeparatorChar}DAT{Path.DirectorySeparatorChar}{Path.GetFileName(files.ListOriFiles[i])}";
+                    resultApplyXdelta = ApplyXdelta(oriFile, xdelta, outFile, files.ListMd5Files[i]);
+                    
                     var result = ProccessDLC(outFile);
                     if (result.Item1 != 0)
                         return result;
+                }
+                else
+                {
+                    resultApplyXdelta = ApplyXdelta(oriFile, xdelta, outFile, files.ListMd5Files[i]);
+                    if (resultApplyXdelta.Item1 != 0)
+                        return resultApplyXdelta;
                 }
             }
 
@@ -80,7 +101,10 @@ namespace Mara.Lib.Platforms.PS3
                 var folderFile = Path.GetDirectoryName(outFile);
                 if (!Directory.Exists(folderFile))
                     Directory.CreateDirectory(folderFile);
-
+                
+                if(File.Exists(outFile))
+                    File.Delete(outFile);
+                
                 File.Copy(oriFile, outFile);
             }
 
@@ -95,12 +119,13 @@ namespace Mara.Lib.Platforms.PS3
 
         private (int, string) ProccessDLC(string path)
         {
-            m_dlcs.TryGetValue(Path.GetFileName(path), out var data);
+            string finaloutput = path.Replace(".DAT", ".EDAT");
+            m_dlcs.TryGetValue(Path.GetFileName(finaloutput + "_ori"), out var data);
             try
             {
                 if (data.Item1 != null)
                 {
-                    EDAT.encryptFile(path, path.Replace(".DAT", ".EDAT"), klicense, data.Item2,
+                    EDAT.encryptFile(path, finaloutput, klicense, data.Item2,
                         data.Item1.ContentId, Utils.StringToByteArray("3C"),
                         new[] { (byte)data.Item1.Type }, new[] { (byte)data.Item1.Version });
 
@@ -136,14 +161,28 @@ namespace Mara.Lib.Platforms.PS3
             foreach (var key in m_keys)
                 try
                 {
-                    EDAT.decryptFile(f, Path.Combine(tempFolder, "DAT", Path.GetFileName(f)).Replace("EDAT", "DAT"), this.klicense,
-                        key.Value);
+                    m_dlcs.Add(Path.GetFileName(f), (EDAT.decryptFileWithResult(f, Path.Combine(tempFolder, "DAT", Path.GetFileName(f)).Replace("EDAT_ori", "DAT"), this.klicense,
+                        key.Value), key.Value));
                     break;
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine(e);
                 }
+        }
+
+        public void UpdateFolders(string path1, string path2)
+        {
+            m_GamePath = Path.Combine(oriFolder, "game", Titleid);
+            m_encdlc = Directory.GetFiles(Path.Combine(m_GamePath, "USRDIR", "DLC"), "*.EDAT", SearchOption.AllDirectories);
+
+            foreach (var mDlc in m_encdlc)
+            {
+                if(!File.Exists(mDlc.Replace(".EDAT", ".EDAT_ori")))
+                    File.Move(mDlc,mDlc.Replace(".EDAT", ".EDAT_ori"));
+            }
+            
+            m_encdlc = Directory.GetFiles(Path.Combine(m_GamePath, "USRDIR", "DLC"), "*.EDAT_ori", SearchOption.AllDirectories);
         }
     }
 }
