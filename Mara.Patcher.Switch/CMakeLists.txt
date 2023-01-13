@@ -34,6 +34,7 @@ file(GLOB BOREALIS_SRC
         ${BOREALIS_DIR}/library/lib/extern/libretro-common/compat/*.c
         ${BOREALIS_DIR}/library/lib/extern/libretro-common/encodings/*.c
         ${BOREALIS_DIR}/library/lib/extern/libretro-common/features/*.c
+        ${BOREALIS_DIR}/library/lib/extern/switch-libpulsar/src/*/*.c
         ${BOREALIS_DIR}/library/lib/extern/fmt/src/*.cc
         )
 
@@ -67,6 +68,7 @@ target_include_directories(Mara_nx PUBLIC
         ${BOREALIS_DIR}/library/include
         ${BOREALIS_DIR}/library/include/borealis/extern
         ${BOREALIS_DIR}/library/lib/extern/fmt/include
+        ${BOREALIS_DIR}/library/lib/extern/switch-libpulsar/include
         ${BOREALIS_DIR}/library/include
         ${XDELTA3_DIR}/Sources/Library/include
         )
