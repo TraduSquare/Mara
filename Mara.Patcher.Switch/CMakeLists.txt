@@ -38,16 +38,20 @@ file(GLOB BOREALIS_SRC
 ## Project sources
 include_directories(${PROJECT_SOURCE_DIR}/include/)
 file(GLOB_RECURSE SOURCES_ASM ${PROJECT_SOURCE_DIR}/source/*.s)
-file(GLOB_RECURSE SOURCES_C ${PROJECT_SOURCE_DIR}/source/*.c)
-file(GLOB_RECURSE SOURCES_CXX ${PROJECT_SOURCE_DIR}/source/*.cpp)
+file(GLOB_RECURSE SOURCES_C ${PROJECT_SOURCE_DIR}/source/*.c
+        ${PROJECT_SOURCE_DIR}/source/*/*.c
+        ${PROJECT_SOURCE_DIR}/source/*/*/*.c)
+file(GLOB_RECURSE SOURCES_CXX ${PROJECT_SOURCE_DIR}/source/*.cpp
+        ${PROJECT_SOURCE_DIR}/source/*/*.cpp
+        ${PROJECT_SOURCE_DIR}/source/*/*/*.cpp)
 
 add_executable(Mara_nx ${SOURCES_ASM} ${SOURCES_C} ${SOURCES_CXX} ${BOREALIS_SRC})
-
+target_compile_definitions(Mara_nx PRIVATE PROJECT_NAME="${PROJECT_NAME}")
 # Next, we need to set the required target properties
 # so CMake can detect the metadata for the application.
 set_target_properties(Mara_nx PROPERTIES
         APP_TITLE "Mara"
-        APP_AUTHOR "D3fau4"
+        APP_AUTHOR "TraduSquare"
         APP_VERSION "0.1.0"
         ROMFS "${CMAKE_CURRENT_LIST_DIR}/resources"
         )
@@ -69,7 +73,7 @@ target_link_libraries(Mara_nx
         switch::libnx
         -L${LIBNX}/lib
         -L${PORTLIBS}/lib
-        -lglfw3 -lEGL -lglapi -ldrm_nouveau -lm -lnx
+        -lglfw3 -lEGL -lglad -lglapi -ldrm_nouveau -lm -lnx
         )
 
 # NX executable target
