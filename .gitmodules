@@ -1,0 +1,3 @@
+[submodule "Mara.Patcher.Switch/Libs/xdelta3-nx"]
+	path = Mara.Patcher.Switch/Libs/xdelta3-nx
+	url = https://github.com/D3fau4/xdelta3-nx.git
