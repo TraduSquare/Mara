@@ -18,7 +18,8 @@ add_compile_definitions(HAVE_LIBNX)
 ## Borealis resource location
 add_compile_definitions(BOREALIS_RESOURCES="romfs:/")
 
-set(BOREALIS_DIR borealis/)
+set(LIBS_DIR Libs/)
+set(BOREALIS_DIR ${LIBS_DIR}/borealis/)
 
 # Borealis source with dependencies
 file(GLOB BOREALIS_SRC
