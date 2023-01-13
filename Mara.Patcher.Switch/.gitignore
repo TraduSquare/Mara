@@ -91,3 +91,5 @@ sept/sept-secondary/KEYS.py
 
 **/out
 **/build
+
+/cmake-build-debug/
