@@ -58,3 +58,5 @@
 #include <borealis/theme.hpp>
 #include <borealis/thumbnail_frame.hpp>
 #include <borealis/view.hpp>
+#include <borealis/audio.hpp>
+#include <borealis/audio_switch.hpp>
