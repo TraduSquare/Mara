@@ -17,6 +17,7 @@ namespace brls {
 
         bool load(Sound sound) override;
         bool play(Sound sound, float pitch = 1) override;
+        bool Close();
     private:
 
         const std::string SOUNDS_MAP[_SOUND_MAX] = {

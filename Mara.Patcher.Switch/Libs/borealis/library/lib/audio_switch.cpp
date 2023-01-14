@@ -18,6 +18,7 @@ namespace brls {
         // Open the sound archive from qlaunch sound archive
         sprintf(bfsarPath, "%s:%s", QLAUNCH_MOUNT_POINT, BFSAR_PATH);
         PLSR_RC_TRY(plsrBFSAROpen(bfsarPath, &this->qlaunchBfsar));
+        Logger::info("Qlaunch BFSAR mounted at: %s", bfsarPath);
 
         return PLSR_RC_OK;
     }
@@ -31,15 +32,26 @@ namespace brls {
     }
 
     audio_switch::~audio_switch() {
+
+    }
+
+    bool audio_switch::Close(){
         for (size_t sound = 0; sound < _SOUND_MAX; sound++)
-            if(this->sounds[sound] != PLSR_PLAYER_INVALID_SOUND)
+            if(this->sounds[sound] != PLSR_PLAYER_INVALID_SOUND){
                 plsrPlayerFree(this->sounds[sound]);
+                Logger::info("Sound unloaded: %i", sound);
+            }
+
 
         // Close the archive
         plsrBFSARClose(&this->qlaunchBfsar);
 
         // De-initialize our player
         plsrPlayerExit();
+
+        romfsUnmount(QLAUNCH_MOUNT_POINT);
+
+        return true;
     }
 
     bool audio_switch::load(enum Sound sound) {
