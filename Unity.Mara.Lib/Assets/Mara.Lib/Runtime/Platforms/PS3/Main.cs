@@ -62,7 +62,7 @@ namespace Mara.Lib.Platforms.PS3
             var game = Path.Combine(outFolder, "USRDIR");
             var dlc = Path.Combine(game, "DLC");
 
-            InitDirs(new[] { MANUAL, game, dlc });
+            //InitDirs(new[] { MANUAL, game, dlc });
 
             for (var i = 0; i < count; i++)
             {
@@ -75,15 +75,23 @@ namespace Mara.Lib.Platforms.PS3
                     Directory.CreateDirectory(folderFile);
 
                 (int, string) resultApplyXdelta;
-                
+                Console.WriteLine($"Parcheando: {oriFile}");
                 if (checkDLC(oriFile))
                 {
                     oriFile = $"{tempFolder}{Path.DirectorySeparatorChar}DAT{Path.DirectorySeparatorChar}{Path.GetFileName(files.ListOriFiles[i])}";
-                    resultApplyXdelta = ApplyXdelta(oriFile, xdelta, outFile, files.ListMd5Files[i]);
-                    
-                    var result = ProccessDLC(outFile);
-                    if (result.Item1 != 0)
-                        return result;
+
+                    try
+                    {
+                        resultApplyXdelta = ApplyXdelta(oriFile, xdelta, outFile, files.ListMd5Files[i]);
+                        var result = ProccessDLC(outFile);
+                        // Ignorar si peta ya que son dlcs
+                        /*if (result.Item1 != 0)
+                            return result;*/
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                    }
                 }
                 else
                 {
@@ -97,8 +105,11 @@ namespace Mara.Lib.Platforms.PS3
             for (var i = 0; i < files.ListCopyFiles.Length; i++)
             {
                 var oriFile = $"{tempFolder}{Path.DirectorySeparatorChar}{files.ListCopyFiles[i]}";
-                var outFile = $"{outFolder}{Path.DirectorySeparatorChar}{files.ListCopyFiles[i]}";
+                var outFile = $"{m_GamePath}{Path.DirectorySeparatorChar}{files.ListCopyFiles[i]}";
                 var folderFile = Path.GetDirectoryName(outFile);
+                
+                Console.WriteLine($"Copiando: {oriFile}");
+                
                 if (!Directory.Exists(folderFile))
                     Directory.CreateDirectory(folderFile);
                 
@@ -107,7 +118,7 @@ namespace Mara.Lib.Platforms.PS3
                 
                 File.Copy(oriFile, outFile);
             }
-
+            Console.WriteLine("Todo ejecutado correctamente!");
             return (0, "");
         }
 
@@ -156,13 +167,17 @@ namespace Mara.Lib.Platforms.PS3
     
             if (!Directory.Exists(Path.Combine(tempFolder, "DAT")))
                 Directory.CreateDirectory(Path.Combine(tempFolder, "DAT"));
-    
-            foreach (var f in m_encdlc)
+            
+            if (m_encdlc != null && m_encdlc.Length > 0)
+                foreach (var f in m_encdlc)
             foreach (var key in m_keys)
                 try
                 {
-                    m_dlcs.Add(Path.GetFileName(f), (EDAT.decryptFileWithResult(f, Path.Combine(tempFolder, "DAT", Path.GetFileName(f)).Replace("EDAT_ori", "DAT"), this.klicense,
-                        key.Value), key.Value));
+                    var a = EDAT.decryptFileWithResult(f,
+                        Path.Combine(tempFolder, "DAT", Path.GetFileName(f)).Replace("EDAT_ori", "DAT"), this.klicense, key.Value);
+                    
+                    if (a != null)
+                        m_dlcs.Add(Path.GetFileName(f), (a, key.Value));
                     break;
                 }
                 catch (Exception e)
@@ -174,15 +189,23 @@ namespace Mara.Lib.Platforms.PS3
         public void UpdateFolders(string path1, string path2)
         {
             m_GamePath = Path.Combine(oriFolder, "game", Titleid);
-            m_encdlc = Directory.GetFiles(Path.Combine(m_GamePath, "USRDIR", "DLC"), "*.EDAT", SearchOption.AllDirectories);
-
-            foreach (var mDlc in m_encdlc)
+            try
             {
-                if(!File.Exists(mDlc.Replace(".EDAT", ".EDAT_ori")))
-                    File.Move(mDlc,mDlc.Replace(".EDAT", ".EDAT_ori"));
-            }
+                m_encdlc = Directory.GetFiles(Path.Combine(m_GamePath, "USRDIR", "DLC"), "*.EDAT", SearchOption.AllDirectories);
+                if (m_encdlc != null && m_encdlc.Length > 0)
+                    foreach (var mDlc in m_encdlc)
+                    {
+                        if(!File.Exists(mDlc.Replace(".EDAT", ".EDAT_ori")))
+                            File.Move(mDlc,mDlc.Replace(".EDAT", ".EDAT_ori"));
+                    }
             
-            m_encdlc = Directory.GetFiles(Path.Combine(m_GamePath, "USRDIR", "DLC"), "*.EDAT_ori", SearchOption.AllDirectories);
+                m_encdlc = Directory.GetFiles(Path.Combine(m_GamePath, "USRDIR", "DLC"), "*.EDAT_ori", SearchOption.AllDirectories);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                
+            }
         }
     }
 }
