@@ -137,7 +137,7 @@ namespace Mara.Lib.Platforms.PS3
                 if (data.Item1 != null)
                 {
                     EDAT.encryptFile(path, finaloutput, klicense, data.Item2,
-                        data.Item1.ContentId, Utils.StringToByteArray("3C"),
+                        data.Item1.ContentId, Utils.StringToByteArray("0C"),
                         new[] { (byte)data.Item1.Type }, new[] { (byte)data.Item1.Version });
 
                     if (File.Exists(path))
