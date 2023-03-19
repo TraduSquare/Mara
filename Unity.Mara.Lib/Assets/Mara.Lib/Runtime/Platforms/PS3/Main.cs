@@ -70,6 +70,12 @@ namespace Mara.Lib.Platforms.PS3
                 var xdelta = $"{tempFolder}{Path.DirectorySeparatorChar}{files.ListXdeltaFiles[i]}";
 
                 var outFile = $"{m_GamePath}{Path.DirectorySeparatorChar}{files.ListOriFiles[i]}";
+                
+                if(Titleid.Equals("NPUB31791")){
+                    oriFile = oriFile.Replace("LINKDATA_EU_A", "LINKDATA_NA_A");
+                    outFile = oriFile;
+                }
+                
                 var folderFile = Path.GetDirectoryName(outFile);
                 if (!Directory.Exists(folderFile))
                     Directory.CreateDirectory(folderFile);
