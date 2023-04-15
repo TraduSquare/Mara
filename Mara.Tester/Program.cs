@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using Mara.Lib.Common.IO;
 
 namespace Mara.Tester
 {
@@ -8,7 +10,7 @@ namespace Mara.Tester
         static void Main(string[] args)
         {
             Console.WriteLine("MARA TESTER - A simple GUI to test platform patches. DO NOT USE FOR FINAL RELEASES!");
-            if (args.Length != 4)
+            /*if (args.Length != 4)
                 PrintInfo();
 
             // Check ori folder
@@ -21,7 +23,7 @@ namespace Mara.Tester
 
             // Check zip file
             if (!CheckDirectoryOrFile(args[3], false))
-                return;
+                return;*/
 
             switch (args[0].ToUpper())
             {
@@ -34,10 +36,63 @@ namespace Mara.Tester
                 case "Switch":
                     ImportSwitch(args[1], args[2], args[3], args[4], args[5]);
                     break;
+                case "PS3":
+                    var raps = Directory.GetFiles(args[5], "*.rap", SearchOption.AllDirectories);
+                    var devkey = StringToByteArrayFastest(args[6]);
+                    ImportPs3(args[1], args[2], args[3], args[4], raps, devkey);
+                    break;
+                case "UWU":
+                    var romfs = Directory.GetFiles(args[1], "*.owo", SearchOption.AllDirectories);
+                    List<OWO> m_owos = new List<OWO>();
+                    foreach (var romf in romfs)
+                    {
+                        OWO o = new OWO(romf);
+                        m_owos.Add(o);
+                    }
+                    Mara.Lib.Common.IO.Utils.WriteUWU("output.uwu", m_owos.ToArray(), true);
+                    break;
+                case "OWOE":
+                    var uwu = Utils.ReadUWU(args[1]);
+                    int meme = 0;
+                    foreach (var VARIABLE in uwu.m_entry)
+                    {
+                        File.WriteAllBytes($"file_{meme}.OWO", VARIABLE.m_data);
+                        meme++;
+                    }
+                    break;
+                case "OWO":
+                    Utils.WriteRomfs(args[1]);
+                    break;
                 default:
                     PrintInfo();
                     break;
             }
+        }
+        
+        private static byte[] StringToByteArrayFastest(string hex) {
+            if (hex.Length % 2 == 1)
+                throw new Exception("The binary key cannot have an odd number of digits");
+
+            byte[] arr = new byte[hex.Length >> 1];
+
+            for (int i = 0; i < hex.Length >> 1; ++i)
+            {
+                arr[i] = (byte)((GetHexVal(hex[i << 1]) << 4) + (GetHexVal(hex[(i << 1) + 1])));
+            }
+
+            return arr;
+        }
+        
+        private static int GetHexVal(char hex) {
+            int val = (int)hex;
+            return val - (val < 58 ? 48 : (val < 97 ? 55 : 87));
+        }
+        
+        private static void ImportPs3(string oriFolder, string outFolder, string filePath, string titleid, string[] RAPsfile, byte[] DEVKEY)
+        {
+            Console.Write("PS3 MODE!");
+            var mainPs3 = new Lib.Platforms.PS3.Main(oriFolder, outFolder, filePath, titleid, RAPsfile, DEVKEY, new []{ "" });
+            PrintResult(mainPs3.ApplyTranslation());
         }
 
 

@@ -24,26 +24,26 @@ public class AppLoaderReverse
         hash.doInit(calculatedHash);
     }
 
-    public (byte[],byte[]) doUpdate(byte[] i, int inOffset, int outOffset, int len)
+    public (byte[], byte[]) doUpdate(byte[] i, int inOffset, int outOffset, int len)
     {
         var encrypted = dec.doUpdate(i, inOffset, outOffset, len);
         var hashg = hash.doUpdate(encrypted);
-        return (encrypted,hashg);
+        return (encrypted, hashg);
     }
 
-    public (byte[],byte[]) doAll(int hashFlag, int cryptoFlag, byte[] data, int inOffset, int outOffset, int len,
+    public (byte[], byte[]) doAll(int hashFlag, int cryptoFlag, byte[] data, int inOffset, int outOffset, int len,
         byte[] key, byte[] iv, byte[] hash, byte[] expectedHash, int hashOffset, int keyIndex)
     {
         byte[] _hash, encrypted;
         doInit(hashFlag, cryptoFlag, key, iv, hash, keyIndex);
-        (encrypted,_hash) = doUpdate(data, inOffset, outOffset, len);
+        (encrypted, _hash) = doUpdate(data, inOffset, outOffset, len);
         _hash = doFinal();
-        return (encrypted,_hash);
+        return (encrypted, _hash);
     }
 
     private byte[] doFinal()
     {
-        return this.hash.doFinalButGetHash();
+        return hash.doFinalButGetHash();
     }
 
     private void setDecryptor(int cryptoFlag)
@@ -87,7 +87,7 @@ public class AppLoaderReverse
     private (byte[], byte[]) getCryptoKeys(int cryptoFlag, byte[] key, byte[] iv,
         int keyIndex)
     {
-        var mode = (int) (cryptoFlag & 0xF0000000);
+        var mode = (int)(cryptoFlag & 0xF0000000);
         switch (mode)
         {
             case 268435456:
@@ -108,7 +108,7 @@ public class AppLoaderReverse
 
     private byte[] getHashKeys(int hashFlag, byte[] hash, int keyIndex)
     {
-        var mode = (int) (hashFlag & 0xF0000000);
+        var mode = (int)(hashFlag & 0xF0000000);
         switch (mode)
         {
             case 268435456:

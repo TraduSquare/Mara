@@ -4,6 +4,7 @@ using LibHac;
 using LibHac.Common;
 using LibHac.Fs.Fsa;
 using Mara.Lib.Common;
+using Mara.Lib.Common.IO;
 
 namespace Mara.Lib.Platforms.Switch;
 
@@ -18,6 +19,42 @@ public class Main : PatchProcess
     public GameCard XCI;
 
     public Main(string oriFolder, string outFolder, string filePath, string Keys, string TitleID,
+        string UpdateFile = null, bool extractExefs = false, bool checkSignature = true, bool buildromfs = true) : base(
+        oriFolder, outFolder, filePath)
+    {
+        titleid = TitleID;
+        horizon = new HOS(Keys, checkSignature);
+        NeedExefs = extractExefs;
+        BuildRomfs = buildromfs;
+        if (oriFolder.Contains(".nsp"))
+        {
+            NSP = new PartitionFS(oriFolder);
+            if (UpdateFile != null)
+                NCAS = new NCA(horizon, NSP.MountPFS0(horizon, "base"),
+                    new PartitionFS(UpdateFile).MountPFS0(horizon, "Update"));
+            else
+                NCAS = new NCA(horizon, NSP.MountPFS0(horizon, "base"));
+        }
+        else if (oriFolder.Contains(".xci"))
+        {
+            XCI = new GameCard(horizon, oriFolder);
+            if (UpdateFile != null)
+                NCAS = new NCA(horizon, XCI.MountGameCard(horizon),
+                    new PartitionFS(UpdateFile).MountPFS0(horizon, "Update"));
+            else
+                NCAS = new NCA(horizon, XCI.MountGameCard(horizon));
+        }
+        else
+        {
+            throw new Exception("Unrecognized file.");
+        }
+
+        var rc = NCAS.MountProgram(horizon, titleid);
+        if (rc.IsFailure())
+            throw new Exception("Unable to mount the NCAS.");
+    }
+    
+    public Main(string oriFolder, string outFolder, OWO filePath, string Keys, string TitleID,
         string UpdateFile = null, bool extractExefs = false, bool checkSignature = true, bool buildromfs = true) : base(
         oriFolder, outFolder, filePath)
     {
@@ -137,10 +174,10 @@ public class Main : PatchProcess
             var romfs = new Romfs(Path.Combine(romfs_romdir, "romfs"));
             if (romfs.DumpToFile(Path.Combine(layeredOut, "romfs.bin")) != Result.Success)
                 throw new Exception("Failed to build the romfs.bin");
-            var filesize = (int) new FileInfo(Path.Combine(layeredOut, "romfs.bin")).Length;
+            var filesize = (int)new FileInfo(Path.Combine(layeredOut, "romfs.bin")).Length;
             if (filesize / 1024d / 1024d > 2048)
             {
-                SplitFile.Split(Path.Combine(layeredOut, "romfs.bin"), filesize, Path.Combine(layeredOut, "romfs.bin"));
+                Utils.SplitFile(Path.Combine(layeredOut, "romfs.bin"), filesize, Path.Combine(layeredOut, "romfs.bin"));
                 File.Delete(Path.Combine(layeredOut, "romfs-bin"));
             }
         }

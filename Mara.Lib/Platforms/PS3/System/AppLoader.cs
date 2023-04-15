@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Mara.Lib.Platforms.PS3.Crypto;
 
 namespace Mara.Lib.Platforms.PS3.System;
@@ -21,6 +22,8 @@ public class AppLoader
     {
         doInit(hashFlag, cryptoFlag, key, iv, hash, keyIndex);
         var meme = doUpdate(data, inOffset, outOffset, len);
+        if (!doFinal(expectedHash))
+            return null;
         return meme;
     }
 
@@ -50,20 +53,17 @@ public class AppLoader
     private (byte[], byte[]) getCryptoKeys(int cryptoFlag, byte[] key, byte[] iv,
         int keyIndex)
     {
-        var mode = (int) (cryptoFlag & 0xF0000000);
+        var mode = (int)(cryptoFlag & 0xF0000000);
         switch (mode)
         {
             case 268435456:
                 var dec = Utils.aescbcDecrypt(EDAT_Keys.EDATKEY[keyIndex], EDAT_Keys.EDATIV[keyIndex], key);
                 return (dec, iv);
-                break;
             case 536870912:
                 return (EDAT_Keys.EDATKEY[keyIndex], EDAT_Keys.EDATIV[keyIndex]);
-                break;
             case 0:
                 Console.WriteLine("MODE: Unencrypted ERK");
                 return (key, iv);
-                break;
             default:
                 throw new NotSupportedException();
         }
@@ -71,7 +71,7 @@ public class AppLoader
 
     private byte[] getHashKeys(int hashFlag, byte[] hash, int keyIndex)
     {
-        var mode = (int) (hashFlag & 0xF0000000);
+        var mode = (int)(hashFlag & 0xF0000000);
         switch (mode)
         {
             case 268435456:
@@ -127,8 +127,15 @@ public class AppLoader
         }
     }
 
+    public bool doFinal(byte[] expectedHash)
+    {
+        var res = hash.doFinal();
+        if (hashDebug || res.SequenceEqual(expectedHash)) return true;
+        return false;
+    }
+
     public byte[] doFinalButGetHash()
     {
-        return this.hash.doFinalButGetHash();
+        return hash.doFinalButGetHash();
     }
 }

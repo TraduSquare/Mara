@@ -32,7 +32,7 @@ public class PartitionFS
         var tikfound = false;
         var fs = hos.horizon.Fs;
         using var PFS0_FS = new UniqueRef<IFileSystem>(PFS0);
-        fs.Register(mountname.ToU8Span(), ref PFS0_FS.Ref());
+        fs.Register(mountname.ToU8Span(), ref PFS0_FS.Ref);
 
         foreach (var entry in fs.EnumerateEntries(mountname + ":/", "*.tik", SearchOptions.Default))
         {

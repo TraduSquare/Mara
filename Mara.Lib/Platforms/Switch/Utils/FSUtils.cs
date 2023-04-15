@@ -15,7 +15,7 @@ internal class FSUtils
     public static Result MountFolder(FileSystemClient fs, string path, string mountname)
     {
         using var LocalFS = new UniqueRef<IFileSystem>(new LocalFileSystem(path));
-        return fs.Register(mountname.ToU8Span(), ref LocalFS.Ref());
+        return fs.Register(mountname.ToU8Span(), ref LocalFS.Ref);
     }
 
     public static Result CopyFile(FileSystemClient fs, string srcPath, string dstPath)
@@ -41,14 +41,14 @@ internal class FSUtils
                 rc = fs.GetFileSize(out var fileSize, sourceHandle);
                 if (rc.IsFailure()) return rc;
 
-                var bufferSize = (int) Math.Min(maxBufferSize, fileSize);
+                var bufferSize = (int)Math.Min(maxBufferSize, fileSize);
 
                 var buffer = ArrayPool<byte>.Shared.Rent(bufferSize);
                 try
                 {
                     for (long offset = 0; offset < fileSize; offset += bufferSize)
                     {
-                        var toRead = (int) Math.Min(fileSize - offset, bufferSize);
+                        var toRead = (int)Math.Min(fileSize - offset, bufferSize);
                         var buf = buffer.AsSpan(0, toRead);
 
                         rc = fs.ReadFile(out var _, sourceHandle, offset, buf);

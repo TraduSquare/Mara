@@ -85,7 +85,7 @@ public static class Utils
             input = XOR(input, K2);
         }
 
-        var a = (byte[]) (object) new sbyte[16];
+        var a = (byte[])(object)new sbyte[16];
         previous = aesecbEncrypt(key, input);
         return previous;
     }
@@ -102,7 +102,7 @@ public static class Utils
         var aux = new BigInteger(L, false, true);
         if (aux < 0)
             aux = new BigInteger(L, true, true);
-        
+
         if ((L[0] & 0x80) != 0x0)
         {
             aux = aux << 1;
@@ -149,7 +149,7 @@ public static class Utils
 
         return (K1, K2);
     }
-    
+
     public static (byte[], byte[]) calculateSubkeyCMAC(byte[] key)
     {
         var K1 = new byte[16];
@@ -162,7 +162,7 @@ public static class Utils
         var aux = new BigInteger(L, false, true);
         if (aux < 0)
             aux = new BigInteger(L, true, true);
-        
+
         if ((L[0] & 0x80) != 0x0)
         {
             aux = aux << 1;
@@ -214,7 +214,7 @@ public static class Utils
     {
         var output = new byte[inputA.Length];
 
-        for (var i = 0; i < inputB.Length; ++i) output[i] = (byte) (inputA[i] ^ inputB[i]);
+        for (var i = 0; i < inputB.Length; ++i) output[i] = (byte)(inputA[i] ^ inputB[i]);
 
         return output;
     }
@@ -223,7 +223,7 @@ public static class Utils
     {
         var array = new byte[input.Length];
 
-        for (var i = 0; i < input.Length; ++i) array[i] = (byte) (input[i] ^ number);
+        for (var i = 0; i < input.Length; ++i) array[i] = (byte)(input[i] ^ number);
 
         return array;
     }
@@ -261,7 +261,7 @@ public static class Utils
     public static byte[] charsToByte(char[] b)
     {
         var c = new byte[b.Length];
-        for (var i = 0; i < b.Length; ++i) c[i] = (byte) b[i];
+        for (var i = 0; i < b.Length; ++i) c[i] = (byte)b[i];
         return c;
     }
 }

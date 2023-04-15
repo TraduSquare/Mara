@@ -47,7 +47,7 @@ public class GameCard
             if (Gamecard.Header.SignatureValidity == Validity.Invalid)
                 throw new Exception("Invalid GameCard Signature.");
         using var HFS0 = new UniqueRef<IFileSystem>(Gamecard.OpenPartition(XciPartitionType.Secure));
-        fs.Register(mountname.ToU8Span(), ref HFS0.Ref());
+        fs.Register(mountname.ToU8Span(), ref HFS0.Ref);
 
         return mountname + ":/";
     }

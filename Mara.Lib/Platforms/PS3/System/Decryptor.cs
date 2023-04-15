@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using System.Security.Cryptography;
 
 namespace Mara.Lib.Platforms.PS3.System;

@@ -21,12 +21,12 @@ public class HMAC : IHash
 
     public override byte[] doFinal()
     {
-        throw new NotImplementedException();
+        return result;
     }
 
     public override byte[] doFinalButGetHash()
     {
-        throw new NotImplementedException();
+        return result;
     }
 }
 
@@ -66,7 +66,7 @@ public class CMAC : IHash
 
         byte[] aux;
         int i;
-        for (i = 0; i < finaldata.Length - 16; i+=16)
+        for (i = 0; i < finaldata.Length - 16; i += 16)
         {
             aux = new byte[16];
             Array.Copy(finaldata, i, aux, 0, aux.Length);

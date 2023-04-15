@@ -100,11 +100,11 @@ internal class Signatures
 
     public static Result CheckDeviceID(ulong deviceid)
     {
-        var fab = (uint) (deviceid >> 50) & 0x3F;
-        var clot0 = (uint) (deviceid >> 24) & 0x3FFFFFF;
-        var wafer = (uint) (deviceid >> 18) & 0x3F;
-        var x_coord = (uint) (deviceid >> 9) & 0x1FF;
-        var y_coord = (int) (deviceid >> 0) & 0x1FF;
+        var fab = (uint)(deviceid >> 50) & 0x3F;
+        var clot0 = (uint)(deviceid >> 24) & 0x3FFFFFF;
+        var wafer = (uint)(deviceid >> 18) & 0x3F;
+        var x_coord = (uint)(deviceid >> 9) & 0x1FF;
+        var y_coord = (int)(deviceid >> 0) & 0x1FF;
 
         if (fab != 25)
             return new Result(0x12DA);

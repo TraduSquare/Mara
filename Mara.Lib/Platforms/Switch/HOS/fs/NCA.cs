@@ -51,8 +51,8 @@ public class NCA
                             using var RomFS =
                                 new UniqueRef<IFileSystem>(OpenFileSystemByType(NcaSectionType.Data, BaseNcas[i]));
 
-                            fs.Register("exefs".ToU8Span(), ref ExeFS.Ref());
-                            fs.Register("romfs".ToU8Span(), ref RomFS.Ref());
+                            fs.Register("exefs".ToU8Span(), ref ExeFS.Ref);
+                            fs.Register("romfs".ToU8Span(), ref RomFS.Ref);
 
                             return Result.Success;
                         }
@@ -68,8 +68,8 @@ public class NCA
                         using var RomFS =
                             new UniqueRef<IFileSystem>(OpenFileSystemByType(NcaSectionType.Data, BaseNcas[i]));
 
-                        fs.Register("exefs".ToU8Span(), ref ExeFS.Ref());
-                        fs.Register("romfs".ToU8Span(), ref RomFS.Ref());
+                        fs.Register("exefs".ToU8Span(), ref ExeFS.Ref);
+                        fs.Register("romfs".ToU8Span(), ref RomFS.Ref);
 
                         return Result.Success;
                     }
