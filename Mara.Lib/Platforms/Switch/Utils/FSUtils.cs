@@ -15,7 +15,7 @@ internal class FSUtils
     public static Result MountFolder(FileSystemClient fs, string path, string mountname)
     {
         using var LocalFS = new UniqueRef<IFileSystem>(new LocalFileSystem(path));
-        return fs.Register(mountname.ToU8Span(), ref LocalFS.Ref());
+        return fs.Register(mountname.ToU8Span(), ref LocalFS.Ref);
     }
 
     public static Result CopyFile(FileSystemClient fs, string srcPath, string dstPath)
