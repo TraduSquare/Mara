@@ -69,6 +69,11 @@ public class SteamUtils
         return Path.Combine(GetSteamPath(), "config", "libraryfolders.vdf");
     }
 
+    public static string GetUserDataFolderPath()
+    {
+        return Path.Combine(GetSteamPath(), "userdata");
+    }
+
     public string GetGameFolderPath(string FolderName)
     {
         foreach (var library in GetSteamLibraries())
