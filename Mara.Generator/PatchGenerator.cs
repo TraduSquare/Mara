@@ -59,7 +59,7 @@ namespace Mara.Generator
                     if (!md5.Equals(keypair.Value))
                     {
                         list.Add(keypair.Key);
-                        listMODmd5.Add(keypair.Value);
+                        listMODmd5.Add(md5);
                     }
                 }
                 else
