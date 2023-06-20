@@ -25,21 +25,101 @@ namespace Mara.Generator
         {
             var files = GetListModFiles();
             config.FilesInfo ??= new PatchFilesInfo();
-            config.FilesInfo.ListOriFiles = files;
-            config.FilesInfo.ListXdeltaFiles = GenerateXdeltas(files);
-            config.FilesInfo.ListMd5Files = GenerateMd5(files);
+            config.FilesInfo.ListOriFiles = files.Item1;
+            config.FilesInfo.ListCopyFiles = files.Item2;
+            config.FilesInfo.ListXdeltaFiles = GenerateXdeltas(files.Item1);
+            config.FilesInfo.ListMd5Files = files.Item3;
             return config;
         }
 
-        private string[] GetListModFiles()
+        private (string[], string[], string[], string[]) GetListModFiles()
         {
+            var listMOD = Directory.GetFiles(ModPath, "*.*", SearchOption.AllDirectories);
+            var listOri = Directory.GetFiles(OriPath, "*.*", SearchOption.AllDirectories);
+            Dictionary<string, string> modfiles = new Dictionary<string, string>();
+            Dictionary<string, string> orifiles = new Dictionary<string, string>();
+            List<string> list = new List<string>();
+            List<string> Copylist = new List<string>();
+            List<string> listMODmd5 = new List<string>();
+
+            foreach (var filepath in listMOD)
+            {
+                modfiles.Add(filepath.Replace(ModPath + "\\", ""), GenerateMd5(filepath));
+            }
+            foreach (var filepath in listOri)
+            {
+                orifiles.Add(filepath.Replace(OriPath + "\\", ""), GenerateMd5(filepath));
+            }
+
+            foreach (var keypair in modfiles)
+            {
+                orifiles.TryGetValue(keypair.Key, out string md5);
+                if (!string.IsNullOrEmpty(md5))
+                {
+                    if (!md5.Equals(keypair.Value))
+                    {
+                        list.Add(keypair.Key);
+                        listMODmd5.Add(keypair.Value);
+                    }
+                }
+                else
+                {
+                    Copylist.Add(keypair.Key);
+                    string path = $"{OutPath}{Path.DirectorySeparatorChar}{keypair.Key}";
+                    if (!File.Exists(path))
+                    {
+                        if (!Directory.Exists(Directory.GetParent(path).ToString()))
+                            Directory.CreateDirectory(Directory.GetParent(path).ToString());
+                        File.Copy($"{ModPath}{Path.DirectorySeparatorChar}{keypair.Key}", path);
+                    }
+                        
+                }
+            }
+
+            /*List<string> list = new List<string>();
+            List<string> Copylist = new List<string>();
+            for (int i = 0; i < listMOD.Length; i++)
+            {
+                bool found = false;
+                var a = listMOD[i].Replace(ModPath + "\\", "");
+                for (int j = 0; j < listOri.Length; j++)
+                {
+                    var b = listOri[j].Replace(OriPath + "\\", "");
+                    if (a.Contains(b))
+                    {
+                        found = true;
+                        if (!listMODmd5[i]
+                            .Equals(listOrimd5[j]))
+                        {
+                            list.Add(a);
+                        }
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    Copylist.Add(a);
+                }
+            }*/
+
+            return (list.ToArray(), Copylist.ToArray(), listMODmd5.ToArray(), listOri);
+        }
+        
+        private string[] GetListCopyModFiles()
+        {
+            List<string> files = new List<string>();
             var list = Directory.GetFiles(ModPath, "*.*", SearchOption.AllDirectories);
             for (int i = 0; i < list.Length; i++)
             {
                 list[i] = list[i].Replace(ModPath+"\\", "");
+                if (!File.Exists($"{OriPath}{Path.DirectorySeparatorChar}{list[i]}"))
+                {
+                    files.Add(list[i]);
+                }
             }
 
-            return list;
+            return files.ToArray();
         }
 
 
@@ -88,12 +168,15 @@ namespace Mara.Generator
 
             for (int i = 0; i < files.Length; i++)
             {
-
-                if (File.Exists($"{ModPath}{Path.DirectorySeparatorChar}{files[i]}") && File.Exists($"{OriPath}{Path.DirectorySeparatorChar}{files[i]}"))
-                    m5.Add(Md5.CalculateMd5($"{OriPath}{Path.DirectorySeparatorChar}{files[i]}"));
+                m5.Add(Md5.CalculateMd5(files[i]));
             }
 
             return m5.ToArray();
+        }
+        
+        private string GenerateMd5(string files)
+        {
+            return Md5.CalculateMd5(files);
         }
     }
 }
