@@ -1,5 +1,8 @@
+using System;
 using System.IO;
 using System.Linq;
+using Mara.Lib.Common.IO;
+using UnityEngine;
 
 namespace Mara.Lib.Platforms.Generic
 {
@@ -8,7 +11,10 @@ namespace Mara.Lib.Platforms.Generic
         public Main(string oriFolder, string outFolder, string filePath) : base(oriFolder, outFolder, filePath)
         {
         }
-
+        
+        public Main(string oriFolder, string outFolder, OWO filePath) : base(oriFolder, outFolder, filePath)
+        {
+        }
 
         public override (int, string) ApplyTranslation()
         {
@@ -34,7 +40,25 @@ namespace Mara.Lib.Platforms.Generic
                 if (result.Item1 != 0)
                     return result;
             }
-
+            
+            // Copy Files
+            for (var i = 0; i < files.ListCopyFiles.Length; i++)
+            {
+                var oriFile = $"{tempFolder}{Path.DirectorySeparatorChar}{files.ListCopyFiles[i]}";
+                var outFile = $"{oriFolder}{Path.DirectorySeparatorChar}{files.ListCopyFiles[i]}";
+                var folderFile = Path.GetDirectoryName(outFile);
+                
+                Debug.Log($"Copiando: {oriFile}");
+                
+                if (!Directory.Exists(folderFile))
+                    Directory.CreateDirectory(folderFile);
+                
+                if(File.Exists(outFile))
+                    File.Delete(outFile);
+                
+                File.Copy(oriFile, outFile);
+            }
+            
             return base.ApplyTranslation();
         }
 
