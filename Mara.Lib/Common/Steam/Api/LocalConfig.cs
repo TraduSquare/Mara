@@ -37,7 +37,7 @@ namespace Mara.Lib.Common.Steam.Api;
 
         private string CreateLocalConfigPath(string _userId) {
             string file = Path.Combine(steam_userdata_location, _userId);
-            file = Path.Combine(file, @"config\localconfig.vdf");
+            file = Path.Combine(file, $@"config{Path.DirectorySeparatorChar}localconfig.vdf");
             return file;
         }
 
