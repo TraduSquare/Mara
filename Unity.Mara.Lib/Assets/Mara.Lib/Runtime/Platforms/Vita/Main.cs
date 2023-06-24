@@ -70,6 +70,9 @@ namespace Mara.Lib.Platforms.Vita
                 var outFile = $"{oriFolder}{Path.DirectorySeparatorChar}{files.ListCopyFiles[i]}";
                 var folderFile = Path.GetDirectoryName(outFile);
 
+                if (outFile.StartsWith("GAME"))
+                    outFile = Path.Combine(oriFolder, "rePatch", outFile);
+
                 if (!Directory.Exists(folderFile))
                     Directory.CreateDirectory(folderFile);
                 
