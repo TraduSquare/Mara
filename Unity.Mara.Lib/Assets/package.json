@@ -1,6 +1,6 @@
 {
     "name": "com.unity.mara.lib",
-    "version": "1.7.2",
+    "version": "1.7.3",
     "displayName": "Mara Lib",
     "description": "A tool/Lib to generate patches and patch games on multiple platforms.",
     "unity": "2021.3",
