@@ -168,6 +168,21 @@ public class Main : PatchProcess
             UnmountPartition("exefs");
             UnmountPartition("OutExefs");
         }
+        
+        foreach (var t in files.ListCopyFiles)
+        {
+            var oriFile = $"{tempFolder}{Path.DirectorySeparatorChar}{t}";
+            var outFile = $"{oriFolder}{Path.DirectorySeparatorChar}{t}";
+            var folderFile = Path.GetDirectoryName(outFile);
+
+            if (!Directory.Exists(folderFile))
+                Directory.CreateDirectory(folderFile);
+                
+            if(File.Exists(outFile))
+                File.Delete(outFile);
+                
+            File.Copy(oriFile, outFile);
+        }
 
         if (BuildRomfs)
         {

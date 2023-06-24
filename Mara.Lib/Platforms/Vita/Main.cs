@@ -67,6 +67,21 @@ namespace Mara.Lib.Platforms.Vita
                 if (result.Item1 != 0)
                     return result;
             }
+            
+            foreach (var t in files.ListCopyFiles)
+            {
+                var oriFile = $"{tempFolder}{Path.DirectorySeparatorChar}{t}";
+                var outFile = $"{oriFolder}{Path.DirectorySeparatorChar}{t}";
+                var folderFile = Path.GetDirectoryName(outFile);
+
+                if (!Directory.Exists(folderFile))
+                    Directory.CreateDirectory(folderFile);
+                
+                if(File.Exists(outFile))
+                    File.Delete(outFile);
+                
+                File.Copy(oriFile, outFile);
+            }
 
             return base.ApplyTranslation();
         }
