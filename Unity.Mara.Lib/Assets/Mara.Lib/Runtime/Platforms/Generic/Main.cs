@@ -47,9 +47,7 @@ namespace Mara.Lib.Platforms.Generic
                 var oriFile = $"{tempFolder}{Path.DirectorySeparatorChar}{files.ListCopyFiles[i]}";
                 var outFile = $"{oriFolder}{Path.DirectorySeparatorChar}{files.ListCopyFiles[i]}";
                 var folderFile = Path.GetDirectoryName(outFile);
-                
-                Debug.Log($"Copiando: {oriFile}");
-                
+
                 if (!Directory.Exists(folderFile))
                     Directory.CreateDirectory(folderFile);
                 
